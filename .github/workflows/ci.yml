@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Revisar la sintaxis Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DavidAnson/markdownlint-cli2-action@v24
+        with:
+          globs: "**/*.md"
+
+  release:
+    name: Generar y publicar la release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pandoc/actions/setup@v1
+      - uses: typst-community/setup-typst@v5
+      - name: Instalar Graphviz y rsvg-convert para los diagramas
+        run: sudo apt-get update && sudo apt-get install -y graphviz librsvg2-bin
+      - name: Generar el curso
+        run: bash scripts/build.sh "$GITHUB_REF_NAME"
+      - name: Crear la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "outputs/curso-de-git-y-github-$GITHUB_REF_NAME.docx#Curso de Git y GitHub $GITHUB_REF_NAME (Word)" \
+            "outputs/curso-de-git-y-github-$GITHUB_REF_NAME.pdf#Curso de Git y GitHub $GITHUB_REF_NAME (PDF)" \
+            --title "Curso de Git y GitHub $GITHUB_REF_NAME" \
+            --generate-notes
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: outputs
+
+  pages:
+    name: Publicar la web en GitHub Pages
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v5

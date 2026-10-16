@@ -1,0 +1,159 @@
+# Curso de Git y GitHub
+
+Curso práctico de Git y GitHub basado en la construcción de un proyecto real de principio a fin: un **Manual de Git** escrito en Markdown. Cada capítulo del libro recoge lo aprendido en el curso, un script lo convierte a Word, PDF y HTML con Pandoc, y GitHub Actions publica automáticamente cada versión como una Release y como una web en GitHub Pages.
+
+## Módulos
+
+1. [Introducción y primeros pasos](modulos/01-introducción-y-primeros-pasos.md): qué son Git y GitHub, instalación, terminal y configuración.
+2. [Control de versiones en local](modulos/02-control-de-versiones-en-local.md): repositorio, staging, commits, deshacer cambios, `.gitignore` y el script del libro.
+3. [Viajes en el tiempo y puntos de guardado](modulos/03-viajes-en-el-tiempo-y-puntos-de-guardado.md): checkout, reset, reflog y etiquetas.
+4. [Ramificación y fusiones](modulos/04-ramificación-y-fusiones.md): ramas, merge, conflictos y stash.
+5. [GitHub y trabajo remoto](modulos/05-github-y-trabajo-remoto.md): SSH, push, fetch, pull y clone.
+6. [Trabajo colaborativo y open source](modulos/06-trabajo-colaborativo-y-open-source.md): forks, pull requests, sincronización y Markdown.
+7. [Flujos de trabajo y comandos avanzados](modulos/07-flujos-de-trabajo-y-comandos-avanzados.md): GUIs, GitFlow, GitHub flow, cherry-pick y rebase.
+8. [GitHub Actions](modulos/08-github-actions.md): integración y despliegue continuos, workflows, actions del Marketplace, permisos, tareas programadas, GitHub Pages y publicación de versiones.
+9. [Anexo: dependencias de los ejemplos](modulos/09-anexo-dependencias-de-los-ejemplos.md): instalación de Pandoc y Typst, necesarios solo para generar el libro.
+
+## Qué se construye
+
+Al terminar el curso tendrás en GitHub un repositorio `manual-git` con esta estructura:
+
+```text
+manual-git/
+├── README.md
+├── metadata.yaml
+├── build.sh
+├── .gitignore
+├── .markdownlint.jsonc
+├── capitulos/
+│   ├── 01-que-es-git.md
+│   ├── 02-primeros-comandos.md
+│   ├── 03-ramas.md
+│   ├── 04-historial.md
+│   ├── 05-github.md
+│   ├── 06-flujos-de-trabajo.md
+│   └── 07-comandos-avanzados.md
+└── .github/
+    └── workflows/
+        ├── ci.yml
+        └── enlaces.yml
+```
+
+- `capitulos/` contiene el libro, un fichero Markdown por capítulo.
+- `build.sh` genera el libro en Word, PDF y HTML con Pandoc.
+- `.github/workflows/ci.yml` revisa la sintaxis Markdown en cada cambio y, al crear una etiqueta de versión, publica una Release con el Word y el PDF, y la versión HTML en GitHub Pages.
+- `.github/workflows/enlaces.yml` comprueba cada semana que los enlaces del libro siguen funcionando y abre un issue si alguno falla.
+
+## Requisitos
+
+- Un ordenador con Linux, macOS o Windows. En Windows se usa Git Bash, que se instala con Git.
+- Una cuenta gratuita en [GitHub](https://github.com), a partir del módulo 5.
+- Un editor de texto. Los ejemplos usan [VS Code](https://code.visualstudio.com) (comando `code`), pero sirve cualquiera.
+- Para generar el libro en local, Pandoc y, opcionalmente, Typst (ver el anexo). No son necesarios para aprender Git.
+- Para el módulo 6, idealmente, un compañero o compañera con quien colaborar.
+
+## Generar el curso
+
+Este repositorio funciona igual que el ejemplo del curso: los módulos están en Markdown, un script los convierte a Word, PDF y HTML, y GitHub Actions los revisa y los publica.
+
+```text
+curso-git/
+├── README.md
+├── .gitignore
+├── .markdownlint.jsonc
+├── .github/workflows/ci.yml
+├── modulos/
+│   ├── 01-introducción-y-primeros-pasos.md
+│   ├── ...
+│   └── 09-anexo-dependencias-de-los-ejemplos.md
+├── pandoc/
+│   ├── metadata.yaml
+│   ├── diagramas.lua
+│   └── enlaces-internos.lua
+├── scripts/
+│   └── build.sh
+└── outputs/
+    └── .gitkeep
+```
+
+- `modulos/` contiene el curso. Los ficheros se ordenan por su número, que es el orden en el que aparecen en el documento generado. Para añadir un módulo basta con crear un fichero nuevo con el número que le corresponda.
+- `pandoc/metadata.yaml` define el título y el idioma del documento, y `pandoc/enlaces-internos.lua` convierte los enlaces entre módulos en enlaces dentro del documento.
+- `pandoc/diagramas.lua` convierte los diagramas del historial, escritos en texto dentro de los módulos, en imágenes SVG (ver [Diagramas](#diagramas)).
+- `scripts/build.sh` genera el curso en `outputs/`.
+- `outputs/` solo guarda en Git el fichero `.gitkeep`, para que la carpeta exista. Todo lo que se genera dentro está en el `.gitignore`.
+
+### En local
+
+Instala Pandoc y, para el PDF, Typst (ver el [anexo](modulos/09-anexo-dependencias-de-los-ejemplos.md)). Los diagramas necesitan además Graphviz y, para que el Word incluya una copia en PNG para los programas que no muestran SVG, `rsvg-convert`:
+
+- Linux (Debian/Ubuntu): `sudo apt install graphviz librsvg2-bin`
+- macOS: `brew install graphviz librsvg`
+- Windows: `winget install Graphviz.Graphviz`. `rsvg-convert` es opcional: sin él, el Word lleva solo los SVG, que Word muestra sin problemas.
+
+Después, ejecuta desde cualquier carpeta:
+
+```bash
+scripts/build.sh
+```
+
+El script genera en `outputs/` estos ficheros, con la fecha y la hora de generación delante del nombre:
+
+- `YYYYMMDD_HHmm Curso de Git y GitHub.docx`
+- `YYYYMMDD_HHmm Curso de Git y GitHub.pdf` (solo si Typst está instalado)
+- `index.html`, la versión web del curso
+
+Si le pasas una versión, el script usa un nombre convencional asociado a esa versión, que es lo que hace el CI al publicar una Release:
+
+```bash
+scripts/build.sh v1.0.0
+```
+
+Genera `curso-de-git-y-github-v1.0.0.docx` y `curso-de-git-y-github-v1.0.0.pdf`, además del `index.html`.
+
+### En GitHub
+
+El workflow `.github/workflows/ci.yml` hace dos cosas:
+
+- En cada push y en cada pull request, revisa la sintaxis de todos los ficheros Markdown con markdownlint, usando las reglas de `.markdownlint.jsonc`.
+- Al subir una etiqueta que empieza por `v`, genera el curso con el nombre de la etiqueta (`curso-de-git-y-github-v1.0.0.docx` y `.pdf`), crea una Release con los dos ficheros adjuntos y publica la versión web en GitHub Pages.
+
+Para publicar una versión:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+El workflow instala Graphviz y `rsvg-convert` antes de generar el curso.
+
+Antes de la primera publicación hay que activar Pages en _Settings_ → _Pages_ → _Source_: **GitHub Actions**, y permitir las etiquetas `v*` en _Settings_ → _Environments_ → _github-pages_, como se explica en el apartado 8.6.
+
+## Diagramas
+
+Los diagramas del historial se escriben dentro de los módulos, en bloques de código `dot` (el lenguaje de [Graphviz](https://graphviz.org)). Al generar el curso, `pandoc/diagramas.lua` les aplica los colores y el estilo común y los convierte en SVG, que se ven igual en Word, PDF y HTML. Cada bloque es un grafo de Graphviz completo, así que la vista previa del editor dibuja la misma disposición, aunque sin colores. En la vista previa de GitHub se ve el código, no el dibujo.
+
+````markdown
+```{.dot caption="Pie de la figura" alt="Descripción para lectores de pantalla"}
+digraph {
+  rankdir=BT
+  node [shape=box, style=rounded, group=principal]
+  edge [weight=50]
+  c1 [label="Añade el README del libro"]; c2 [label="Añade el capítulo 1: qué es Git"]
+  c1 -> c2
+  node [shape=plaintext, group=""]
+  main [class=rama]; HEAD [class=head]
+  { rank=same; c2 -> main -> HEAD [class=ref dir=back] }
+}
+```
+````
+
+- Las tres primeras líneas son iguales en todos los diagramas del historial: dibujan de abajo arriba, como `git tree`, con los commits en caja y alineados. El filtro ignora las líneas `node [...]` y aplica su propio estilo.
+- Cada nodo con caja es un commit, con su mensaje completo en `label` (`\n` parte una línea larga). Se escribe `padre -> hijo`, y la flecha va del commit anterior al siguiente. Si el texto del apartado muestra el hash de un commit (en una salida de `git log`, `git reflog`, etc.), la etiqueta empieza por ese hash (`label="5e7b3a2 Añade…"`) y el filtro lo escribe en gris; si no, el commit va sin hash.
+- Las referencias se declaran después de `node [shape=plaintext, group=""]`, con `class=rama`, `class=remota`, `class=head` o `class=etiqueta`, y salen como texto en color. `{ rank=same; c2 -> main -> HEAD [class=ref dir=back] }` las coloca en la fila de su commit, a la derecha, con las flechas hacia el commit. Para ponerlas a la izquierda se escriben al revés y con `dir=forward`: `{ rank=same; HEAD -> main -> c2 [class=ref dir=forward] }`.
+- Cuando dos commits de ramas distintas quedan en la misma fila, `{ rank=same; a -> b [style=invis] }` fija que `a` vaya a la izquierda de `b`. Las referencias del commit de la izquierda se ponen a su izquierda, para que no queden entre las dos ramas.
+- `group=<nombre>` alinea en columna los commits de cada rama cuando hay varias.
+- `class=huerfano` marca en gris un commit que no está en ninguna rama (o la flecha que lleva a él), y `class=copia` une un commit con su copia (cherry-pick, rebase).
+- `class=nota` es texto sin caja, como el `…` que indica que hay commits anteriores, `class=repo` y `class=accion` sirven para los diagramas de repositorios remotos, y `class=zona` dibuja un recuadro rectangular que no es un commit, como las zonas de Git en 2.2.
+- Dos `subgraph cluster_… { label="Antes" … }` dibujan un «antes y después»; el filtro los apila en el orden en que se escriben. Las referencias de cada cluster van dentro de él.
+
+La lista completa de macros está al principio de `pandoc/diagramas.lua`. Cada diagrama debe coincidir con lo que `git tree` muestra en ese punto del ejemplo.

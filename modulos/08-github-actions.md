@@ -1,0 +1,551 @@
+# Módulo 8: GitHub Actions (Automatización y CI/CD)
+
+Hasta ahora, el libro se ha revisado y generado a mano. En este módulo, GitHub se encarga de esas tareas: revisa la sintaxis de los capítulos en cada pull request, publica una Release con el Word y el PDF y una web con la versión HTML cada vez que se crea una etiqueta de versión, y comprueba cada semana que los enlaces del libro siguen funcionando.
+
+## 8.1 ¿Qué es GitHub Actions?
+
+**GitHub Actions** es el sistema de automatización de GitHub. Ejecuta tareas en máquinas de GitHub cuando ocurre algo en el repositorio (un push, un pull request, una etiqueta nueva…) o en momentos programados. Se usa sobre todo para dos prácticas:
+
+- **Integración continua** (_continuous integration_, CI): comprobar automáticamente cada cambio antes de integrarlo, con tests, compilación o revisiones de estilo. En el libro, la revisión de la sintaxis Markdown.
+- **Despliegue continuo** (_continuous deployment_, CD): publicar automáticamente el resultado cuando un cambio está listo. En el libro, las Releases y la web.
+
+Además, sirve para cualquier tarea repetitiva: revisar enlaces, etiquetar issues, generar informes, etc. Sus piezas son:
+
+- **Workflow**: un proceso automático, definido en un fichero YAML dentro de la carpeta `.github/workflows/` del repositorio.
+- **Evento**: lo que dispara el workflow, como un `push`, un pull request, una etiqueta nueva o una hora programada.
+- **Job**: un conjunto de pasos que se ejecuta en una máquina. Un workflow puede tener varios jobs, en paralelo o encadenados.
+- **Step**: cada paso de un job. Puede ser un comando de terminal (`run`) o una **action** (`uses`), un bloque reutilizable que alguien ha publicado para una tarea común.
+- **Runner**: la máquina virtual en la que se ejecuta un job. GitHub la crea limpia para cada ejecución y la destruye al terminar.
+
+El diagrama muestra cómo encajan estas piezas en el workflow que se construye en este módulo:
+
+```{.dot caption="Piezas de un workflow de GitHub Actions" alt="Un evento, como un push o un pull request, dispara el workflow ci.yml. El workflow tiene dos jobs, lint y release, cada uno en su propio runner y con su lista de steps. release empieza cuando lint ha terminado"}
+digraph {
+  rankdir=TB
+  compound=true
+  newrank=true
+  labelloc=t
+  node [shape=box]
+  evento [class=zona label="Evento: push, pull request, etiqueta…"]
+  subgraph cluster_workflow {
+    label="Workflow: .github/workflows/ci.yml"
+    subgraph cluster_lint {
+      label="Job lint (runner Ubuntu)"
+      l1 [class=zona label="Step: descarga el repositorio"]
+      l2 [class=zona label="Step: revisa la sintaxis"]
+      l1 -> l2 [class=accion]
+    }
+    subgraph cluster_release {
+      label="Job release (otro runner Ubuntu)"
+      r1 [class=zona label="Step: instala Pandoc y Typst"]
+      r2 [class=zona label="Step: genera el libro"]
+      r3 [class=zona label="Step: crea la Release"]
+      r1 -> r2 -> r3 [class=accion]
+    }
+  }
+  evento -> l1 [class=accion lhead=cluster_workflow]
+  { rank=same; l1 -> r1 [class=accion label="  después  " ltail=cluster_lint lhead=cluster_release] }
+}
+```
+
+GitHub ofrece runners con Ubuntu (`ubuntu-latest`), Windows (`windows-latest`) y macOS (`macos-latest`), y cada job elige el suyo. Linux es el más rápido y el que se usa casi siempre; Windows y macOS sirven para probar programas en esos sistemas. En los repositorios públicos, los runners estándar son gratuitos y sin límite de minutos. En los privados, cada cuenta tiene una cantidad de minutos gratuitos al mes, y los runners de Windows y macOS gastan esos minutos más deprisa que los de Linux.
+
+## 8.2 Creación del primer workflow
+
+Como cualquier cambio del libro, el CI se prepara en una rama, con GitHub flow:
+
+```bash
+cd ~/proyectos/manual-git
+git switch main
+git pull
+git switch -c ci
+```
+
+Los workflows se guardan en la carpeta `.github/workflows/` del repositorio, un fichero YAML por workflow. GitHub ejecuta todos los que encuentra en esa carpeta, y el nombre del fichero es libre. Crea el primero:
+
+```bash
+mkdir -p .github/workflows
+code .github/workflows/ci.yml
+```
+
+Este primer workflow solo revisa la sintaxis de los ficheros Markdown. Escribe este contenido:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    name: Revisar la sintaxis Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DavidAnson/markdownlint-cli2-action@v24
+        with:
+          globs: "**/*.md"
+```
+
+Los dos apartados siguientes explican cada línea. Todavía no hagas commit.
+
+## 8.3 Estructura y sintaxis básica de un workflow
+
+YAML es un formato de texto para datos estructurados, pensado para que lo escriban personas. Basta con conocer tres reglas:
+
+- Cada línea `clave: valor` define un dato. El valor puede ser un texto, un número o un bloque de líneas más sangradas.
+- La sangría indica qué va dentro de qué. Se hace siempre con espacios, nunca con tabuladores, y todas las líneas de un mismo nivel deben tener la misma sangría.
+- Las líneas que empiezan por `-` son elementos de una lista. `[main]` es la misma lista escrita en una sola línea, y `#` empieza un comentario.
+
+Las claves principales de un workflow son:
+
+- `name`: el nombre del workflow, el que aparece en la pestaña _Actions_ de GitHub.
+- `on`: los eventos que lo disparan. Aquí, un `push` a `main` (lo que ocurre al fusionar un pull request) y cualquier pull request, cada vez que se abre o se actualiza.
+- `jobs`: los jobs del workflow. `lint` es el identificador del job, el que se usa para referirse a él desde otros jobs, y `name` su nombre visible.
+- `runs-on`: el runner en el que se ejecuta el job.
+- `steps`: la lista de pasos, que se ejecutan en orden. Si uno falla, los siguientes no se ejecutan y el job termina con error.
+
+## 8.4 Uso de actions de GitHub y de la comunidad (Marketplace)
+
+Los dos pasos del job usan `uses`, que ejecuta una action. Una action es un bloque reutilizable publicado en un repositorio de GitHub, y se indica con la forma `propietario/repositorio@versión`. En el [Marketplace](https://github.com/marketplace?type=actions) hay miles, para casi cualquier tarea. Antes de usar una, conviene comprobar quién la publica (las de GitHub están en la organización `actions`, y las de empresas verificadas llevan una insignia), que esté mantenida y que tenga buena documentación.
+
+- `actions/checkout@v7`, publicada por GitHub, descarga el repositorio en el runner. El runner empieza vacío, así que casi todos los workflows empiezan con este paso.
+- `DavidAnson/markdownlint-cli2-action@v24`, publicada por el autor de markdownlint, ejecuta [markdownlint](https://github.com/DavidAnson/markdownlint), una herramienta que comprueba que los ficheros Markdown siguen unas reglas de estilo.
+
+`with` pasa parámetros a la action. Cada action documenta los suyos en la página de su repositorio. Aquí, `globs` indica qué ficheros revisar: todos los `.md` del repositorio, en cualquier carpeta.
+
+La versión que sigue a `@` es una etiqueta del repositorio de la action. Una etiqueta como `@v7` sigue automáticamente la última versión 7.x, que recibe correcciones sin cambios incompatibles, y es lo que recomienda la documentación oficial. En proyectos con requisitos de seguridad estrictos se fija en su lugar el identificador completo del commit de la action (`@<sha>`), para que nadie pueda cambiar lo que se ejecuta.
+
+Las reglas de markdownlint se configuran en un fichero `.markdownlint.jsonc` en la raíz del repositorio. Créalo con este contenido:
+
+```jsonc
+{
+  // Párrafos en una sola línea, sin límite de longitud
+  "MD013": false,
+  // Cursivas con _
+  "MD049": { "style": "underscore" },
+  // Viñetas con -
+  "MD004": { "style": "dash" }
+}
+```
+
+Por defecto, markdownlint aplica unas 50 reglas (títulos rodeados de líneas en blanco, bloques de código con lenguaje, un solo título de nivel 1, etc.). Este fichero desactiva el límite de longitud de línea y fija el estilo de cursivas y viñetas del libro. Si tienes [Node.js](https://nodejs.org) instalado, puedes ejecutar la misma revisión en local con `npx markdownlint-cli2 "**/*.md"`.
+
+Guarda los dos ficheros y sube la rama:
+
+```bash
+git add -A
+git commit -m "Añade el CI con la revisión de sintaxis"
+git push -u origin ci
+```
+
+Abre el pull request en GitHub, como en el apartado 7.2. Esta vez, al final de la página, junto al botón _Merge pull request_, aparece una sección de comprobaciones (_checks_) con _CI / Revisar la sintaxis Markdown_: un círculo amarillo mientras se ejecuta y un check verde al terminar. La pestaña _Checks_ del pull request muestra el detalle. Esta es la gran ventaja del CI en un pull request: antes de fusionar, cualquiera ve si el cambio cumple las reglas del proyecto.
+
+Fusiona el pull request, borra la rama en GitHub y actualiza tu copia local:
+
+```bash
+git switch main
+git pull --prune
+git branch -d ci
+```
+
+Al fusionar, el push a `main` dispara de nuevo el workflow. En la pestaña _Actions_ del repositorio verás dos ejecuciones: la del pull request y la de `main`.
+
+## 8.5 Ejecución de scripts y comandos en la máquina virtual
+
+El siguiente paso es publicar cada versión del libro. Prepara el cambio en una rama nueva:
+
+```bash
+git switch -c publicacion
+```
+
+Abre `.github/workflows/ci.yml`. Primero, añade las etiquetas de versión a los eventos, para que el workflow también se ejecute al subir una etiqueta que empiece por `v`:
+
+```yaml
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+```
+
+Después, añade al final un segundo job, `release`, al mismo nivel que `lint`:
+
+```yaml
+  release:
+    name: Generar y publicar la release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pandoc/actions/setup@v1
+      - uses: typst-community/setup-typst@v5
+      - name: Generar el libro
+        run: bash build.sh "$GITHUB_REF_NAME"
+      - name: Crear la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.docx dist/*.pdf --title "Manual de Git $GITHUB_REF_NAME" --generate-notes
+```
+
+Este job usa `run`, que ejecuta comandos en la terminal del runner (bash, en Ubuntu), igual que en tu ordenador:
+
+- Los tres primeros pasos preparan la máquina: descargan el repositorio e instalan Pandoc y Typst con sus actions oficiales. En el runner no hay que instalar nada a mano, igual que en el anexo de dependencias pero de forma automática.
+- `Generar el libro` ejecuta el mismo `build.sh` del apartado 2.5. `name` da a cada paso un nombre legible en los registros. Se lanza con `bash build.sh` en lugar de `./build.sh` para no depender del permiso de ejecución, que se pierde si alguien edita el script desde Windows.
+- `Crear la release` usa `gh`, la CLI oficial de GitHub, que viene instalada en los runners. Crea una Release con el nombre de la etiqueta, le adjunta el `.docx` y el `.pdf`, y `--generate-notes` escribe automáticamente las notas con los cambios y los pull requests desde la versión anterior.
+
+Los comandos pueden usar información del evento:
+
+- `$GITHUB_REF_NAME` es una variable de entorno que GitHub define en todos los runners. Cuando el evento es una etiqueta, contiene su nombre (por ejemplo, `v1.1.0`), así que los ficheros se llamarán `manual-git-v1.1.0.docx` y `manual-git-v1.1.0.pdf`.
+- `${{ github.token }}` es una _expresión_: GitHub la sustituye por su valor antes de ejecutar el paso. Aquí, un token temporal que permite a `gh` actuar sobre el repositorio. `env` lo pasa al paso como variable de entorno, que es donde `gh` lo busca.
+
+Las dos claves nuevas del principio del job controlan cuándo se ejecuta:
+
+- `if` pone una condición: el job solo se ejecuta si el evento es una etiqueta que empieza por `v`. En un push a `main` o en un pull request, aparece como omitido (_skipped_).
+- `needs: lint` encadena los jobs: `release` espera a que `lint` termine bien. Así, nunca se publica un libro con errores de sintaxis. Sin `needs`, los dos jobs se ejecutarían a la vez.
+
+El bloque `permissions` se explica en el apartado siguiente, junto con el último job del workflow.
+
+## 8.6 Configuración de permisos y publicación en GitHub Pages
+
+Cada ejecución recibe un token temporal, el mismo de `${{ github.token }}`, con el que el workflow actúa sobre el repositorio. `permissions` limita lo que puede hacer ese token, y es una buena práctica de seguridad darle solo lo imprescindible: si una action se comportara mal, no podría hacer más daño que el que permiten sus permisos. Se puede definir para todo el workflow y ampliar en cada job. Añade debajo de `on`, antes de `jobs`, el permiso global de solo lectura:
+
+```yaml
+permissions:
+  contents: read
+```
+
+El job `release` amplía ese permiso con `contents: write`, porque necesita crear la Release.
+
+El último job publica la versión HTML del libro en **GitHub Pages**, el servicio de alojamiento web gratuito de GitHub. Pages sirve sitios estáticos (HTML, CSS, JavaScript e imágenes, sin base de datos ni código de servidor) en una dirección como `https://<usuario>.github.io/<repositorio>/`. El contenido puede salir directamente de una rama del repositorio o, como aquí, de un workflow que genera los ficheros y los despliega. Se usa mucho para documentación, blogs y páginas de proyectos.
+
+Añade al final de los pasos de `release` uno que empaquete la carpeta `dist`, donde `build.sh` deja el `index.html`, como la web que se publicará:
+
+```yaml
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+```
+
+Y añade al final del fichero el job `pages`:
+
+```yaml
+  pages:
+    name: Publicar la web en GitHub Pages
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v5
+```
+
+Este job espera a `release` y despliega en GitHub Pages el paquete que acaba de subir:
+
+- Necesita los permisos `pages: write`, para publicar, e `id-token: write`, con el que Pages comprueba que el despliegue viene de este workflow.
+- Se ejecuta en el entorno (_environment_) `github-pages`, que GitHub crea al activar Pages. La línea `url` hace que la dirección de la web aparezca en el resumen de la ejecución: `steps.despliegue.outputs.page_url` es un dato que devuelve el paso con `id: despliegue`.
+- `concurrency` evita que haya dos despliegues de Pages a la vez: si se publican dos etiquetas seguidas, el segundo despliegue espera en cola y el que está en marcha no se cancela.
+
+`release` y `pages` van en dos jobs separados porque son dos tareas distintas: publicar ficheros descargables (la Release) y desplegar un sitio web (Pages). El diagrama muestra cómo se encadenan los tres jobs según el evento:
+
+```{.dot caption="Jobs del workflow CI según el evento" alt="Un push a main o un pull request solo ejecuta lint, y release y pages se omiten. Una etiqueta v ejecuta lint, después release y después pages"}
+digraph {
+  rankdir=LR
+  node [shape=box]
+  cambio [class=zona label="Push a main\no pull request"]
+  etiqueta [class=zona label="Etiqueta v*\n(por ejemplo, v1.1.0)"]
+  lint1 [class=zona label="lint"]
+  omitidos [class=nota label="release y pages\nse omiten (if)"]
+  lint2 [class=zona label="lint"]
+  release [class=zona label="release:\nWord, PDF y Release"]
+  pages [class=zona label="pages:\nweb en GitHub Pages"]
+  cambio -> lint1 [class=accion]
+  lint1 -> omitidos [class=accion style=dashed]
+  etiqueta -> lint2 [class=accion]
+  lint2 -> release [class=accion label="  needs  "]
+  release -> pages [class=accion label="  needs  "]
+}
+```
+
+El fichero completo queda así:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Revisar la sintaxis Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DavidAnson/markdownlint-cli2-action@v24
+        with:
+          globs: "**/*.md"
+
+  release:
+    name: Generar y publicar la release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pandoc/actions/setup@v1
+      - uses: typst-community/setup-typst@v5
+      - name: Generar el libro
+        run: bash build.sh "$GITHUB_REF_NAME"
+      - name: Crear la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.docx dist/*.pdf --title "Manual de Git $GITHUB_REF_NAME" --generate-notes
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  pages:
+    name: Publicar la web en GitHub Pages
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v5
+```
+
+Guárdalo e intégralo con GitHub flow:
+
+```bash
+git add -A
+git commit -m "Publica cada versión como Release y en GitHub Pages"
+git push -u origin publicacion
+```
+
+Abre el pull request. En las comprobaciones verás que `lint` pasa y que `release` y `pages` aparecen como omitidos, porque el evento es un pull request y no una etiqueta. Fusiónalo, borra la rama en GitHub y actualiza tu copia:
+
+```bash
+git switch main
+git pull --prune
+git branch -d publicacion
+```
+
+Antes de publicar la primera versión hay que activar Pages en el repositorio. En GitHub, ve a _Settings_ → _Pages_ y, en _Build and deployment_ → _Source_, elige **GitHub Actions**.
+
+Al activar Pages, GitHub crea el entorno `github-pages` con una regla de protección que solo permite desplegar desde la rama por defecto. Este workflow despliega desde etiquetas, así que hay que permitirlas: ve a _Settings_ → _Environments_ → _github-pages_, y en _Deployment branches and tags_ pulsa _Add deployment branch or tag rule_, elige _Ref type: Tag_, escribe el patrón `v*` y guarda. Sin esta regla, el job de Pages fallaría con un mensaje de que la etiqueta no puede desplegar en `github-pages`.
+
+Los permisos de escritura también permiten que un workflow haga commits en el repositorio: por ejemplo, regenerar un fichero de estadísticas y subirlo. Se hace con `contents: write` y una action como [`stefanzweifel/git-auto-commit-action`](https://github.com/stefanzweifel/git-auto-commit-action), que hace commit y push de los cambios que haya dejado el job. Los commits hechos con el token del workflow no disparan otros workflows: así se evita que un workflow que hace commits se dispare a sí mismo sin fin. El libro no necesita commits automáticos, pero conviene conocer la técnica.
+
+## 8.7 Programación de tareas recurrentes (Cron)
+
+Algunas tareas no dependen de los cambios del repositorio. Los enlaces del libro a páginas externas, por ejemplo, pueden dejar de funcionar sin que nadie toque el libro, porque la otra web cambia o desaparece. Para revisarlos hace falta un workflow que se ejecute solo, cada cierto tiempo. Prepáralo en una rama:
+
+```bash
+git switch -c enlaces
+code .github/workflows/enlaces.yml
+```
+
+Con este contenido:
+
+```yaml
+name: Enlaces
+
+on:
+  schedule:
+    # Todos los lunes a las 06:00 (UTC)
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  enlaces:
+    name: Revisar los enlaces
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Comprobar los enlaces
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress "./**/*.md"
+          fail: false
+      - name: Abrir un issue si hay enlaces rotos
+        if: steps.lychee.outputs.exit_code != 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --title "Enlaces rotos" --body-file lychee/out.md
+```
+
+El evento `schedule` ejecuta el workflow en los momentos que indica una expresión **cron**, con cinco campos separados por espacios:
+
+| Campo | Valores | En `0 6 * * 1` |
+| --- | --- | --- |
+| Minuto | 0-59 | 0 |
+| Hora | 0-23 | 6 |
+| Día del mes | 1-31 | cualquiera (`*`) |
+| Mes | 1-12 | cualquiera (`*`) |
+| Día de la semana | 0-6 (0 es domingo) | 1 (lunes) |
+
+Así, `0 0 * * *` sería todos los días a medianoche y `*/15 * * * *`, cada 15 minutos. Hay que tener en cuenta varias particularidades de `schedule`:
+
+- Las horas son siempre UTC, no la hora local.
+- Solo se ejecuta el workflow de la rama por defecto (`main`).
+- En momentos de mucha carga, la ejecución puede retrasarse unos minutos.
+- En los repositorios públicos, GitHub desactiva los workflows programados si el repositorio pasa 60 días sin actividad.
+
+El segundo evento, `workflow_dispatch`, permite lanzar el workflow a mano con un botón en la web, sin esperar al lunes. Es muy útil para probarlo.
+
+El job tiene tres pasos:
+
+- [lychee](https://github.com/lycheeverse/lychee), un comprobador de enlaces, revisa todos los ficheros Markdown y escribe un informe en `lychee/out.md`. `fail: false` evita que el job termine con error cuando encuentra enlaces rotos, porque el objetivo es avisar, no marcar el repositorio en rojo.
+- `id: lychee` da un nombre al paso, y con él el siguiente puede leer sus resultados (_outputs_). `steps.lychee.outputs.exit_code` es el código de salida de lychee, que es distinto de 0 si ha encontrado enlaces rotos.
+- Solo en ese caso, `gh issue create` abre un issue con el informe como descripción. Por eso el workflow pide el permiso `issues: write`.
+
+El diagrama resume el recorrido:
+
+```{.dot caption="Workflow de revisión semanal de enlaces" alt="Cada lunes a las 6:00 UTC, o al pulsar Run workflow, lychee revisa los enlaces. Si hay enlaces rotos, se abre un issue con el informe; si no, el workflow termina sin hacer nada más"}
+digraph {
+  rankdir=LR
+  node [shape=box]
+  lunes [class=zona label="Cada lunes\n06:00 UTC"]
+  boton [class=zona label="Botón\nRun workflow"]
+  lychee [class=zona label="lychee revisa\nlos enlaces"]
+  pregunta [class=zona label="¿Enlaces rotos?"]
+  issue [class=zona label="Abre un issue\ncon el informe"]
+  fin [class=nota label="Termina sin\nhacer nada más"]
+  lunes -> lychee [class=accion]
+  boton -> lychee [class=accion]
+  lychee -> pregunta [class=accion]
+  pregunta -> issue [class=accion label="  sí  "]
+  pregunta -> fin [class=accion label="  no  "]
+}
+```
+
+Mientras no se corrijan los enlaces, cada lunes se abrirá un issue nuevo. Cuando lo arregles, cierra el issue desde su página o desde el pull request con la corrección (escribiendo `Closes #<número>` en su descripción).
+
+Intégralo con GitHub flow:
+
+```bash
+git add -A
+git commit -m "Revisa los enlaces cada semana"
+git push -u origin enlaces
+```
+
+Abre el pull request, fusiónalo, borra la rama y actualiza tu copia:
+
+```bash
+git switch main
+git pull --prune
+git branch -d enlaces
+```
+
+## 8.8 Monitoreo y depuración de Actions
+
+La pestaña _Actions_ del repositorio reúne todas las ejecuciones. A la izquierda están los workflows (_CI_ y _Enlaces_) y, en el centro, la lista de ejecuciones con su estado: un círculo amarillo si está en marcha, un check verde si ha terminado bien y una cruz roja si ha fallado. Al abrir una ejecución se ven sus jobs, unidos por flechas según `needs`, y al abrir un job, el registro (_log_) de cada paso: la misma salida que verías en la terminal del runner.
+
+Prueba el workflow de enlaces sin esperar al lunes. En _Actions_, elige _Enlaces_ a la izquierda y pulsa _Run workflow_ → _Run workflow_. Cuando termine, abre el job y despliega el paso _Comprobar los enlaces_: el registro enumera cada enlace revisado y su resultado. Si alguno estuviera roto, verías también el issue nuevo en la pestaña _Issues_.
+
+Para ver cómo se depura un fallo, introduce un error a propósito en una rama de prueba. Añade al final de `capitulos/05-github.md` una viñeta con asterisco, que incumple la regla MD004:
+
+```bash
+git switch -c prueba-ci
+```
+
+```markdown
+* Una viñeta con el estilo equivocado.
+```
+
+```bash
+git add -A
+git commit -m "Añade una viñeta al capítulo 5"
+git push -u origin prueba-ci
+```
+
+Abre el pull request. Esta vez, la comprobación termina con una cruz roja, el pull request avisa de que hay comprobaciones fallidas y GitHub te envía un correo. Pulsa _Details_ junto a la comprobación (o abre la pestaña _Checks_ del pull request) y despliega el paso de markdownlint: el registro indica el fichero, la línea y la regla incumplida (`MD004/ul-style`). Con esa información, quien envió el cambio sabe exactamente qué corregir antes de que se fusione.
+
+Además de leer el registro, desde la página de la ejecución puedes:
+
+- Pulsar _Re-run jobs_ para repetir la ejecución, entera (_Re-run all jobs_) o solo los jobs que han fallado (_Re-run failed jobs_). Es útil cuando el fallo es puntual (un servidor que no respondía, por ejemplo) y no del código.
+- Activar _Enable debug logging_ al repetirla, para que el registro muestre más detalle.
+
+Como la viñeta era solo una prueba, cierra el pull request sin fusionarlo (_Close pull request_) y borra la rama en GitHub. Después, borra también la rama local. Hace falta `-D`, porque sus cambios no se han fusionado:
+
+```bash
+git switch main
+git pull --prune
+git branch -D prueba-ci
+```
+
+En los proyectos con varias personas, conviene impedir que se fusione un pull request con la comprobación en rojo. Se configura en _Settings_ → _Rulesets_ → _New ruleset_ → _New branch ruleset_: se aplica a la rama por defecto (`main`) y se activa la regla _Require status checks to pass before merging_ con la comprobación del CI.
+
+## 8.9 Publicar una versión
+
+Todo está listo para publicar la versión 1.1.0, que incluye el capítulo 7 y la automatización. Además, el `README.md` mostrará una insignia (_badge_) con el estado del CI. Prepara la versión en una rama:
+
+```bash
+git switch -c version-1.1.0
+```
+
+Cambia en `metadata.yaml` la línea `date` a `Versión 1.1.0` y añade debajo del título del `README.md` esta línea (sustituye `<usuario>` por tu usuario de GitHub):
+
+```markdown
+![CI](https://github.com/<usuario>/manual-git/actions/workflows/ci.yml/badge.svg)
+```
+
+```bash
+git add -A
+git commit -m "Prepara la versión 1.1.0"
+git push -u origin version-1.1.0
+```
+
+Abre el pull request, fusiónalo cuando la comprobación esté en verde y borra la rama. Después, actualiza tu copia, crea la etiqueta de la versión en `main` y súbela:
+
+```bash
+git switch main
+git pull --prune
+git branch -d version-1.1.0
+git tag -a v1.1.0 -m "Versión 1.1.0"
+git push origin v1.1.0
+```
+
+Vuelve a la pestaña _Actions_. Verás una ejecución de _CI_ para la etiqueta `v1.1.0` con los tres jobs encadenados: _Revisar la sintaxis Markdown_, _Generar y publicar la release_ y _Publicar la web en GitHub Pages_. Cuando terminen:
+
+- En la portada del repositorio, en el lateral derecho, aparece la sección _Releases_ con _Manual de Git v1.1.0_. Ábrela: tiene adjuntos `manual-git-v1.1.0.docx` y `manual-git-v1.1.0.pdf`, listos para descargar, y unas notas generadas automáticamente con los cambios.
+- En el job de Pages (o en _Settings_ → _Pages_) aparece la dirección de la web: `https://<usuario>.github.io/manual-git/`. Ábrela y verás el libro completo en HTML, con su índice.
+- La insignia del README muestra _passing_ en verde.
+
+La etiqueta `v1.0.0` no generó ninguna Release porque se subió antes de crear el workflow. Desde ahora, cada etiqueta de versión que subas a GitHub generará automáticamente su Release y actualizará la web.
+
+Con esto hemos recorrido el ciclo completo: escribir en local con Git, colaborar en GitHub, organizar el trabajo con un flujo de ramas y publicar automáticamente. El Manual de Git que has escrito resume todo lo que has aprendido, y cualquiera puede descargarlo, leerlo en la web o proponerte mejoras.

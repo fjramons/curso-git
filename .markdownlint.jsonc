@@ -1,0 +1,8 @@
+{
+  // Párrafos en una sola línea, sin line-wraps
+  "MD013": false,
+  // Cursivas con _
+  "MD049": { "style": "underscore" },
+  // Viñetas con -
+  "MD004": { "style": "dash" }
+}

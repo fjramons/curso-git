@@ -29,6 +29,8 @@ Git permite organizar las ramas con total libertad, y por eso los equipos acuerd
 - `release/<versión>`: prepara una versión (últimos retoques y número de versión). Sale de `develop` y se fusiona en `main` y en `develop`.
 - `hotfix/<versión>`: corrige un error urgente en una versión publicada. Sale de `main` y se fusiona en `main` y en `develop`.
 
+GitFlow lo propuso Vincent Driessen en 2010 en el artículo [A successful Git branching model](https://nvie.com/posts/a-successful-git-branching-model/) (en inglés), que sigue siendo la mejor descripción del flujo.
+
 El diagrama muestra un esquema general de GitFlow, no el historial del libro. Cada rama temporal sale de una rama permanente y vuelve a ella, y `main` solo recibe versiones terminadas:
 
 ```{.dot caption="Esquema general de GitFlow" alt="main solo recibe versiones. develop sale de main y recibe una funcionalidad. Una corrección urgente sale de main, crea la versión 1.0.1 y vuelve también a develop. La release 1.1 sale de develop, crea la versión 1.1 en main y vuelve a develop"}
@@ -70,6 +72,8 @@ Seguir GitFlow con comandos normales de Git exige muchas fusiones, así que exis
 2. Se hacen commits en ella y se sube a GitHub.
 3. Se abre un pull request para que otras personas revisen el cambio.
 4. Cuando el pull request está aprobado, se fusiona en `main` y se borra la rama.
+
+La documentación de GitHub lo describe en [GitHub flow](https://docs.github.com/es/get-started/using-github/github-flow).
 
 Es lo que se hizo en el módulo 6 con el capítulo 5: la rama `capitulo-github`, su pull request y el commit de fusión que GitHub creó en `main`. Así quedó el historial del autor después de descargar la fusión con `git pull`:
 
@@ -363,7 +367,7 @@ git pull --prune
 git branch -d capitulo-avanzados
 ```
 
-La regla de oro del rebase: **no hagas rebase de commits que ya hayas subido y que otras personas puedan estar usando**. Como rebase crea commits nuevos, las demás personas tendrían una historia distinta de la tuya. Úsalo para ordenar tu trabajo local antes de compartirlo, como aquí: la rama `capitulo-avanzados` no se subió a GitHub hasta después del rebase. Si lo que necesitas es deshacer commits que ya están en GitHub, tampoco sirven `rebase` ni `reset`: para eso está `revert`, que se usa en el apartado siguiente.
+La regla de oro del rebase: **no hagas rebase de commits que ya hayas subido y que otras personas puedan estar usando**. Como rebase crea commits nuevos, las demás personas tendrían una historia distinta de la tuya. Úsalo para ordenar tu trabajo local antes de compartirlo, como aquí: la rama `capitulo-avanzados` no se subió a GitHub hasta después del rebase. El capítulo [Reorganizar el trabajo realizado](https://git-scm.com/book/es/v2/Ramificaciones-en-Git-Reorganizar-el-Trabajo-Realizado) de _Pro Git_ explica con más detalle cómo funciona el rebase y cuándo conviene evitarlo. Si lo que necesitas es deshacer commits que ya están en GitHub, tampoco sirven `rebase` ni `reset`: para eso está `revert`, que se usa en el apartado siguiente.
 
 ## 7.4 Deshacer cambios ya publicados (revert)
 

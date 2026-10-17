@@ -2,6 +2,8 @@
 
 Hasta ahora, el trabajo ha avanzado en línea recta, con todos los commits en la rama `main`. Las **ramas** permiten abrir líneas de trabajo paralelas: escribir un capítulo nuevo sin tocar la versión estable del libro, probar ideas o trabajar varias personas a la vez. En este módulo se escriben capítulos en ramas, se fusionan, se resuelve un conflicto y se aparca trabajo a medias.
 
+Las ramas se entienden mucho mejor viéndolas moverse. Si quieres practicar más allá del libro, [Learn Git Branching](https://learngitbranching.js.org/?locale=es_ES) propone ejercicios interactivos en español que dibujan el historial a cada comando que escribes, desde los primeros commits hasta el rebase del módulo 7.
+
 ## 4.1 Creación y movimiento entre ramas
 
 Una rama no es más que un puntero con nombre a un commit, que avanza cada vez que haces un commit en ella. `main` es una rama como cualquier otra. El capítulo 3, dedicado precisamente a las ramas, se escribirá en una rama propia. Créala:

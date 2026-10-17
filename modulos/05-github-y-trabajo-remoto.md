@@ -58,6 +58,8 @@ La primera vez, SSH te preguntará si confías en el servidor `github.com`: escr
 Hi tu-usuario! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
+Si algún paso falla o usas un sistema con particularidades, la guía [Conectar a GitHub con SSH](https://docs.github.com/es/authentication/connecting-to-github-with-ssh) de la documentación de GitHub explica cada paso para Linux, macOS y Windows, y cómo resolver los errores más comunes.
+
 ## 5.2 Conectar el repositorio local con el remoto y primer push
 
 En GitHub, pulsa el botón _+_ de la esquina superior derecha → _New repository_. Llámalo `manual-git`, elige si será público o privado y **no marques** ninguna opción para añadir README, `.gitignore` o licencia: todo eso ya existe en local y hace falta un repositorio remoto vacío. Pulsa _Create repository_.

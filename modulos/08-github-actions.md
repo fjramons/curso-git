@@ -17,6 +17,8 @@ Además, sirve para cualquier tarea repetitiva: revisar enlaces, etiquetar issue
 - **Step**: cada paso de un job. Puede ser un comando de terminal (`run`) o una **action** (`uses`), un bloque reutilizable que alguien ha publicado para una tarea común.
 - **Runner**: la máquina virtual en la que se ejecuta un job. GitHub la crea limpia para cada ejecución y la destruye al terminar.
 
+Este módulo cubre lo necesario para automatizar el libro. Para todo lo demás, la [documentación de GitHub Actions](https://docs.github.com/es/actions) explica cada pieza con ejemplos.
+
 El diagrama muestra cómo encajan estas piezas en el workflow que se construye en este módulo:
 
 ```{.dot caption="Piezas de un workflow de GitHub Actions" alt="Un evento, como un push o un pull request, dispara el workflow ci.yml. El workflow tiene dos jobs, lint y release, cada uno en su propio runner y con su lista de steps. release empieza cuando lint ha terminado"}
@@ -106,6 +108,8 @@ Las claves principales de un workflow son:
 - `jobs`: los jobs del workflow. `lint` es el identificador del job, el que se usa para referirse a él desde otros jobs, y `name` su nombre visible.
 - `runs-on`: el runner en el que se ejecuta el job.
 - `steps`: la lista de pasos, que se ejecutan en orden. Si uno falla, los siguientes no se ejecutan y el job termina con error.
+
+No hace falta recordar todas las claves posibles: la [sintaxis de flujos de trabajo](https://docs.github.com/es/actions/reference/workflows-and-actions/workflow-syntax) de la documentación de GitHub las describe todas.
 
 ## 8.4 Uso de actions de GitHub y de la comunidad (Marketplace)
 
@@ -418,7 +422,7 @@ El evento `schedule` ejecuta el workflow en los momentos que indica una expresi�
 | Mes | 1-12 | cualquiera (`*`) |
 | Día de la semana | 0-6 (0 es domingo) | 1 (lunes) |
 
-Así, `0 0 * * *` sería todos los días a medianoche y `*/15 * * * *`, cada 15 minutos. Hay que tener en cuenta varias particularidades de `schedule`:
+Así, `0 0 * * *` sería todos los días a medianoche y `*/15 * * * *`, cada 15 minutos. Para comprobar una expresión antes de usarla, escríbela en [crontab.guru](https://crontab.guru/), que la traduce a lenguaje natural (en inglés). Hay que tener en cuenta varias particularidades de `schedule`:
 
 - Las horas son siempre UTC, no la hora local.
 - Solo se ejecuta el workflow de la rama por defecto (`main`).
@@ -548,4 +552,4 @@ Vuelve a la pestaña _Actions_. Verás una ejecución de _CI_ para la etiqueta `
 
 La etiqueta `v1.0.0` no generó ninguna Release porque se subió antes de crear el workflow. Desde ahora, cada etiqueta de versión que subas a GitHub generará automáticamente su Release y actualizará la web.
 
-Con esto hemos recorrido el ciclo completo: escribir en local con Git, colaborar en GitHub, organizar el trabajo con un flujo de ramas y publicar automáticamente. El Manual de Git que has escrito resume todo lo que has aprendido, y cualquiera puede descargarlo, leerlo en la web o proponerte mejoras.
+Con esto hemos recorrido el ciclo completo: escribir en local con Git, colaborar en GitHub, organizar el trabajo con un flujo de ramas y publicar automáticamente. El Manual de Git que has escrito resume todo lo que has aprendido, y cualquiera puede descargarlo, leerlo en la web o proponerte mejoras. Cuando necesites recordar un comando o profundizar en un tema, el [Anexo: referencias útiles](10-anexo-referencias-útiles.md) recopila todos los recursos citados en el curso.

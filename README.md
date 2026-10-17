@@ -13,6 +13,7 @@ Curso práctico de Git y GitHub basado en la construcción de un proyecto real d
 7. [Flujos de trabajo y comandos avanzados](modulos/07-flujos-de-trabajo-y-comandos-avanzados.md): GUIs, GitFlow, GitHub flow, cherry-pick, rebase y revert.
 8. [GitHub Actions](modulos/08-github-actions.md): integración y despliegue continuos, workflows, actions del Marketplace, permisos, tareas programadas, GitHub Pages y publicación de versiones.
 9. [Anexo: dependencias de los ejemplos](modulos/09-anexo-dependencias-de-los-ejemplos.md): instalación de Pandoc y Typst, necesarios solo para generar el libro.
+10. [Anexo: referencias útiles](modulos/10-anexo-referencias-útiles.md): recopilación de los recursos citados en el curso (Git, GitHub, Markdown y GitHub Actions).
 
 ## Qué se construye
 
@@ -65,7 +66,8 @@ curso-git/
 ├── modulos/
 │   ├── 01-introducción-y-primeros-pasos.md
 │   ├── ...
-│   └── 09-anexo-dependencias-de-los-ejemplos.md
+│   ├── 09-anexo-dependencias-de-los-ejemplos.md
+│   └── 10-anexo-referencias-útiles.md
 ├── pandoc/
 │   ├── metadata.yaml
 │   ├── diagramas.lua

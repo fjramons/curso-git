@@ -44,3 +44,8 @@
 // debajo, sin negrita. La portada y el índice los añade portada.lua.
 #show outline.entry.where(level: 1): set block(above: 1.1em)
 #show outline.entry.where(level: 1): set text(weight: "bold")
+
+// Enlaces: las URL visibles (autoenlaces <https://…>) se cortan sin añadir
+// guiones, y con las reglas del inglés, que no repiten el guion de la URL al
+// principio de la línea siguiente. Así se pueden copiar tal cual del PDF.
+#show link: set text(hyphenate: false, lang: "en")

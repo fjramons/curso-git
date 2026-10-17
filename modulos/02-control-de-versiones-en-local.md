@@ -55,6 +55,8 @@ digraph {
 }
 ```
 
+El libro se escribe en **Markdown**, un formato de texto plano en el que unos pocos símbolos indican el formato: `#` para los títulos, `**` para la negrita, `-` para las listas… Su sintaxis se explica con detalle en el apartado 6.3, pero no hace falta esperar ni memorizarla: la _Markdown Guide_ (<https://www.markdownguide.org>) la explica paso a paso y su hoja de referencia (<https://www.markdownguide.org/cheat-sheet>) la resume en una página. Consúltala siempre que dudes de cómo dar formato a algo.
+
 Abre `README.md` con tu editor (por ejemplo, `code README.md` si usas VS Code) y escribe una presentación del libro:
 
 ```markdown
@@ -315,7 +317,7 @@ Cada línea es un patrón: `dist/` ignora la carpeta completa, `*` es un comodí
 git status
 ```
 
-`dist/` ha desaparecido de la lista. Ahora sí, guarda el script, los metadatos y el propio `.gitignore`, que también debe versionarse para que se aplique en cualquier copia del proyecto:
+`dist/` ha desaparecido de la lista. No hace falta escribir los `.gitignore` desde cero: GitHub mantiene en [github/gitignore](https://github.com/github/gitignore) plantillas para casi cualquier lenguaje, editor y sistema operativo, que puedes copiar y adaptar. Ahora sí, guarda el script, los metadatos y el propio `.gitignore`, que también debe versionarse para que se aplique en cualquier copia del proyecto:
 
 ```bash
 git add -A
@@ -350,4 +352,4 @@ Cuando estés conforme, guarda el cambio:
 git commit -m "Añade el origen de Git al capítulo 1"
 ```
 
-Ya sabes crear un repositorio, guardar cambios, deshacerlos, leer el historial y generar el libro. El siguiente módulo explica cómo viajar por ese historial.
+Ya sabes crear un repositorio, guardar cambios, deshacerlos, leer el historial y generar el libro. Con los comandos de este módulo se resuelve buena parte del trabajo diario con Git; si olvidas alguno, búscalo en la [hoja de referencia de Git](https://git-scm.com/cheat-sheet) del apartado 1.2. El siguiente módulo explica cómo viajar por ese historial.

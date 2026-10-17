@@ -72,6 +72,8 @@ cd ~/proyectos/manual-git
 git pull
 ```
 
+Si quieres repetir este proceso con un proyecto real, el repositorio [First Contributions](https://github.com/firstcontributions/first-contributions) está pensado precisamente para hacer un primer pull request: explica paso a paso, también en español, cómo hacer un fork, un cambio y un pull request que alguien revisará de verdad.
+
 ## 6.2 Sincronización de forks (Sync fork) y resolución de conflictos en la web
 
 Un fork es una copia independiente: cuando el repositorio original avanza, el fork no se actualiza solo. Ahora mismo, la rama `main` del fork del colaborador no tiene el commit de fusión del PR ni los cambios que el autor haya hecho después. Antes de empezar una contribución nueva, el colaborador debe poner su fork al día, o trabajará sobre una versión antigua y tendrá más conflictos.
@@ -135,6 +137,8 @@ Si el conflicto es complejo, GitHub te pedirá que lo resuelvas en local: trae l
 
 **Markdown** es un lenguaje de marcado ligero: texto plano con unos pocos símbolos que indican el formato. Es fácil de leer incluso sin convertir, funciona muy bien con Git (los diffs muestran exactamente qué ha cambiado, cosa que no ocurre con un `.docx`) y GitHub lo muestra con formato automáticamente. Por eso el `README.md` es la portada de cualquier repositorio, y por eso el libro está escrito en Markdown.
 
+Como con los comandos de Git, no hace falta memorizar la sintaxis: la [Markdown Guide](https://www.markdownguide.org/) explica cada elemento con ejemplos y su [hoja de referencia](https://www.markdownguide.org/cheat-sheet/) los resume en una página.
+
 Esta es la sintaxis que más usarás:
 
 ````markdown
@@ -175,7 +179,7 @@ Algunos detalles importantes:
 
 - Los títulos estructuran el documento. En el libro, cada capítulo empieza con un único título de nivel 1 (`#`), que Pandoc convierte en un capítulo y usa para construir el índice.
 - Indica siempre el lenguaje de los bloques de código (`bash`, `yaml`, `markdown`…). GitHub y Pandoc lo usan para colorear la sintaxis.
-- GitHub añade extras a Markdown, como listas de tareas (`- [ ] Pendiente` y `- [x] Hecho`) y avisos (`> [!NOTE]`). Pandoc también tiene los suyos, como las notas al pie (`Texto[^1]` y, más abajo, `[^1]: Contenido de la nota`). Úsalos con cuidado si quieres que el texto se vea igual en los dos sitios.
+- GitHub añade extras a Markdown, como listas de tareas (`- [ ] Pendiente` y `- [x] Hecho`) y avisos (`> [!NOTE]`). Pandoc también tiene los suyos, como las notas al pie (`Texto[^1]` y, más abajo, `[^1]: Contenido de la nota`). Úsalos con cuidado si quieres que el texto se vea igual en los dos sitios. Los extras de GitHub se explican en [Escritura en GitHub](https://docs.github.com/es/get-started/writing-on-github), dentro de su documentación.
 
 Ahora toca aplicarlo para que el `README.md` del libro sea una buena portada. **Autor**: antes de editar, trae a tu copia local los commits que hiciste en la web en el apartado anterior. Si no, tu `main` y el de GitHub divergirán y GitHub rechazará el `git push`:
 
@@ -225,3 +229,5 @@ git push
 ```
 
 Abre el repositorio en GitHub y verás el README con formato debajo de la lista de ficheros. Mientras escribes, puedes ver una vista previa de cualquier fichero Markdown en VS Code con `Ctrl+Shift+V` (`Cmd+Shift+V` en macOS).
+
+Además del README, los proyectos de código abierto suelen tener un fichero `LICENSE` con la licencia, que indica qué pueden hacer otras personas con el contenido: copiarlo, modificarlo, publicarlo… Sin licencia, nadie tiene permiso legal para reutilizar el proyecto aunque sea público. El libro del curso no la necesita, pero si publicas un proyecto propio, [choosealicense.com](https://choosealicense.com/), de GitHub, te ayuda a elegir la adecuada.

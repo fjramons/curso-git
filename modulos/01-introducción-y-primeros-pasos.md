@@ -72,6 +72,16 @@ git -h
 
 Los dos muestran los comandos más comunes de Git agrupados por tarea. También puedes pedir la ayuda de un comando concreto, por ejemplo `git commit -h` (resumen breve) o `git help commit` (manual completo).
 
+Que Git tenga cientos de opciones no significa que haya que aprenderlas todas. A lo largo del curso verás muchos comandos, pero no hace falta memorizarlos: lo importante es entender qué hace cada uno y cuándo conviene usarlo. Unos pocos (`git status`, `git add`, `git commit`, `git log`, `git switch`, `git pull` y `git push`) se usan a diario y acabarás sabiéndolos de memoria sin proponértelo. Del resto basta con saber que existen y para qué sirven; la sintaxis exacta se consulta cuando hace falta, igual que hacen los profesionales.
+
+Para esas consultas tienes estas referencias. Guarda sus direcciones en los marcadores del navegador:
+
+- **Hoja de referencia de Git** (_cheat sheet_), en <https://git-scm.com/cheat-sheet>. Reúne en una sola página los comandos más habituales, agrupados por tarea. Tenla abierta o imprímela mientras sigues el curso.
+- **Web oficial de Git**, en <https://git-scm.com>. Incluye la documentación de cada comando, en <https://git-scm.com/docs>, y el libro gratuito _Pro Git_, traducido al español, en <https://git-scm.com/book/es/v2>, para profundizar en cualquier tema.
+- **Documentación de GitHub**, en <https://docs.github.com/es>. Explica en español todo lo que ofrece GitHub (<https://github.com>): cuentas, repositorios, pull requests, GitHub Actions… Será útil a partir del módulo 5.
+
+Estas y el resto de referencias que aparecen en el curso están recopiladas en el [Anexo: referencias útiles](10-anexo-referencias-útiles.md).
+
 Con esto ya tienes todo lo necesario para usar Git. Para seguir el ejemplo del curso, en el que el libro se convierte a Word, PDF y HTML, necesitarás además dos herramientas que no tienen nada que ver con Git: **Pandoc** y, opcionalmente, **Typst**. Instálalas siguiendo el [Anexo: dependencias de los ejemplos](09-anexo-dependencias-de-los-ejemplos.md) antes de llegar al apartado 2.5.
 
 ## 1.3 Navegación básica por la terminal

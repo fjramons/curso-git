@@ -128,6 +128,8 @@ git reset --hard HEAD~1
 
 Recuerda: `reflog` es local (no se sube a GitHub) y Git lo limpia pasados unos 90 días. Es una red de seguridad, no un sustituto de hacer commits.
 
+Cuando algo sale mal con Git, lo más probable es que a muchas personas les haya pasado antes. La web [Oh Shit, Git!?!](https://ohshitgit.com/es), en español, recoge las situaciones más habituales (un commit en la rama equivocada, un mensaje mal escrito, un fichero olvidado…) y el comando exacto para arreglar cada una.
+
 ## 3.3 Deshacer un commit sin reescribir el historial (`revert`)
 
 `reset` hace que los commits desaparezcan de la rama: reescribe el historial. Mientras esos commits solo estén en tu ordenador no pasa nada, pero a partir del módulo 5 el libro estará en GitHub y otras personas tendrán copias del historial. Si un commit que ya tienen otras personas desaparece de tu rama, tu historia y la suya dejan de coincidir.

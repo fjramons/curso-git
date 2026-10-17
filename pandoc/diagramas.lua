@@ -271,6 +271,27 @@ end
 -- se reducen para que quepan.
 local ANCHO_MAXIMO = 430
 
+-- En la web (HTML), el SVG va dentro de la página: así no depende de
+-- ficheros aparte y el CSS de la web lo puede adaptar al modo oscuro. Se
+-- quitan la cabecera XML y los <title> (que Graphviz pone con el nombre
+-- interno de cada nodo y el navegador mostraría al pasar el ratón), y los
+-- id se prefijan con el hash del diagrama para que no se repitan entre los
+-- diagramas de una misma página.
+local function svg_en_linea(svg, alt, prefijo)
+  local function atributo(texto)
+    return (texto:gsub('&', '&amp;'):gsub('"', '&quot;'):gsub('<', '&lt;'):gsub('>', '&gt;'))
+  end
+  svg = svg:gsub('<%?xml.-%?>', '')
+    :gsub('<!DOCTYPE.->', '')
+    :gsub('<!%-%-.-%-%->', '')
+    :gsub('<title>.-</title>', '')
+    :gsub('(%sid=")', '%1' .. prefijo .. '-')
+    :gsub('url%(#', 'url(#' .. prefijo .. '-')
+    :gsub('(href=")#', '%1#' .. prefijo .. '-')
+    :gsub('<svg', '<svg class="diagrama" role="img" aria-label="' .. atributo(alt) .. '"', 1)
+  return svg:match('^%s*(.-)%s*$')
+end
+
 function CodeBlock(bloque)
   if not bloque.classes:includes('dot') then
     return nil
@@ -289,11 +310,20 @@ function CodeBlock(bloque)
       .. primera .. '»:\n' .. tostring(svg))
   end
 
-  local nombre = 'diagramas/' .. pandoc.sha1(fuente) .. '.svg'
-  pandoc.mediabag.insert(nombre, 'image/svg+xml', svg)
-
   local pie = bloque.attributes.caption or ''
   local alt = bloque.attributes.alt or pie
+
+  if FORMAT:match('html') then
+    local contenido = svg_en_linea(svg, alt, 'd' .. pandoc.sha1(fuente):sub(1, 8))
+    return pandoc.Figure(
+      pandoc.Plain({ pandoc.RawInline('html', contenido) }),
+      pandoc.Blocks(pie ~= '' and { pandoc.Plain(pandoc.read(pie, 'markdown-smart').blocks[1].content) } or {}),
+      pandoc.Attr(bloque.identifier, { 'diagrama' })
+    )
+  end
+
+  local nombre = 'diagramas/' .. pandoc.sha1(fuente) .. '.svg'
+  pandoc.mediabag.insert(nombre, 'image/svg+xml', svg)
   local atributos = {}
   local ancho = tonumber(svg:match('<svg[^>]-width="([%d.]+)pt"'))
   if ancho and ancho > ANCHO_MAXIMO then

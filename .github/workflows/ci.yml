@@ -30,6 +30,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: pandoc/actions/setup@v1
       - uses: typst-community/setup-typst@v5
+      - uses: quarto-dev/quarto-actions/setup@v2
       - name: Instalar Graphviz y rsvg-convert para los diagramas
         run: sudo apt-get update && sudo apt-get install -y graphviz librsvg2-bin
       - name: Generar el curso
@@ -45,7 +46,7 @@ jobs:
             --generate-notes
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: outputs
+          path: outputs/web
 
   pages:
     name: Publicar la web en GitHub Pages

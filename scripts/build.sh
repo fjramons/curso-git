@@ -22,8 +22,8 @@ OPCIONES=(
   --lua-filter=pandoc/enlaces-internos.lua
   --lua-filter=pandoc/saltos-de-pagina.lua
 )
-# Portada e índice del Word y del PDF (pandoc/portada.lua). La web no lleva
-# portada y su índice de navegación lo genera --toc.
+# Portada e índice del Word y del PDF (pandoc/portada.lua). La web se genera
+# aparte con Quarto (_quarto.yml) y tiene su propia portada y navegación.
 LIBRO=(
   --metadata="date=$EDICION"
   --lua-filter=pandoc/portada.lua
@@ -61,5 +61,10 @@ else
   echo "Aviso: Typst no está instalado, así que no se genera el PDF" >&2
 fi
 
-pandoc "${OPCIONES[@]}" --toc modulos/*.md --standalone --embed-resources -o outputs/index.html
-echo "Generado outputs/index.html"
+# La web: un libro de Quarto con una página por módulo, en outputs/web
+if command -v quarto > /dev/null; then
+  quarto render --quiet
+  echo "Generado outputs/web/index.html"
+else
+  echo "Aviso: Quarto no está instalado, así que no se genera la web" >&2
+fi

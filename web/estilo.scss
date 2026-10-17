@@ -1,0 +1,210 @@
+/*-- scss:defaults --*/
+
+// Estilo de la web del curso (tema claro). web/oscuro.scss cambia los
+// colores para el tema oscuro. Los colores parten de los diagramas
+// (pandoc/diagramas.lua) y de los bloques de código del PDF
+// (pandoc/estilo-pdf.typ). Los colores llevan !default para que el tema
+// oscuro los pueda cambiar.
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap");
+
+$font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+$font-family-monospace: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+$headings-font-family: "Source Serif 4", Georgia, serif;
+$headings-font-weight: 700;
+$font-size-root: 17px;
+$line-height-base: 1.7;
+
+$body-bg: #fcfcfd !default;
+$body-color: #1d2733 !default;
+$headings-color: #16202b !default;
+$primary: #2f5d8a !default;
+$link-color: $primary !default;
+$code-color: #a8325e !default;
+
+// Variables propias del curso
+$curso-pizarra: #4a5b70 !default;
+$curso-rama: #2e7d4f !default;
+$curso-codigo-fondo: #f3f6fa !default;
+$curso-salida-fondo: #ffffff !default;
+$curso-salida-borde: #c5ced8 !default;
+$curso-diagrama-fondo: transparent !default;
+$curso-suave: #6b7785 !default;
+$curso-linea: #e3e8ee !default;
+
+// Código en línea y salidas de comandos, con los colores de cada tema
+$code-bg: $curso-codigo-fondo !default;
+$pre-color: $body-color !default;
+
+/*-- scss:rules --*/
+
+// Sin ligaduras en el código: JetBrains Mono dibujaría «->» como una flecha
+// y el lector tiene que ver lo mismo que escribe o que muestra la terminal
+code, pre, kbd, samp {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+// Anchura de lectura cómoda
+main.content {
+  max-width: 50rem;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+h1.title {
+  font-size: 2.4rem;
+}
+
+h2 {
+  margin-top: 2.8rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid $curso-linea;
+}
+
+h3 {
+  margin-top: 2rem;
+}
+
+a {
+  text-underline-offset: 0.18em;
+}
+
+// Código en línea
+:not(pre) > code {
+  font-size: 0.88em;
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background-color: $curso-codigo-fondo;
+}
+
+// Órdenes y ficheros: fondo y filete a la izquierda, como en el PDF
+div.sourceCode,
+pre:not(.text):not(.sourceCode) {
+  background-color: $curso-codigo-fondo;
+  border: none;
+  border-left: 3px solid $curso-pizarra;
+  border-radius: 0 6px 6px 0;
+}
+
+pre code {
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+// Salidas de comandos (bloques text): borde fino, sin filete
+pre.text {
+  background-color: $curso-salida-fondo;
+  border: 1px solid $curso-salida-borde;
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+}
+
+// Diagramas: centrados y con el ancho natural, sin pasar del texto
+figure.diagrama,
+.diagrama.quarto-float,
+div.quarto-figure:has(svg.diagrama) {
+  text-align: center;
+  margin: 1.8rem 0;
+}
+
+svg.diagrama {
+  max-width: 100%;
+  height: auto;
+  background-color: $curso-diagrama-fondo;
+  border-radius: 8px;
+}
+
+figcaption,
+.figure-caption {
+  color: $curso-suave;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 0.6rem;
+}
+
+// Portada: botones bajo el título
+.portada {
+  margin: 0.5rem 0 2.5rem;
+
+  .btn {
+    margin: 0 0.5rem 0.5rem 0;
+    padding: 0.55rem 1.2rem;
+    font-weight: 600;
+    border-radius: 999px;
+  }
+}
+
+// Barra lateral: módulos con más aire
+.sidebar-navigation .sidebar-item {
+  font-size: 0.93rem;
+}
+
+.sidebar-title {
+  font-family: $headings-font-family;
+  font-size: 1.15rem;
+}
+
+// En pantallas estrechas, Quarto pliega la barra lateral en un menú que no
+// parte las líneas, y los títulos largos de los módulos lo ensanchan más que
+// la pantalla
+@include media-breakpoint-down(lg) {
+  #quarto-sidebar {
+    max-width: 100vw;
+  }
+
+  #quarto-sidebar .sidebar-menu-container {
+    white-space: normal;
+  }
+}
+
+// Cambio de tema: web/tema.html pone bajo el buscador un botón con icono y
+// texto en lugar del interruptor de Quarto, que se oculta
+.sidebar-tools-main .quarto-color-scheme-toggle {
+  display: none;
+}
+
+.boton-tema {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.88rem;
+  color: $body-color;
+  background: transparent;
+  border: 1px solid $curso-linea;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: $primary;
+    border-color: $primary;
+  }
+}
+
+// Navegación de anterior y siguiente al pie de cada módulo
+.page-navigation {
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid $curso-linea;
+
+  .nav-page a {
+    font-weight: 600;
+  }
+}
+
+blockquote {
+  border-left: 3px solid $curso-rama;
+  color: inherit;
+  padding-left: 1rem;
+}
+
+table {
+  font-size: 0.93rem;
+}

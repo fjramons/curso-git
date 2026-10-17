@@ -1,0 +1,72 @@
+# Versión web del curso (GitHub Pages), generada con Quarto en outputs/web.
+# El Word y el PDF no usan este fichero: los genera Pandoc en scripts/build.sh.
+project:
+  type: book
+  output-dir: outputs/web
+  render:
+    - index.qmd
+    - modulos/*.md
+
+lang: es
+language:
+  title-block-author-single: Autor
+  title-block-author-plural: Autores
+  code-tools-source-code: Código fuente en GitHub
+  repo-action-links-issue: Informar de un problema
+
+book:
+  title: "Git y GitHub, más allá del código"
+  subtitle: "Controla tus versiones, colabora sin miedo y automatiza tu trabajo"
+  author: fjramons
+  site-url: https://fjramons.github.io/curso-git/
+  repo-url: https://github.com/fjramons/curso-git
+  repo-actions: [issue]
+  search: true
+  page-navigation: true
+  chapters:
+    - text: Prefacio
+      href: index.qmd
+    - modulos/01-introducción-y-primeros-pasos.md
+    - modulos/02-control-de-versiones-en-local.md
+    - modulos/03-viajes-en-el-tiempo-y-puntos-de-guardado.md
+    - modulos/04-ramificación-y-fusiones.md
+    - modulos/05-github-y-trabajo-remoto.md
+    - modulos/06-trabajo-colaborativo-y-open-source.md
+    - modulos/07-flujos-de-trabajo-y-comandos-avanzados.md
+    - modulos/08-github-actions.md
+  appendices:
+    - modulos/09-anexo-dependencias-de-los-ejemplos.md
+    - modulos/10-anexo-referencias-útiles.md
+  sidebar:
+    style: floating
+    tools:
+      - icon: download
+        href: https://github.com/fjramons/curso-git/releases/latest
+        text: Descargar en PDF y Word
+  page-footer:
+    left: "© fjramons · Licencia [GNU AGPL v3](https://github.com/fjramons/curso-git/blob/main/LICENSE)"
+    right: "Hecho con [Quarto](https://quarto.org)"
+
+filters:
+  - pandoc/diagramas.lua
+  - web/enlaces-portada.lua
+
+format:
+  html:
+    theme:
+      light: [cosmo, web/estilo.scss]
+      dark: [cosmo, web/estilo.scss, web/oscuro.scss]
+    # Modo claro u oscuro según la preferencia del sistema o del navegador
+    respect-user-color-scheme: true
+    include-after-body: web/tema.html
+    number-sections: false
+    toc: true
+    toc-depth: 3
+    toc-title: "En esta página"
+    code-copy: true
+    code-overflow: wrap
+    highlight-style:
+      light: github
+      dark: github-dark
+    smooth-scroll: true
+    anchor-sections: true

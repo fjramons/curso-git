@@ -1,0 +1,27 @@
+/*-- scss:defaults --*/
+
+// Colores del tema oscuro de la web. Se aplica después de web/estilo.scss.
+// Los diagramas tienen texto oscuro sobre fondo transparente, así que en
+// este tema van sobre una tarjeta clara.
+
+$body-bg: #14181e;
+$body-color: #d8dee6;
+$headings-color: #eef2f6;
+$primary: #7fb0e0;
+$link-color: $primary;
+$code-color: #f08cb4;
+
+$curso-pizarra: #7f93ab;
+$curso-rama: #5fbf88;
+$curso-codigo-fondo: #1d232b;
+$curso-salida-fondo: #14181e;
+$curso-salida-borde: #3a4552;
+$curso-diagrama-fondo: #f3f6fa;
+$curso-suave: #9aa6b4;
+$curso-linea: #2a323c;
+
+/*-- scss:rules --*/
+
+svg.diagrama {
+  padding: 0.8rem;
+}

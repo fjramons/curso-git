@@ -1,0 +1,39 @@
+<script>
+// Botón para cambiar entre el modo claro y el oscuro, bajo el buscador de la
+// barra lateral. Sustituye al interruptor de Quarto, que es un icono pequeño
+// sin texto entre los del título (web/estilo.scss lo oculta). El botón muestra
+// el modo al que se cambia: luna y «Modo oscuro» en el claro, y sol y «Modo
+// claro» en el oscuro. Quarto recuerda la elección en el navegador.
+(() => {
+  const actualizar = (boton) => {
+    const oscuro = document.body.classList.contains("quarto-dark");
+    const destino = oscuro ? "claro" : "oscuro";
+    boton.querySelector("i").className = "bi " + (oscuro ? "bi-sun" : "bi-moon");
+    boton.querySelector("span").textContent = "Modo " + destino;
+    boton.title = "Cambiar al modo " + destino;
+    boton.setAttribute("aria-label", "Cambiar al modo " + destino);
+  };
+
+  const crear = () => {
+    const busqueda = document.querySelector("#quarto-sidebar .sidebar-search");
+    if (!busqueda || !window.quartoToggleColorScheme) {
+      return;
+    }
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "boton-tema";
+    boton.innerHTML = '<i class="bi" aria-hidden="true"></i><span></span>';
+    boton.addEventListener("click", () => window.quartoToggleColorScheme());
+    busqueda.parentElement.after(boton);
+    actualizar(boton);
+    new MutationObserver(() => actualizar(boton))
+      .observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", crear);
+  } else {
+    crear();
+  }
+})();
+</script>

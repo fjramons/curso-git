@@ -6,11 +6,11 @@ Curso práctico de Git y GitHub basado en la construcción de un proyecto real d
 
 1. [Introducción y primeros pasos](modulos/01-introducción-y-primeros-pasos.md): qué son Git y GitHub, instalación, terminal y configuración.
 2. [Control de versiones en local](modulos/02-control-de-versiones-en-local.md): repositorio, staging, commits, deshacer cambios, `.gitignore` y el script del libro.
-3. [Viajes en el tiempo y puntos de guardado](modulos/03-viajes-en-el-tiempo-y-puntos-de-guardado.md): checkout, reset, reflog y etiquetas.
+3. [Viajes en el tiempo y puntos de guardado](modulos/03-viajes-en-el-tiempo-y-puntos-de-guardado.md): checkout, reset, revert, reflog y etiquetas.
 4. [Ramificación y fusiones](modulos/04-ramificación-y-fusiones.md): ramas, merge, conflictos y stash.
 5. [GitHub y trabajo remoto](modulos/05-github-y-trabajo-remoto.md): SSH, push, fetch, pull y clone.
 6. [Trabajo colaborativo y open source](modulos/06-trabajo-colaborativo-y-open-source.md): forks, pull requests, sincronización y Markdown.
-7. [Flujos de trabajo y comandos avanzados](modulos/07-flujos-de-trabajo-y-comandos-avanzados.md): GUIs, GitFlow, GitHub flow, cherry-pick y rebase.
+7. [Flujos de trabajo y comandos avanzados](modulos/07-flujos-de-trabajo-y-comandos-avanzados.md): GUIs, GitFlow, GitHub flow, cherry-pick, rebase y revert.
 8. [GitHub Actions](modulos/08-github-actions.md): integración y despliegue continuos, workflows, actions del Marketplace, permisos, tareas programadas, GitHub Pages y publicación de versiones.
 9. [Anexo: dependencias de los ejemplos](modulos/09-anexo-dependencias-de-los-ejemplos.md): instalación de Pandoc y Typst, necesarios solo para generar el libro.
 

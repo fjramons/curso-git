@@ -17,7 +17,7 @@ digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c5 [label="Añade el origen de Git al capítulo 1"]; c6 [label="Explica en el README cómo\ngenerar el libro"]
+  e [class=nota label="…"]; c5 [label="Revert \"Reescribe el capítulo 2\""]; c6 [label="Explica en el README cómo\ngenerar el libro"]
   e -> c5 -> c6
   node [shape=plaintext, group=""]
   main [class=rama]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]; v010 [class=etiqueta label="v0.1.0"]
@@ -60,7 +60,7 @@ digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c5 [label="Añade el origen de Git al capítulo 1"]; c6 [label="Explica en el README cómo\ngenerar el libro"]; c7 [label="Añade el capítulo 3: ramas"]
+  e [class=nota label="…"]; c5 [label="Revert \"Reescribe el capítulo 2\""]; c6 [label="Explica en el README cómo\ngenerar el libro"]; c7 [label="Añade el capítulo 3: ramas"]
   e -> c5 -> c6 -> c7
   node [shape=plaintext, group=""]
   main [class=rama]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]; v010 [class=etiqueta label="v0.1.0"]

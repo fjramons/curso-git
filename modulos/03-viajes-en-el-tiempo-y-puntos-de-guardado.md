@@ -1,6 +1,6 @@
 # Módulo 3: Viajes en el tiempo y puntos de guardado
 
-El historial de commits no es solo un registro: es una máquina del tiempo. Este módulo explica cómo visitar versiones anteriores del libro, cómo deshacer commits enteros (y recuperarlos en caso de arrepentimiento) y cómo marcar versiones importantes con etiquetas.
+El historial de commits no es solo un registro: es una máquina del tiempo. Este módulo explica cómo visitar versiones anteriores del libro, cómo deshacer commits enteros, ya sea borrándolos de la rama (y recuperándolos en caso de arrepentimiento) o anulándolos con un commit nuevo, y cómo marcar versiones importantes con etiquetas.
 
 ## 3.1 Navegar a estados anteriores del proyecto
 
@@ -71,7 +71,7 @@ Al releerlo, resulta que la versión anterior era mejor. Busca con `git tree` el
 git reset --hard <id_del_commit>
 ```
 
-`git reset --hard` mueve la rama actual al commit indicado y deja el directorio de trabajo exactamente como estaba en ese commit. El capítulo 2 recupera su contenido y el commit malo deja de aparecer en `git tree`. Es una operación peligrosa: los cambios que no estaban guardados en ningún commit se pierden para siempre.
+`git reset --hard` mueve la rama actual al commit indicado y deja el directorio de trabajo exactamente como estaba en ese commit. El capítulo 2 recupera su contenido y el commit malo deja de aparecer en `git tree`. Es una operación peligrosa: los cambios que no estaban guardados en ningún commit se pierden para siempre. Además, solo conviene usarla con commits que todavía no has compartido con nadie. El apartado 3.3 explica la alternativa para los que ya están compartidos.
 
 ```{.dot caption="La rama main antes y después de git reset --hard" alt="Antes, main apunta al commit Reescribe el capítulo 2. Después, main apunta al commit anterior y Reescribe el capítulo 2 queda en gris, sin ninguna rama"}
 digraph {
@@ -128,7 +128,66 @@ git reset --hard HEAD~1
 
 Recuerda: `reflog` es local (no se sube a GitHub) y Git lo limpia pasados unos 90 días. Es una red de seguridad, no un sustituto de hacer commits.
 
-## 3.3 Etiquetas (tags) para marcar versiones importantes
+## 3.3 Deshacer un commit sin reescribir el historial (`revert`)
+
+`reset` hace que los commits desaparezcan de la rama: reescribe el historial. Mientras esos commits solo estén en tu ordenador no pasa nada, pero a partir del módulo 5 el libro estará en GitHub y otras personas tendrán copias del historial. Si un commit que ya tienen otras personas desaparece de tu rama, tu historia y la suya dejan de coincidir.
+
+`git revert` deshace un commit de otra forma: crea un commit nuevo que aplica los cambios contrarios. El commit original sigue en el historial, y el nuevo lo anula. El historial solo crece, nunca se reescribe.
+
+Para comparar las dos formas, repite el mismo error del apartado anterior:
+
+```bash
+echo "# Capítulo en obras" > capitulos/02-primeros-comandos.md
+git add -A
+git commit -m "Reescribe el capítulo 2"
+```
+
+Esta vez, deshazlo con `revert`. `HEAD` es el último commit, el que se quiere anular:
+
+```bash
+git revert HEAD
+```
+
+Git prepara el commit que deshace los cambios y abre el editor con un mensaje propuesto, debajo del cual hay unas líneas de comentario que empiezan por `#` y no se guardan:
+
+```text
+Revert "Reescribe el capítulo 2"
+
+This reverts commit 7c1e5b8a3f9d2e6c4b1a0f8e7d5c3b2a9e6f4d10.
+```
+
+El mensaje indica qué commit se deshace, con su identificador completo. Guarda y cierra el editor sin cambiar nada. Si no quieres que se abra el editor, `git revert --no-edit HEAD` acepta directamente el mensaje propuesto. El capítulo 2 vuelve a tener su contenido, y `git tree` muestra los dos commits, el malo y el que lo anula:
+
+```{.dot caption="git revert añade un commit que anula el anterior" alt="Después del commit Añade el origen de Git al capítulo 1 están el commit Reescribe el capítulo 2 y el commit Revert que lo anula. main y HEAD apuntan al commit Revert"}
+digraph {
+  rankdir=BT
+  node [shape=box, style=rounded, group=principal]
+  edge [weight=50]
+  e [class=nota label="…"]; c5 [label="5e7b3a2 Añade el origen de Git al capítulo 1"]; c6 [label="7c1e5b8 Reescribe el capítulo 2"]; c7 [label="Revert \"Reescribe el capítulo 2\""]
+  e -> c5 -> c6 -> c7
+  node [shape=plaintext, group=""]
+  main [class=rama]; HEAD [class=head]
+  { rank=same; c7 -> main -> HEAD [class=ref dir=back] }
+}
+```
+
+Compáralo con el diagrama del apartado 3.2: allí el commit malo quedaba en gris, fuera de la rama, y aquí sigue en `main`, con otro commit encima que lo anula. Para comprobar que el contenido es el mismo que antes del error, compara el estado actual con el de dos commits atrás (`HEAD~2`), como en el apartado 2.6:
+
+```bash
+git diff HEAD~2
+```
+
+No muestra nada: los ficheros son idénticos a los del commit _Añade el origen de Git al capítulo 1_.
+
+| | `git reset --hard` | `git revert` |
+| --- | --- | --- |
+| Qué hace | Mueve la rama a un commit anterior | Crea un commit que anula otro |
+| Historial | Se reescribe: los commits desaparecen de la rama | Se conserva: solo se añade un commit |
+| Cuándo usarlo | Con commits que solo están en tu ordenador | Con commits que ya has compartido |
+
+La regla práctica es sencilla: si nadie más tiene el commit, puedes usar `reset`; si ya lo has compartido, usa `revert`. En el apartado 7.4 se usa `revert` para deshacer un cambio que ya ha llegado a GitHub.
+
+## 3.4 Etiquetas (tags) para marcar versiones importantes
 
 El libro ya tiene dos capítulos y un script que lo genera: es un buen momento para declarar un primer borrador. Las **etiquetas** (_tags_) ponen un nombre fijo a un commit concreto, normalmente un número de versión. A diferencia de una rama, una etiqueta no se mueve cuando haces commits nuevos.
 
@@ -167,12 +226,12 @@ git commit -m "Explica en el README cómo generar el libro"
 
 `main` ha avanzado con el commit nuevo, pero la etiqueta, en ocre en el diagrama, se queda en su commit:
 
-```{.dot caption="La etiqueta v0.1.0 se queda fija cuando main avanza" alt="La etiqueta v0.1.0 apunta al commit Añade el origen de Git al capítulo 1, y main y HEAD al commit siguiente"}
+```{.dot caption="La etiqueta v0.1.0 se queda fija cuando main avanza" alt="La etiqueta v0.1.0 apunta al commit Revert Reescribe el capítulo 2, y main y HEAD al commit siguiente"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c4 [label="Añade el script de generación\ndel libro con Pandoc"]; c5 [label="Añade el origen de Git al capítulo 1"]; c6 [label="Explica en el README cómo\ngenerar el libro"]
+  e [class=nota label="…"]; c4 [label="Reescribe el capítulo 2"]; c5 [label="Revert \"Reescribe el capítulo 2\""]; c6 [label="Explica en el README cómo\ngenerar el libro"]
   e -> c4 -> c5 -> c6
   node [shape=plaintext, group=""]
   main [class=rama]; HEAD [class=head]; v010 [class=etiqueta label="v0.1.0"]

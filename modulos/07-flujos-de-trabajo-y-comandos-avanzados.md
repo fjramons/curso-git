@@ -1,6 +1,6 @@
 # Módulo 7: Flujos de trabajo y comandos avanzados
 
-Este módulo organiza el trabajo del libro como en un proyecto profesional: qué aportan las interfaces gráficas, cómo se organizan las ramas con un flujo de trabajo (GitFlow y GitHub flow) y dos comandos que reescriben la historia (cherry-pick y rebase).
+Este módulo organiza el trabajo del libro como en un proyecto profesional: qué aportan las interfaces gráficas, cómo se organizan las ramas con un flujo de trabajo (GitFlow y GitHub flow) dos comandos que reescriben la historia (cherry-pick y rebase) y cómo deshacer un cambio que ya está en GitHub sin reescribirla (revert).
 
 ## 7.1 Interfaces gráficas (GUI) frente a la terminal
 
@@ -145,7 +145,7 @@ git branch -d capitulo-flujos
 
 La opción `--prune` borra también `origin/capitulo-flujos`, la rama de seguimiento de una rama que ya no existe en GitHub.
 
-En GitHub flow, las versiones se marcan con etiquetas en `main`. Crea una etiqueta anotada para la versión 1.0.0, que guarda autor, fecha y mensaje (apartado 3.3), y súbela a GitHub:
+En GitHub flow, las versiones se marcan con etiquetas en `main`. Crea una etiqueta anotada para la versión 1.0.0, que guarda autor, fecha y mensaje (apartado 3.4), y súbela a GitHub:
 
 ```bash
 git tag -a v1.0.0 -m "Versión 1.0.0"
@@ -363,6 +363,148 @@ git pull --prune
 git branch -d capitulo-avanzados
 ```
 
-La regla de oro del rebase: **no hagas rebase de commits que ya hayas subido y que otras personas puedan estar usando**. Como rebase crea commits nuevos, las demás personas tendrían una historia distinta de la tuya. Úsalo para ordenar tu trabajo local antes de compartirlo, como aquí: la rama `capitulo-avanzados` no se subió a GitHub hasta después del rebase.
+La regla de oro del rebase: **no hagas rebase de commits que ya hayas subido y que otras personas puedan estar usando**. Como rebase crea commits nuevos, las demás personas tendrían una historia distinta de la tuya. Úsalo para ordenar tu trabajo local antes de compartirlo, como aquí: la rama `capitulo-avanzados` no se subió a GitHub hasta después del rebase. Si lo que necesitas es deshacer commits que ya están en GitHub, tampoco sirven `rebase` ni `reset`: para eso está `revert`, que se usa en el apartado siguiente.
+
+## 7.4 Deshacer cambios ya publicados (revert)
+
+En el apartado 3.3 se usó `git revert` para anular un commit sin reescribir el historial. Allí el libro solo estaba en tu ordenador y `reset` también habría servido. Ahora el libro está en GitHub, el colaborador del módulo 6 tiene su fork y puede haber otros clones, como el del «portátil» del apartado 5.4. En esta situación, `revert` es la única forma segura de deshacer un cambio que ya ha llegado a `main`.
+
+Para provocar esa situación, amplía el capítulo 6 en una rama nueva, como cualquier otro cambio:
+
+```bash
+git switch -c amplia-capitulo-6
+```
+
+Añade al final de `capitulos/06-flujos-de-trabajo.md` este párrafo, separado de la lista por una línea en blanco:
+
+```markdown
+En GitHub flow, cada versión se prepara en una rama `develop` antes de llegar a `main`.
+```
+
+Guarda el cambio y sube la rama:
+
+```bash
+git add -A
+git commit -m "Amplía el capítulo 6 con las versiones"
+git push -u origin amplia-capitulo-6
+```
+
+En GitHub, abre el pull request, fusiónalo y borra la rama. Después, actualiza tu copia local:
+
+```bash
+git switch main
+git pull --prune
+git branch -d amplia-capitulo-6
+```
+
+Al releer el capítulo publicado, salta el error: en GitHub flow no hay rama `develop`, como explica el apartado 7.2, y las versiones se marcan con etiquetas en `main`. El párrafo sobra.
+
+Con un `git reset --hard` en `main`, el commit desaparecería de tu copia local, pero no de GitHub. `git push` se negaría a subir el resultado, porque `main` en GitHub tiene un commit que tu `main` ya no tiene, y solo se podría forzar con `git push --force`. Eso reescribiría `main` en GitHub, y a partir de ese momento las copias de los demás serían incompatibles con la oficial:
+
+- Quien ya tuviera el commit seguiría teniéndolo en su `main`. Para Git, ese commit sería trabajo suyo pendiente de subir, así que en su próximo `git pull` y `git push` el commit borrado volvería a GitHub, sin que esa persona supiera que alguien lo había quitado.
+- Las ramas y los pull requests abiertos que partieran de ese commit lo llevarían dentro, y al fusionarlos lo traerían de vuelta.
+- Para evitarlo, cada colaborador tendría que enterarse y rehacer su copia a mano, con su propio `reset`.
+
+En un proyecto con varias personas, reescribir `main` rompe la colaboración. `revert`, en cambio, solo añade un commit: para los demás es un cambio más, que les llega con su próximo `git pull` como cualquier otro. Por eso, con commits ya publicados no se usa `reset`, sino `revert`.
+
+En GitHub flow, la corrección también es un cambio más: se hace en una rama y llega a `main` con un pull request. Crea la rama y busca el commit que hay que deshacer:
+
+```bash
+git switch -c revierte-capitulo-6
+git log --oneline -3
+```
+
+```text
+a91d3f7 (HEAD -> revierte-capitulo-6, origin/main, main) Merge pull request #N from tu-usuario/amplia-capitulo-6
+4f8a2c6 Amplía el capítulo 6 con las versiones
+6b0e2d9 Merge pull request #N from tu-usuario/capitulo-avanzados
+```
+
+El último commit es la fusión del pull request, y debajo está el commit que añadió el párrafo. Ese es el que hay que deshacer. Copia su identificador y anúlalo:
+
+```bash
+git revert <id_del_commit>
+```
+
+Como en el apartado 3.3, Git abre el editor con el mensaje propuesto:
+
+```text
+Revert "Amplía el capítulo 6 con las versiones"
+
+This reverts commit 4f8a2c6d0e9b18a7c5f3e2d1b6a4c8f7e9d0b3a5.
+```
+
+Guarda y cierra el editor, y revisa el resultado:
+
+```bash
+git tree
+```
+
+El commit original y su fusión siguen en el historial, y encima está el commit que los anula, en la rama `revierte-capitulo-6`. `main` y `origin/main` no han cambiado:
+
+```{.dot caption="git revert anula un cambio ya publicado sin reescribir main" alt="Del commit de fusión del capítulo 7 sale el commit Amplía el capítulo 6 con las versiones, que llega a main con un pull request. Encima de esa fusión, en la rama revierte-capitulo-6, está el commit Revert que lo anula"}
+digraph {
+  rankdir=BT
+  node [shape=box, style=rounded, group=principal]
+  edge [weight=50]
+  e [class=nota label="…"]; m7 [label="6b0e2d9 Merge pull request #N from\ntu-usuario/capitulo-avanzados"]; c [label="4f8a2c6 Amplía el capítulo 6\ncon las versiones" group=rama]; m [label="a91d3f7 Merge pull request #N from\ntu-usuario/amplia-capitulo-6"]; r [label="Revert \"Amplía el capítulo 6\ncon las versiones\""]
+  e -> m7 -> m -> r
+  m7 -> c -> m
+  node [shape=plaintext, group=""]
+  rm [class=refs label="main, origin/main"]; rc [class=rama label="revierte-capitulo-6"]; HEAD [class=head]
+  { rank=same; m -> rm [class=ref dir=back] }
+  { rank=same; r -> rc -> HEAD [class=ref dir=back] }
+}
+```
+
+La rama `revierte-capitulo-6` solo añade un commit encima de `main`, así que integrarla no reescribe nada: para quien tenga una copia del libro, es un cambio más que llegará con su próximo `git pull`. Intégrala con GitHub flow, como los cambios anteriores. Sube la rama, abre el pull request, fusiónalo y borra la rama en GitHub. Después, actualiza tu copia local:
+
+```bash
+git push -u origin revierte-capitulo-6
+```
+
+```bash
+git switch main
+git pull --prune
+git branch -d revierte-capitulo-6
+```
+
+El capítulo 6 vuelve a estar como antes del párrafo erróneo, y el historial de `main` cuenta lo que pasó: el párrafo se añadió y después se anuló.
+
+Se ha revertido el commit de la rama, no la fusión del pull request. Es lo más sencillo cuando el pull request tiene un solo commit. Para deshacer un pull request con varios commits de una vez, se revierte su commit de fusión con `git revert -m 1 <id_de_la_fusión>`. La opción `-m 1` indica que se conservan los cambios del primer padre, `main`, y se anulan los que trajo la rama. GitHub ofrece lo mismo con un botón: en la página de un pull request fusionado, _Revert_ crea una rama con el revert de la fusión y abre un pull request nuevo para integrarlo.
+
+Si el commit que se revierte toca líneas que han cambiado después, `git revert` puede encontrar un conflicto, igual que un merge. Resuélvelo como en el apartado 4.3 y continúa con `git revert --continue`, o renuncia y vuelve al estado anterior con:
+
+```bash
+git revert --abort
+```
+
+Para terminar, deja escrito en el libro lo que has aprendido. Como cualquier otro cambio, va en su propia rama:
+
+```bash
+git switch -c capitulo-7-revert
+```
+
+Añade al final de `capitulos/07-comandos-avanzados.md` este párrafo, separado del anterior por una línea en blanco:
+
+```markdown
+Con `git revert <commit>` se crea un commit nuevo que anula los cambios de otro. A diferencia de `git reset`, no reescribe el historial, así que es la forma de deshacer commits que ya se han compartido sin romper las copias de los demás.
+```
+
+Guarda el cambio y sube la rama:
+
+```bash
+git add -A
+git commit -m "Añade revert al capítulo 7"
+git push -u origin capitulo-7-revert
+```
+
+Abre el pull request, fusiónalo y borra la rama en GitHub. Después, actualiza tu copia local:
+
+```bash
+git switch main
+git pull --prune
+git branch -d capitulo-7-revert
+```
 
 El libro ya tiene siete capítulos. En el siguiente módulo, GitHub se encargará de revisarlo en cada pull request y de publicar automáticamente cada versión.

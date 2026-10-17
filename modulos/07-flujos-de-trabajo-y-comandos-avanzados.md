@@ -1,8 +1,8 @@
-# Módulo 7: Flujos de Trabajo y Comandos Avanzados
+# Módulo 7: Flujos de trabajo y comandos avanzados
 
 Este módulo organiza el trabajo del libro como en un proyecto profesional: qué aportan las interfaces gráficas, cómo se organizan las ramas con un flujo de trabajo (GitFlow y GitHub flow) y dos comandos que reescriben la historia (cherry-pick y rebase).
 
-## 7.1 Interfaces Gráficas (GUI) vs Terminal
+## 7.1 Interfaces gráficas (GUI) frente a la terminal
 
 Todo lo hecho en la terminal se puede hacer también con programas gráficos. Estos son los más conocidos:
 
@@ -17,7 +17,7 @@ Las interfaces gráficas son cómodas para tareas visuales: revisar un diff, pre
 
 La terminal sigue siendo imprescindible: es lo único disponible en un servidor, es lo que usa toda la documentación y los sistemas de CI, y algunas operaciones (como el rebase interactivo) son más claras en ella. Un buen ejercicio es abrir la carpeta `~/proyectos/manual-git` con la GUI que prefieras y reconocer en ella los commits, ramas y etiquetas del libro.
 
-## 7.2 Flujos de Trabajo: GitFlow y GitHub Flow
+## 7.2 Flujos de trabajo: GitFlow y GitHub flow
 
 Git permite organizar las ramas con total libertad, y por eso los equipos acuerdan un **flujo de trabajo**: unas reglas sobre qué ramas existen y cómo se mueven los cambios entre ellas. Los dos más conocidos son GitFlow y GitHub flow.
 
@@ -169,7 +169,7 @@ digraph {
 }
 ```
 
-## 7.3 Comandos Avanzados: Cherry Pick y Rebase
+## 7.3 Comandos avanzados: cherry-pick y rebase
 
 **Cherry-pick** copia un commit concreto de otra rama en la rama actual, sin traer nada más. Es útil cuando una corrección se hizo en una rama pero también hace falta en otra.
 
@@ -245,7 +245,7 @@ git branch -d corrige-capitulo-3
 
 **Rebase** es la alternativa a `merge` para integrar los cambios de una rama en otra. En lugar de crear un commit de fusión, toma los commits de tu rama y los vuelve a aplicar, uno a uno, encima de la otra rama. El resultado es un historial lineal, como si hubieras empezado tu trabajo después de los últimos cambios.
 
-Para verlo, vuelve al capítulo 7 y añade un párrafo sobre cherry-pick, con su commit:
+Para verlo, vuelve al capítulo 7 y añade un párrafo sobre cherry-pick, separado del título por una línea en blanco, con su commit:
 
 ```bash
 git switch capitulo-avanzados
@@ -260,7 +260,7 @@ git add -A
 git commit -m "Añade cherry-pick al capítulo 7"
 ```
 
-Y otro sobre rebase, con su commit:
+Y otro párrafo sobre rebase, también con una línea en blanco delante y con su commit:
 
 ```markdown
 Con `git rebase <rama>` se reaplican los commits de la rama actual encima de otra rama.
@@ -275,7 +275,7 @@ git tree
 Mientras tanto, `main` ha avanzado con la fusión de la corrección, así que `git tree` muestra que `main` y `capitulo-avanzados` han divergido. Un merge crearía un commit de fusión; rebase, en cambio, reaplica los commits de la rama encima del último commit de `main`:
 
 ```bash
-# Mover la rama actual sobre otra (Rebase)
+# Mover la rama actual sobre otra (rebase)
 git rebase main
 git tree
 ```
@@ -295,9 +295,10 @@ digraph {
     a0 -> ac -> am
     a0 -> a1 -> a2 -> a3 -> a4
     node [shape=plaintext, group=""]
-    ram [class=refs label="main, origin/main"]; ca1 [class=rama label="capitulo-avanzados"]; head1 [class=head label="HEAD"]
+    ram [class=refs label="main, origin/main"]; ca1 [class=rama label="capitulo-avanzados"]; head1 [class=head label="HEAD"]; v1a [class=etiqueta label="v1.0.0"]
     { rank=same; ram -> am [class=ref dir=forward] }
     { rank=same; a4 -> ca1 -> head1 [class=ref dir=back] }
+    { rank=same; a0 -> v1a [class=ref dir=back] }
     { rank=same; ac -> a1 [style=invis] }
     { rank=same; am -> a2 [style=invis] }
   }
@@ -310,9 +311,10 @@ digraph {
     d0 -> dc -> dm
     d0 -> o1 [class=huerfano]; o1 -> o2 [class=huerfano]; o2 -> o3 [class=huerfano]; o3 -> o4 [class=huerfano]
     node [shape=plaintext, group=""]
-    rdm [class=refs label="main, origin/main"]; ca2 [class=rama label="capitulo-avanzados"]; head2 [class=head label="HEAD"]
+    rdm [class=refs label="main, origin/main"]; ca2 [class=rama label="capitulo-avanzados"]; head2 [class=head label="HEAD"]; v1d [class=etiqueta label="v1.0.0"]
     { rank=same; rdm -> dm [class=ref dir=forward] }
     { rank=same; d3 -> ca2 -> head2 [class=ref dir=back] }
+    { rank=same; d0 -> v1d [class=ref dir=back] }
     { rank=same; dc -> o1 [style=invis] }
     { rank=same; dm -> o2 [style=invis] }
   }
@@ -341,7 +343,7 @@ squash 9a3d5f2 Añade cherry-pick al capítulo 7
 squash c7f2e18 Añade rebase al capítulo 7
 ```
 
-Guarda y cierra el editor. Git abre otro editor con los tres mensajes para que escribas el mensaje del commit combinado: déjalo como `Añade el capítulo 7: comandos avanzados`, guarda y cierra. `git tree` muestra ahora un único commit para el capítulo.
+Guarda y cierra el editor. Git abre otro editor con los tres mensajes, que se combinarán en uno: sustitúyelos por `Añade el capítulo 7: comandos avanzados`, guarda y cierra. `git tree` muestra ahora un único commit para el capítulo.
 
 Si un rebase se complica (por ejemplo, con conflictos en varios commits seguidos), puedes cancelarlo en cualquier momento y volver al estado anterior:
 

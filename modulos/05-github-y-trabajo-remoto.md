@@ -1,4 +1,4 @@
-# Módulo 5: GitHub y Trabajo Remoto
+# Módulo 5: GitHub y trabajo remoto
 
 El libro vive solo en tu ordenador: si el disco falla, se pierde todo, y nadie más puede leerlo ni colaborar. En este módulo se sube a GitHub: se configura una conexión segura con SSH, se enlaza el repositorio local con uno remoto y se sincronizan cambios en las dos direcciones.
 
@@ -31,7 +31,7 @@ ssh-keygen -t rsa -b 4096 -C "tuemail@dominio.com"
 Para no tener que escribir la frase de contraseña en cada conexión, añade la clave al **agente SSH**, un programa que la mantiene desbloqueada durante la sesión. Arranca el agente y añádele la clave:
 
 ```bash
-# Comprobación e inclusión en el agente
+# Arranque del agente e inclusión de la clave
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
 ```
@@ -58,7 +58,7 @@ La primera vez, SSH te preguntará si confías en el servidor `github.com`: escr
 Hi tu-usuario! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-## 5.2 Conectar repositorio local con remoto y primer Push
+## 5.2 Conectar el repositorio local con el remoto y primer push
 
 En GitHub, pulsa el botón _+_ de la esquina superior derecha → _New repository_. Llámalo `manual-git`, elige si será público o privado y **no marques** ninguna opción para añadir README, `.gitignore` o licencia: todo eso ya existe en local y hace falta un repositorio remoto vacío. Pulsa _Create repository_.
 
@@ -89,11 +89,10 @@ git push --tags
 A partir de ahora, cada vez que hagas commits nuevos en `main`, para subirlos basta con:
 
 ```bash
-# Para siguientes subidas basta con:
 git push
 ```
 
-## 5.3 Sincronización de cambios desde remoto (Fetch y Pull)
+## 5.3 Sincronización de cambios desde el remoto (fetch y pull)
 
 Los cambios no siempre se hacen desde tu ordenador. Para comprobarlo, edita el libro directamente en GitHub: abre el `README.md` en la web, pulsa el icono del lápiz (_Edit this file_) y añade al final:
 
@@ -137,7 +136,7 @@ El README local ya tiene la línea nueva y `main` ha avanzado hasta `origin/main
 Puedes leerlo en la carpeta `capitulos`.
 ```
 
-Y, sin descargar ese cambio, añade en local una línea al final de `capitulos/03-ramas.md` y haz un commit:
+Y, sin descargar ese cambio, añade en local un párrafo al final de `capitulos/03-ramas.md`, separado de la lista por una línea en blanco (si no, Markdown lo une a la última viñeta), y haz un commit:
 
 ```markdown
 Las ramas son baratas: crear una solo cuesta unos pocos bytes.
@@ -193,7 +192,7 @@ Si quieres aplicar esta preferencia a todos tus repositorios, añade `--global` 
 git push
 ```
 
-## 5.4 Clonar repositorios remotos a local
+## 5.4 Clonar un repositorio remoto en local
 
 Hasta ahora, el camino ha sido subir un repositorio que ya existía en local. El camino contrario es **clonar**: descargar un repositorio de GitHub completo, con todo su historial, y con el remoto `origin` ya configurado. Es lo que harás para trabajar en el libro desde otro ordenador, o para empezar a colaborar en un proyecto ajeno.
 
@@ -212,7 +211,7 @@ ls
 git tree
 ```
 
-Fíjate en que no hay carpeta `dist`: estaba en el `.gitignore`, así que nunca se subió. Cualquiera que clone el repositorio puede generar el libro con `./build.sh`. Haz un cambio desde el "portátil": añade una línea al final de `capitulos/04-historial.md` y súbela:
+Fíjate en que no hay carpeta `dist`: estaba en el `.gitignore`, así que nunca se subió. Cualquiera que clone el repositorio puede generar el libro con `./build.sh`. Haz un cambio desde el «portátil»: añade un párrafo al final de `capitulos/04-historial.md` y súbelo:
 
 ```markdown
 Con `git reflog` se pueden recuperar commits que ya no aparecen en el historial.
@@ -224,7 +223,7 @@ git commit -m "Amplía el capítulo 4 con reflog"
 git push
 ```
 
-Vuelve al "ordenador principal" y descarga el cambio:
+Vuelve al «ordenador principal» y descarga el cambio:
 
 ```bash
 cd ~/proyectos/manual-git

@@ -1,4 +1,4 @@
-# Módulo 4: Ramificación (Branches) y Fusiones
+# Módulo 4: Ramificación (branches) y fusiones
 
 Hasta ahora, el trabajo ha avanzado en línea recta, con todos los commits en la rama `main`. Las **ramas** permiten abrir líneas de trabajo paralelas: escribir un capítulo nuevo sin tocar la versión estable del libro, probar ideas o trabajar varias personas a la vez. En este módulo se escriben capítulos en ramas, se fusionan, se resuelve un conflicto y se aparca trabajo a medias.
 
@@ -79,7 +79,7 @@ ls capitulos
 
 El capítulo 3 no está: solo existe en su rama. Un atajo muy común es `git switch -c <nombre>`, que crea la rama y cambia a ella en un solo paso. En documentación antigua verás `git checkout <rama>` y `git checkout -b <rama>`, que hacen lo mismo.
 
-## 4.2 Fusión de ramas (Merge)
+## 4.2 Fusión de ramas (merge)
 
 El capítulo 3 está terminado, así que toca incorporarlo al libro. Para fusionar, sitúate en la rama que recibe los cambios (`main`) e indica la rama que quieres traer:
 
@@ -120,7 +120,7 @@ Si las dos ramas hubieran avanzado por separado, Git crearía un **commit de fus
 
 ## 4.3 Resolución de conflictos
 
-Git sabe fusionar automáticamente cambios en ficheros distintos, e incluso en partes distintas de un mismo fichero. Pero si dos ramas cambian las mismas líneas, Git no puede saber cuál es la buena y pide que alguien decida: es un **conflicto**. No hay comandos exclusivos para esto: se edita el archivo en conflicto, se guarda y se finaliza el merge con `add` y `commit`.
+Git sabe fusionar automáticamente cambios en ficheros distintos, e incluso en partes distintas de un mismo fichero. Pero si dos ramas cambian las mismas líneas, Git no puede saber cuál es la buena y pide que alguien decida: es un **conflicto**. No hay comandos exclusivos para esto: se edita el fichero en conflicto, se guarda y se finaliza el merge con `add` y `commit`.
 
 Para provocar uno, cambia el título del libro de dos formas distintas. Primero, en una rama nueva:
 
@@ -235,7 +235,7 @@ digraph {
 
 Si en mitad de un conflicto prefieres abandonar la fusión y volver a como estabas antes, usa `git merge --abort`.
 
-## 4.4 Guardado temporal de trabajo incompleto (Stash)
+## 4.4 Guardado temporal de trabajo incompleto (stash)
 
 Toca escribir el capítulo 4, sobre el historial y los viajes en el tiempo. Crea una rama, empieza el capítulo con su título y haz un primer commit:
 
@@ -246,7 +246,7 @@ git add -A
 git commit -m "Empieza el capítulo 4: historial"
 ```
 
-Sigue escribiendo y añade al final de `capitulos/04-historial.md`:
+Sigue escribiendo y añade este párrafo al final de `capitulos/04-historial.md`, con una línea en blanco entre el título y el párrafo:
 
 ```markdown
 Con `git checkout <commit>` se puede visitar cualquier versión anterior del proyecto.

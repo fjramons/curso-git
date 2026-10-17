@@ -1,4 +1,4 @@
-# Módulo 8: GitHub Actions (Automatización y CI/CD)
+# Módulo 8: GitHub Actions (automatización y CI/CD)
 
 Hasta ahora, el libro se ha revisado y generado a mano. En este módulo, GitHub se encarga de esas tareas: revisa la sintaxis de los capítulos en cada pull request, publica una Release con el Word y el PDF y una web con la versión HTML cada vez que se crea una etiqueta de versión, y comprueba cada semana que los enlaces del libro siguen funcionando.
 
@@ -195,7 +195,7 @@ Después, añade al final un segundo job, `release`, al mismo nivel que `lint`:
 
 Este job usa `run`, que ejecuta comandos en la terminal del runner (bash, en Ubuntu), igual que en tu ordenador:
 
-- Los tres primeros pasos preparan la máquina: descargan el repositorio e instalan Pandoc y Typst con sus actions oficiales. En el runner no hay que instalar nada a mano, igual que en el anexo de dependencias pero de forma automática.
+- Los tres primeros pasos preparan la máquina: descargan el repositorio e instalan Pandoc y Typst con sus actions oficiales. Es lo mismo que se hace a mano en el anexo de dependencias, pero de forma automática.
 - `Generar el libro` ejecuta el mismo `build.sh` del apartado 2.5. `name` da a cada paso un nombre legible en los registros. Se lanza con `bash build.sh` en lugar de `./build.sh` para no depender del permiso de ejecución, que se pierde si alguien edita el script desde Windows.
 - `Crear la release` usa `gh`, la CLI oficial de GitHub, que viene instalada en los runners. Crea una Release con el nombre de la etiqueta, le adjunta el `.docx` y el `.pdf`, y `--generate-notes` escribe automáticamente las notas con los cambios y los pull requests desde la versión anterior.
 
@@ -365,7 +365,7 @@ Al activar Pages, GitHub crea el entorno `github-pages` con una regla de protecc
 
 Los permisos de escritura también permiten que un workflow haga commits en el repositorio: por ejemplo, regenerar un fichero de estadísticas y subirlo. Se hace con `contents: write` y una action como [`stefanzweifel/git-auto-commit-action`](https://github.com/stefanzweifel/git-auto-commit-action), que hace commit y push de los cambios que haya dejado el job. Los commits hechos con el token del workflow no disparan otros workflows: así se evita que un workflow que hace commits se dispare a sí mismo sin fin. El libro no necesita commits automáticos, pero conviene conocer la técnica.
 
-## 8.7 Programación de tareas recurrentes (Cron)
+## 8.7 Programación de tareas recurrentes (cron)
 
 Algunas tareas no dependen de los cambios del repositorio. Los enlaces del libro a páginas externas, por ejemplo, pueden dejar de funcionar sin que nadie toque el libro, porque la otra web cambia o desaparece. Para revisarlos hace falta un workflow que se ejecute solo, cada cierto tiempo. Prepáralo en una rama:
 
@@ -471,7 +471,7 @@ git pull --prune
 git branch -d enlaces
 ```
 
-## 8.8 Monitoreo y depuración de Actions
+## 8.8 Supervisión y depuración de los workflows
 
 La pestaña _Actions_ del repositorio reúne todas las ejecuciones. A la izquierda están los workflows (_CI_ y _Enlaces_) y, en el centro, la lista de ejecuciones con su estado: un círculo amarillo si está en marcha, un check verde si ha terminado bien y una cruz roja si ha fallado. Al abrir una ejecución se ven sus jobs, unidos por flechas según `needs`, y al abrir un job, el registro (_log_) de cada paso: la misma salida que verías en la terminal del runner.
 
@@ -508,7 +508,7 @@ git pull --prune
 git branch -D prueba-ci
 ```
 
-En los proyectos con varias personas, conviene impedir que se fusione un pull request con la comprobación en rojo. Se configura en _Settings_ → _Rulesets_ → _New ruleset_ → _New branch ruleset_: se aplica a la rama por defecto (`main`) y se activa la regla _Require status checks to pass before merging_ con la comprobación del CI.
+En los proyectos con varias personas, conviene impedir que se fusione un pull request con la comprobación en rojo. Se configura en _Settings_ → _Rules_ → _Rulesets_ → _New ruleset_ → _New branch ruleset_: se aplica a la rama por defecto (`main`) y se activa la regla _Require status checks to pass before merging_ con la comprobación del CI.
 
 ## 8.9 Publicar una versión
 
@@ -518,7 +518,7 @@ Todo está listo para publicar la versión 1.1.0, que incluye el capítulo 7 y l
 git switch -c version-1.1.0
 ```
 
-Cambia en `metadata.yaml` la línea `date` a `Versión 1.1.0` y añade debajo del título del `README.md` esta línea (sustituye `<usuario>` por tu usuario de GitHub):
+Cambia en `metadata.yaml` la línea `date` a `Versión 1.1.0` y añade debajo del título del `README.md` esta línea, separada del título por una línea en blanco (sustituye `<usuario>` por tu usuario de GitHub):
 
 ```markdown
 ![CI](https://github.com/<usuario>/manual-git/actions/workflows/ci.yml/badge.svg)

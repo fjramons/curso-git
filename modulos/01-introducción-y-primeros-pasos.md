@@ -1,4 +1,4 @@
-# Módulo 1: Introducción y Primeros Pasos
+# Módulo 1: Introducción y primeros pasos
 
 Este curso enseña Git y GitHub mediante la construcción de un proyecto real: un **Manual de Git** escrito en Markdown. Cada concepto nuevo se incorpora al libro y, al final, un script lo convierte a Word, PDF y HTML con Pandoc, mientras GitHub publica cada versión automáticamente.
 
@@ -61,7 +61,7 @@ git --version
 git -v
 ```
 
-Las dos órdenes son equivalentes y muestran algo como `git version 2.43.0`. Si en lugar de eso ves `command not found`, la instalación no ha funcionado o la terminal no se ha reiniciado.
+Los dos comandos son equivalentes y muestran algo como `git version 2.43.0`. Si en lugar de eso ves `command not found`, la instalación no ha funcionado o la terminal no se ha reiniciado.
 
 Git tiene cientos de opciones. Cuando no recuerdes una, pide ayuda al propio Git:
 
@@ -70,7 +70,7 @@ git --help
 git -h
 ```
 
-`git --help` muestra los comandos más comunes agrupados por tarea. También puedes pedir la ayuda de un comando concreto, por ejemplo `git commit -h` (resumen breve) o `git help commit` (manual completo).
+Los dos muestran los comandos más comunes de Git agrupados por tarea. También puedes pedir la ayuda de un comando concreto, por ejemplo `git commit -h` (resumen breve) o `git help commit` (manual completo).
 
 Con esto ya tienes todo lo necesario para usar Git. Para seguir el ejemplo del curso, en el que el libro se convierte a Word, PDF y HTML, necesitarás además dos herramientas que no tienen nada que ver con Git: **Pandoc** y, opcionalmente, **Typst**. Instálalas siguiendo el [Anexo: dependencias de los ejemplos](09-anexo-dependencias-de-los-ejemplos.md) antes de llegar al apartado 2.5.
 
@@ -82,18 +82,18 @@ Estos son los comandos esenciales:
 
 ```bash
 ls
-cd <nombre_directorio>
+cd <carpeta>
 cd ..
 pwd
-mkdir <nombre_directorio>
+mkdir <carpeta>
 clear
 ```
 
 - `ls`: lista el contenido de la carpeta actual.
-- `cd <nombre_directorio>`: entra en una carpeta.
+- `cd <carpeta>`: entra en una carpeta.
 - `cd ..`: sube a la carpeta padre.
 - `pwd`: muestra la ruta de la carpeta en la que estás.
-- `mkdir <nombre_directorio>`: crea una carpeta nueva.
+- `mkdir <carpeta>`: crea una carpeta nueva.
 - `clear`: limpia la pantalla.
 
 Con ellos vas a crear la carpeta donde vivirá el libro. Empieza en tu carpeta personal (`~`) y comprueba dónde estás:
@@ -130,7 +130,7 @@ clear
 
 Un truco que te ahorrará mucho tiempo: escribe las primeras letras de una carpeta y pulsa la tecla Tab para que la terminal complete el nombre.
 
-## 1.4 Configuración inicial de usuario (Global)
+## 1.4 Configuración inicial del usuario (global)
 
 Cada commit lleva la firma de su autor: un nombre y un correo electrónico. Antes de empezar, hay que indicarle a Git quién eres. Usa el mismo correo con el que te registrarás (o ya estás registrado) en GitHub, así GitHub podrá asociar tus commits a tu cuenta:
 

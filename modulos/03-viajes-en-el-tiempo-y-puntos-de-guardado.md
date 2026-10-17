@@ -1,4 +1,4 @@
-# Módulo 3: Viajes en el tiempo y Puntos de Guardado
+# Módulo 3: Viajes en el tiempo y puntos de guardado
 
 El historial de commits no es solo un registro: es una máquina del tiempo. Este módulo explica cómo visitar versiones anteriores del libro, cómo deshacer commits enteros (y recuperarlos en caso de arrepentimiento) y cómo marcar versiones importantes con etiquetas.
 
@@ -55,7 +55,7 @@ git checkout main
 
 Todo vuelve a estar como antes. Si en modo _detached HEAD_ haces cambios y commits, no se pierden en ese momento, pero no pertenecen a ninguna rama y acabarán desapareciendo. Si quieres conservarlos, crea una rama antes de salir (se explica en el módulo 4).
 
-## 3.2 Eliminar cambios permanentemente (Reset Hard) y recuperar el historial (Reflog)
+## 3.2 Eliminar cambios permanentemente (`reset --hard`) y recuperar el historial (`reflog`)
 
 A veces no basta con mirar el pasado: hace falta volver a él y olvidar lo que vino después. Para provocar una situación así, reescribe el capítulo 2 con un contenido malo y guárdalo en un commit.
 
@@ -108,11 +108,11 @@ git reflog
 ```text
 5e7b3a2 (HEAD -> main) HEAD@{0}: reset: moving to 5e7b3a2
 b4e8d61 HEAD@{1}: commit: Reescribe el capítulo 2
-5e7b3a2 (HEAD -> main) HEAD@{2}: checkout: moving from 8c4d2e7 to main
+5e7b3a2 (HEAD -> main) HEAD@{2}: checkout: moving from 8c4d2e7f1a6b9c03d5e2847a1f6c9b0e3d7a2f5c to main
 ...
 ```
 
-Ahí está el commit _Reescribe el capítulo 2_. Para recuperarlo, haz un `reset --hard` a su identificador:
+Ahí está el commit _Reescribe el capítulo 2_. Cada línea es un movimiento, del más reciente al más antiguo: `HEAD@{2}` es la vuelta a `main` del apartado 3.1, en la que Git anota el identificador completo del commit del que venía. Para recuperar el commit malo, haz un `reset --hard` a su identificador:
 
 ```bash
 git reset --hard <id_del_commit>
@@ -124,11 +124,11 @@ El commit vuelve a estar en `main`. Como en realidad ese commit sobraba, repite 
 git reset --hard HEAD~1
 ```
 
-`HEAD~1` significa "el commit anterior a `HEAD`", así que no hace falta copiar el identificador. Comprueba con `git tree` que el último commit vuelve a ser _Añade el origen de Git al capítulo 1_.
+`HEAD~1` significa «el commit anterior a `HEAD`», así que no hace falta copiar el identificador. Comprueba con `git tree` que el último commit vuelve a ser _Añade el origen de Git al capítulo 1_.
 
 Recuerda: `reflog` es local (no se sube a GitHub) y Git lo limpia pasados unos 90 días. Es una red de seguridad, no un sustituto de hacer commits.
 
-## 3.3 Etiquetas (Tags) para marcar versiones importantes
+## 3.3 Etiquetas (tags) para marcar versiones importantes
 
 El libro ya tiene dos capítulos y un script que lo genera: es un buen momento para declarar un primer borrador. Las **etiquetas** (_tags_) ponen un nombre fijo a un commit concreto, normalmente un número de versión. A diferencia de una rama, una etiqueta no se mueve cuando haces commits nuevos.
 
@@ -188,7 +188,7 @@ git checkout tags/v0.1.0
 ./build.sh v0.1.0
 ```
 
-En `dist` tienes ahora `manual-git-v0.1.0.docx` (y el PDF, si tienes Typst). Como `dist/` está en el `.gitignore`, los ficheros generados no se pierden al cambiar de versión. Vuelve al presente:
+En `dist` tienes ahora `manual-git-v0.1.0.docx` (y el PDF, si tienes Typst). Al cambiar de versión, Git no toca los ficheros que no controla, como los de `dist/`, que además está en el `.gitignore`: los ficheros generados se conservan. Vuelve al presente:
 
 ```bash
 git checkout main

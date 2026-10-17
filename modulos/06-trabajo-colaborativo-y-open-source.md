@@ -1,8 +1,8 @@
-# Módulo 6: Trabajo Colaborativo y Open Source
+# Módulo 6: Trabajo colaborativo y open source
 
 Hasta ahora, el libro tiene un único autor. Este módulo abre la puerta a otras personas con el flujo que se usa en casi todos los proyectos de código abierto: alguien hace una copia del proyecto en su cuenta (_fork_), propone cambios (_pull request_) y la persona responsable los revisa y los acepta. También explica cómo mantener esa copia al día y repasa la sintaxis Markdown con la que está escrito el libro.
 
-## 6.1 Forks y Pull Requests
+## 6.1 Forks y pull requests
 
 Para este apartado necesitas un compañero o compañera. Uno hará de **autor** (el dueño del repositorio `manual-git`) y otro de **colaborador**, que va a escribir el capítulo 5 del libro del autor. Después podéis intercambiar los papeles.
 
@@ -72,7 +72,7 @@ cd ~/proyectos/manual-git
 git pull
 ```
 
-## 6.2 Sincronización de Forks (Sync Fork) y resolución de conflictos Web
+## 6.2 Sincronización de forks (Sync fork) y resolución de conflictos en la web
 
 Un fork es una copia independiente: cuando el repositorio original avanza, el fork no se actualiza solo. Ahora mismo, la rama `main` del fork del colaborador no tiene el commit de fusión del PR ni los cambios que el autor haya hecho después. Antes de empezar una contribución nueva, el colaborador debe poner su fork al día, o trabajará sobre una versión antigua y tendrá más conflictos.
 
@@ -127,7 +127,7 @@ En la página del PR, en lugar del botón verde de merge, aparece el mensaje _Th
 
 1. Edita el fichero hasta dejarlo como debe quedar y borra los marcadores.
 2. Pulsa _Mark as resolved_ (si hay varios ficheros en conflicto, repite con cada uno).
-3. Pulsa _Commit merge_. GitHub crea un commit de fusión en la rama del PR y el botón de merge vuelve a estar disponible.
+3. Pulsa _Commit merge_. GitHub crea un commit de fusión en la rama del PR y el botón de merge vuelve a estar disponible. El autor ya puede fusionar el PR como en el apartado 6.1.
 
 Si el conflicto es complejo, GitHub te pedirá que lo resuelvas en local: trae la rama a tu ordenador, haz `git merge main` (o `git merge upstream/main` desde un fork), resuelve el conflicto como en el apartado 4.3 y haz `git push`.
 
@@ -139,7 +139,9 @@ Esta es la sintaxis que más usarás:
 
 ````markdown
 # Título de nivel 1
+
 ## Título de nivel 2
+
 ### Título de nivel 3
 
 Un párrafo es un bloque de texto. Se separa del siguiente con una línea en blanco.
@@ -175,7 +177,14 @@ Algunos detalles importantes:
 - Indica siempre el lenguaje de los bloques de código (`bash`, `yaml`, `markdown`…). GitHub y Pandoc lo usan para colorear la sintaxis.
 - GitHub añade extras a Markdown, como listas de tareas (`- [ ] Pendiente` y `- [x] Hecho`) y avisos (`> [!NOTE]`). Pandoc también tiene los suyos, como las notas al pie (`Texto[^1]` y, más abajo, `[^1]: Contenido de la nota`). Úsalos con cuidado si quieres que el texto se vea igual en los dos sitios.
 
-Ahora toca aplicarlo para que el `README.md` del libro sea una buena portada. **Autor**: sustituye el contenido de tu `README.md` por este:
+Ahora toca aplicarlo para que el `README.md` del libro sea una buena portada. **Autor**: antes de editar, trae a tu copia local los commits que hiciste en la web en el apartado anterior. Si no, tu `main` y el de GitHub divergirán y GitHub rechazará el `git push`:
+
+```bash
+cd ~/proyectos/manual-git
+git pull
+```
+
+Después, sustituye el contenido de tu `README.md` por este:
 
 ````markdown
 # Manual de Git
@@ -210,7 +219,7 @@ El libro se genera en la carpeta `dist` en formato Word, PDF y HTML.
 Guarda el cambio y súbelo:
 
 ```bash
-git add README.md
+git add -A
 git commit -m "Mejora el README con el contenido y cómo colaborar"
 git push
 ```

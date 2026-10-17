@@ -263,9 +263,11 @@ function CodeBlock(bloque)
   end
 
   local imagen = pandoc.Image(pandoc.Inlines(alt), nombre, '', pandoc.Attr('', {}, atributos))
+  -- Sin la extensión smart, para que «git reset --hard» no se convierta
+  -- en «git reset –hard»: en el pie no se pueden poner acentos graves
   return pandoc.Figure(
     pandoc.Plain({ imagen }),
-    pandoc.Blocks(pie ~= '' and { pandoc.Plain(pandoc.read(pie, 'markdown').blocks[1].content) } or {}),
+    pandoc.Blocks(pie ~= '' and { pandoc.Plain(pandoc.read(pie, 'markdown-smart').blocks[1].content) } or {}),
     pandoc.Attr(bloque.identifier)
   )
 end

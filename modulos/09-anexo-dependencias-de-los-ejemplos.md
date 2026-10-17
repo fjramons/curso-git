@@ -62,4 +62,4 @@ typst --version
 
 Cada comando muestra la versión instalada. Si `typst --version` falla y no quieres el PDF, puedes seguir adelante sin problema.
 
-Para ver un documento abierto también necesitarás un programa que lea `.docx`, como Microsoft Word o LibreOffice, y un visor de PDF. Cualquier navegador sirve para abrir el `index.html`.
+Para abrir el libro generado necesitarás también un programa que lea `.docx`, como Microsoft Word o LibreOffice, y un visor de PDF. El `index.html` se abre con cualquier navegador.

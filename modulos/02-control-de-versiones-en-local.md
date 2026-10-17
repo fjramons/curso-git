@@ -1,4 +1,4 @@
-# Módulo 2: Control de Versiones en Local (Bases de Git)
+# Módulo 2: Control de versiones en local (bases de Git)
 
 En este módulo, la carpeta `manual-git` se convierte en un repositorio de Git y el libro recibe sus primeros capítulos. Se presentan el ciclo básico de trabajo (modificar, preparar y confirmar), la forma de deshacer cambios, la lectura del historial y la generación del libro en Word con Pandoc.
 
@@ -33,7 +33,7 @@ git status
 
 `git status` será el comando que más uses. La salida indica que la rama actual es `main`, que todavía no hay commits y que `README.md` es un fichero _untracked_ (sin seguimiento): Git lo ve, pero aún no lo controla.
 
-## 2.2 Ciclo de vida de los archivos: Área de Staging y Commits
+## 2.2 Ciclo de vida de los ficheros: área de staging y commits
 
 En Git, un cambio pasa por tres zonas:
 
@@ -110,7 +110,7 @@ git log
 
 Cada commit muestra un identificador único (un _hash_ de 40 caracteres como `a1b2c3d…`), el autor, la fecha y el mensaje. El más reciente aparece arriba. Si la lista es larga, muévete con las flechas y sal pulsando `q`.
 
-## 2.3 Descartar cambios antes de guardar (Checkout y Reset)
+## 2.3 Descartar cambios antes de guardar (checkout y reset)
 
 Equivocarse es parte del trabajo. Para practicar cómo recuperar un fichero, estropea a propósito el capítulo 1. Este comando sobrescribe el fichero entero con una sola línea:
 
@@ -149,7 +149,7 @@ git checkout capitulos/01-que-es-git.md
 
 En las versiones modernas de Git verás que `git status` sugiere `git restore <fichero>` y `git restore --staged <fichero>`. Hacen exactamente lo mismo que `git checkout <fichero>` y `git reset HEAD <fichero>`, con nombres más claros. Puedes usar los que prefieras.
 
-## 2.4 Personalización del historial y creación de Alias
+## 2.4 Personalización del historial y creación de alias
 
 Para que el historial tenga algo más de contenido, añade un segundo capítulo con los comandos vistos hasta ahora. Crea `capitulos/02-primeros-comandos.md`:
 
@@ -225,7 +225,7 @@ git config --global alias.tree "log --graph --decorate --all --oneline"
 
 A partir de ahora, `git tree` muestra el historial con este formato. Se usa durante todo el curso.
 
-## 2.5 Ignorar archivos no deseados (.gitignore)
+## 2.5 Ignorar ficheros no deseados (.gitignore)
 
 Es hora de convertir el libro a Word. Para ello necesitas Pandoc (y Typst si quieres el PDF): si aún no los tienes, instálalos siguiendo el [Anexo: dependencias de los ejemplos](09-anexo-dependencias-de-los-ejemplos.md). Recuerda que no forman parte de Git: solo hacen falta para generar el libro. Primero, crea `metadata.yaml`, con los datos que Pandoc pondrá en la portada:
 
@@ -291,7 +291,7 @@ Para eso existe el fichero `.gitignore`: una lista de rutas y patrones que Git d
 
 ```bash
 touch .gitignore
-# A partir de aquí se edita el archivo añadiendo rutas o patrones, p. ej. *.log o .DS_Store
+# A partir de aquí se edita el fichero añadiendo rutas o patrones, p. ej. *.log o .DS_Store
 ```
 
 Abre `.gitignore` con tu editor y escribe:
@@ -324,7 +324,7 @@ git commit -m "Añade el script de generación del libro con Pandoc"
 
 ## 2.6 Ver diferencias entre versiones
 
-Antes de hacer un commit conviene revisar qué ha cambiado exactamente. Añade un párrafo al final de `capitulos/01-que-es-git.md`:
+Antes de hacer un commit conviene revisar qué ha cambiado exactamente. Añade un párrafo al final de `capitulos/01-que-es-git.md`, separado del anterior por una línea en blanco, como todos los párrafos en Markdown:
 
 ```markdown
 Git fue creado en 2005 por Linus Torvalds para desarrollar el núcleo de Linux.

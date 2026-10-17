@@ -69,7 +69,10 @@ curso-git/
 ├── pandoc/
 │   ├── metadata.yaml
 │   ├── diagramas.lua
-│   └── enlaces-internos.lua
+│   ├── enlaces-internos.lua
+│   ├── estilo-pdf.typ
+│   ├── portada.lua
+│   └── saltos-de-pagina.lua
 ├── scripts/
 │   └── build.sh
 └── outputs/
@@ -79,6 +82,9 @@ curso-git/
 - `modulos/` contiene el curso. Los ficheros se ordenan por su número, que es el orden en el que aparecen en el documento generado. Para añadir un módulo basta con crear un fichero nuevo con el número que le corresponda.
 - `pandoc/metadata.yaml` define el título y el idioma del documento, y `pandoc/enlaces-internos.lua` convierte los enlaces entre módulos en enlaces dentro del documento.
 - `pandoc/diagramas.lua` convierte los diagramas del historial, escritos en texto dentro de los módulos, en imágenes SVG (ver [Diagramas](#diagramas)).
+- `pandoc/estilo-pdf.typ` da estilo a los bloques de código del PDF: fondo y filete para las órdenes y el contenido de ficheros, borde fino para las salidas de comandos (bloques `text`) y sangría en la continuación de las líneas largas.
+- `pandoc/saltos-de-pagina.lua` empieza cada módulo en una página nueva en el Word y en el PDF.
+- `pandoc/portada.lua` añade al Word y al PDF una portada, con la versión o la fecha de generación, y un índice en página aparte. La web no lleva portada y tiene su propio índice de navegación.
 - `scripts/build.sh` genera el curso en `outputs/`.
 - `outputs/` solo guarda en Git el fichero `.gitkeep`, para que la carpeta exista. Todo lo que se genera dentro está en el `.gitignore`.
 

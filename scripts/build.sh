@@ -9,10 +9,10 @@ cd "$(dirname "$0")/.."
 # La portada del Word y del PDF muestra la versión o, sin ella, la fecha.
 VERSION="${1:-}"
 if [[ -n "$VERSION" ]]; then
-  NOMBRE="curso-de-git-y-github-$VERSION"
+  NOMBRE="git-y-github-mas-alla-del-codigo-$VERSION"
   EDICION="Versión ${VERSION#v}"
 else
-  NOMBRE="$(date +%Y%m%d_%H%M) Curso de Git y GitHub"
+  NOMBRE="$(date +%Y%m%d_%H%M) Git y GitHub, más allá del código"
   EDICION="Borrador del $(date +%d/%m/%Y)"
 fi
 OPCIONES=(

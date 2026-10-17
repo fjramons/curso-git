@@ -1,8 +1,12 @@
-# Curso de Git y GitHub
+# Git y GitHub, más allá del código
+
+_Controla tus versiones, colabora sin miedo y automatiza tu trabajo._ Por fjramons.
 
 Curso práctico de Git y GitHub basado en la construcción de un proyecto real de principio a fin: un **Manual de Git** escrito en Markdown. Cada capítulo del libro recoge lo aprendido en el curso, un script lo convierte a Word, PDF y HTML con Pandoc, y GitHub Actions publica automáticamente cada versión como una Release y como una web en GitHub Pages.
 
 ## Módulos
+
+El curso empieza con un [prefacio](modulos/00-prefacio.md) que explica a quién va dirigido, por qué Git y GitHub son útiles también fuera del desarrollo de software y cómo está organizado.
 
 1. [Introducción y primeros pasos](modulos/01-introducción-y-primeros-pasos.md): qué son Git y GitHub, instalación, terminal y configuración.
 2. [Control de versiones en local](modulos/02-control-de-versiones-en-local.md): repositorio, staging, commits, deshacer cambios, `.gitignore` y el script del libro.
@@ -64,6 +68,7 @@ curso-git/
 ├── .markdownlint.jsonc
 ├── .github/workflows/ci.yml
 ├── modulos/
+│   ├── 00-prefacio.md
 │   ├── 01-introducción-y-primeros-pasos.md
 │   ├── ...
 │   ├── 09-anexo-dependencias-de-los-ejemplos.md
@@ -82,11 +87,11 @@ curso-git/
 ```
 
 - `modulos/` contiene el curso. Los ficheros se ordenan por su número, que es el orden en el que aparecen en el documento generado. Para añadir un módulo basta con crear un fichero nuevo con el número que le corresponda.
-- `pandoc/metadata.yaml` define el título y el idioma del documento, y `pandoc/enlaces-internos.lua` convierte los enlaces entre módulos en enlaces dentro del documento.
+- `pandoc/metadata.yaml` define el título, el subtítulo, el autor y el idioma del documento, y `pandoc/enlaces-internos.lua` convierte los enlaces entre módulos en enlaces dentro del documento.
 - `pandoc/diagramas.lua` convierte los diagramas del historial, escritos en texto dentro de los módulos, en imágenes SVG (ver [Diagramas](#diagramas)).
 - `pandoc/estilo-pdf.typ` da estilo a los bloques de código del PDF: fondo y filete para las órdenes y el contenido de ficheros, borde fino para las salidas de comandos (bloques `text`) y sangría en la continuación de las líneas largas.
 - `pandoc/saltos-de-pagina.lua` empieza cada módulo en una página nueva en el Word y en el PDF.
-- `pandoc/portada.lua` añade al Word y al PDF una portada, con la versión o la fecha de generación, y un índice en página aparte. La web no lleva portada y tiene su propio índice de navegación.
+- `pandoc/portada.lua` añade al Word y al PDF una portada, con el autor y la versión o la fecha de generación, y un índice en página aparte. La web no lleva portada y tiene su propio índice de navegación.
 - `scripts/build.sh` genera el curso en `outputs/`.
 - `outputs/` sólo guarda en Git el fichero `.gitkeep`, para que la carpeta exista. Todo lo que se genera dentro está en el `.gitignore`.
 
@@ -106,8 +111,8 @@ scripts/build.sh
 
 El script genera en `outputs/` estos ficheros, con la fecha y la hora de generación delante del nombre:
 
-- `YYYYMMDD_HHmm Curso de Git y GitHub.docx`
-- `YYYYMMDD_HHmm Curso de Git y GitHub.pdf` (sólo si Typst está instalado)
+- `YYYYMMDD_HHmm Git y GitHub, más allá del código.docx`
+- `YYYYMMDD_HHmm Git y GitHub, más allá del código.pdf` (sólo si Typst está instalado)
 - `index.html`, la versión web del curso
 
 Si le pasas una versión, el script usa un nombre convencional asociado a esa versión, que es lo que hace el CI al publicar una Release:
@@ -116,14 +121,14 @@ Si le pasas una versión, el script usa un nombre convencional asociado a esa ve
 scripts/build.sh v1.0.0
 ```
 
-Genera `curso-de-git-y-github-v1.0.0.docx` y `curso-de-git-y-github-v1.0.0.pdf`, además del `index.html`.
+Genera `git-y-github-mas-alla-del-codigo-v1.0.0.docx` y `git-y-github-mas-alla-del-codigo-v1.0.0.pdf`, además del `index.html`.
 
 ### En GitHub
 
 El workflow `.github/workflows/ci.yml` hace dos cosas:
 
 - En cada push y en cada pull request, revisa la sintaxis de todos los ficheros Markdown con markdownlint, usando las reglas de `.markdownlint.jsonc`.
-- Al subir una etiqueta que empieza por `v`, genera el curso con el nombre de la etiqueta (`curso-de-git-y-github-v1.0.0.docx` y `.pdf`), crea una Release con los dos ficheros adjuntos y publica la versión web en GitHub Pages.
+- Al subir una etiqueta que empieza por `v`, genera el curso con el nombre de la etiqueta (`git-y-github-mas-alla-del-codigo-v1.0.0.docx` y `.pdf`), crea una Release con los dos ficheros adjuntos y publica la versión web en GitHub Pages.
 
 Para publicar una versión:
 

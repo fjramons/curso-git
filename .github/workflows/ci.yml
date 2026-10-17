@@ -39,9 +39,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            "outputs/curso-de-git-y-github-$GITHUB_REF_NAME.docx#Curso de Git y GitHub $GITHUB_REF_NAME (Word)" \
-            "outputs/curso-de-git-y-github-$GITHUB_REF_NAME.pdf#Curso de Git y GitHub $GITHUB_REF_NAME (PDF)" \
-            --title "Curso de Git y GitHub $GITHUB_REF_NAME" \
+            "outputs/git-y-github-mas-alla-del-codigo-$GITHUB_REF_NAME.docx#Git y GitHub, más allá del código $GITHUB_REF_NAME (Word)" \
+            "outputs/git-y-github-mas-alla-del-codigo-$GITHUB_REF_NAME.pdf#Git y GitHub, más allá del código $GITHUB_REF_NAME (PDF)" \
+            --title "Git y GitHub, más allá del código $GITHUB_REF_NAME" \
             --generate-notes
       - uses: actions/upload-pages-artifact@v5
         with:

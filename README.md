@@ -12,7 +12,7 @@ Curso práctico de Git y GitHub basado en la construcción de un proyecto real d
 6. [Trabajo colaborativo y open source](modulos/06-trabajo-colaborativo-y-open-source.md): forks, pull requests, sincronización y Markdown.
 7. [Flujos de trabajo y comandos avanzados](modulos/07-flujos-de-trabajo-y-comandos-avanzados.md): GUIs, GitFlow, GitHub flow, cherry-pick, rebase y revert.
 8. [GitHub Actions](modulos/08-github-actions.md): integración y despliegue continuos, workflows, actions del Marketplace, permisos, tareas programadas, GitHub Pages y publicación de versiones.
-9. [Anexo: dependencias de los ejemplos](modulos/09-anexo-dependencias-de-los-ejemplos.md): instalación de Pandoc y Typst, necesarios solo para generar el libro.
+9. [Anexo: dependencias de los ejemplos](modulos/09-anexo-dependencias-de-los-ejemplos.md): instalación de Pandoc y Typst, necesarios sólo para generar el libro.
 10. [Anexo: referencias útiles](modulos/10-anexo-referencias-útiles.md): recopilación de los recursos citados en el curso (Git, GitHub, Markdown y GitHub Actions).
 
 ## Qué se construye
@@ -88,7 +88,7 @@ curso-git/
 - `pandoc/saltos-de-pagina.lua` empieza cada módulo en una página nueva en el Word y en el PDF.
 - `pandoc/portada.lua` añade al Word y al PDF una portada, con la versión o la fecha de generación, y un índice en página aparte. La web no lleva portada y tiene su propio índice de navegación.
 - `scripts/build.sh` genera el curso en `outputs/`.
-- `outputs/` solo guarda en Git el fichero `.gitkeep`, para que la carpeta exista. Todo lo que se genera dentro está en el `.gitignore`.
+- `outputs/` sólo guarda en Git el fichero `.gitkeep`, para que la carpeta exista. Todo lo que se genera dentro está en el `.gitignore`.
 
 ### En local
 
@@ -96,7 +96,7 @@ Instala Pandoc y, para el PDF, Typst (ver el [anexo](modulos/09-anexo-dependenci
 
 - Linux (Debian/Ubuntu): `sudo apt install graphviz librsvg2-bin`
 - macOS: `brew install graphviz librsvg`
-- Windows: `winget install Graphviz.Graphviz`. `rsvg-convert` es opcional: sin él, el Word lleva solo los SVG, que Word muestra sin problemas.
+- Windows: `winget install Graphviz.Graphviz`. `rsvg-convert` es opcional: sin él, el Word lleva sólo los SVG, que Word muestra sin problemas.
 
 Después, ejecuta desde cualquier carpeta:
 
@@ -107,7 +107,7 @@ scripts/build.sh
 El script genera en `outputs/` estos ficheros, con la fecha y la hora de generación delante del nombre:
 
 - `YYYYMMDD_HHmm Curso de Git y GitHub.docx`
-- `YYYYMMDD_HHmm Curso de Git y GitHub.pdf` (solo si Typst está instalado)
+- `YYYYMMDD_HHmm Curso de Git y GitHub.pdf` (sólo si Typst está instalado)
 - `index.html`, la versión web del curso
 
 Si le pasas una versión, el script usa un nombre convencional asociado a esa versión, que es lo que hace el CI al publicar una Release:
@@ -160,8 +160,8 @@ digraph {
 - Las referencias se declaran después de `node [shape=plaintext, group=""]`, con `class=rama`, `class=remota`, `class=head` o `class=etiqueta`, y salen como texto en color. `{ rank=same; c2 -> main -> HEAD [class=ref dir=back] }` las coloca en la fila de su commit, a la derecha, con las flechas hacia el commit. Para ponerlas a la izquierda se escriben al revés y con `dir=forward`: `{ rank=same; HEAD -> main -> c2 [class=ref dir=forward] }`.
 - Cuando dos commits de ramas distintas quedan en la misma fila, `{ rank=same; a -> b [style=invis] }` fija que `a` vaya a la izquierda de `b`. Las referencias del commit de la izquierda se ponen a su izquierda, para que no queden entre las dos ramas.
 - `group=<nombre>` alinea en columna los commits de cada rama cuando hay varias.
-- `class=huerfano` marca en gris un commit que no está en ninguna rama (o la flecha que lleva a él), y `class=copia` une un commit con su copia (cherry-pick, rebase).
+- `class=huerfano` marca en gris un commit que no está en ninguna rama (o la flecha que lleva a él), y `class=copia` une un commit con su copia (cherry-pick, rebase). El filtro dibuja esos commits con el contorno discontinuo. Para que la vista previa del editor, que no conoce las macros, también lo muestre, el bloque repite el estilo: `o1 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="…"]` y `c -> o1 [class=huerfano style=dashed color=gray50]`. El filtro ignora esos atributos y aplica los suyos.
 - `class=nota` es texto sin caja, como el `…` que indica que hay commits anteriores, `class=repo` y `class=accion` sirven para los diagramas de repositorios remotos, y `class=zona` dibuja un recuadro rectangular que no es un commit, como las zonas de Git en 2.2.
-- Dos `subgraph cluster_… { label="Antes" … }` dibujan un «antes y después»; el filtro los apila en el orden en que se escriben. Las referencias de cada cluster van dentro de él.
+- El curso no usa figuras de «antes y después»: cada estado del historial es un diagrama propio, colocado justo después del comando que lo produce. El filtro aún admite dos `subgraph cluster_… { label="Antes" … }`, que apila en el orden en que se escriben, con las referencias de cada cluster dentro de él.
 
 La lista completa de macros está al principio de `pandoc/diagramas.lua`. Cada diagrama debe coincidir con lo que `git tree` muestra en ese punto del ejemplo.

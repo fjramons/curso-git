@@ -1,18 +1,20 @@
 # Módulo 6: Trabajo colaborativo y open source
 
-Hasta ahora, el libro tiene un único autor. Este módulo abre la puerta a otras personas con el flujo que se usa en casi todos los proyectos de código abierto: alguien hace una copia del proyecto en su cuenta (_fork_), propone cambios (_pull request_) y la persona responsable los revisa y los acepta. También explica cómo mantener esa copia al día y repasa la sintaxis Markdown con la que está escrito el libro.
+Hasta ahora, nuestro libro tiene un único autor. En este módulo vamos a abrir la puerta a otras personas con el flujo que se usa en casi todos los proyectos de código abierto: alguien hace una copia del proyecto en su cuenta (_fork_), propone cambios (_pull request_) y la persona responsable los revisa y los acepta. Después veremos cómo mantener esa copia al día y, para terminar, repasaremos la sintaxis Markdown con la que está escrito el libro.
 
 ## 6.1 Forks y pull requests
 
-Para este apartado necesitas un compañero o compañera. Uno hará de **autor** (el dueño del repositorio `manual-git`) y otro de **colaborador**, que va a escribir el capítulo 5 del libro del autor. Después podéis intercambiar los papeles.
+Para este apartado necesitas un compañero o compañera. Uno hará de **autor** (el dueño del repositorio `manual-git`) y el otro de **colaborador**, que va a escribir el capítulo 5 del libro del autor. Después podéis intercambiar los papeles.
 
 Si haces el curso por tu cuenta, puedes crear una segunda cuenta de GitHub para el colaborador. Ten en cuenta que GitHub no permite usar la misma clave SSH en dos cuentas, así que la segunda cuenta necesitará su propia clave (repite el apartado 5.1 con otro nombre de fichero).
 
-Un colaborador no tiene permiso para hacer `push` al repositorio del autor. Por eso existen los **forks**: un fork es una copia completa de un repositorio ajeno dentro de tu propia cuenta de GitHub, donde sí puedes escribir. Desde el fork, propones tus cambios al repositorio original mediante un **pull request** (PR): una petición para que el autor revise tus cambios y, si le parecen bien, los fusione.
+Antes de empezar, conviene entender el problema que resuelven los forks. Un colaborador no tiene permiso para hacer `push` al repositorio del autor, así que necesita otro sitio donde guardar su trabajo. Ese sitio es el **fork**: una copia completa de un repositorio ajeno dentro de su propia cuenta de GitHub, donde sí puede escribir. Desde el fork, el colaborador propone sus cambios al repositorio original mediante un **pull request** (PR), es decir, una petición para que el autor revise los cambios y, si le parecen bien, los fusione.
+
+El recorrido completo tiene tres etapas: el colaborador crea el fork y escribe el capítulo en él, abre el pull request y, por último, el autor lo revisa y lo fusiona. Empezamos por el lado del colaborador.
 
 **Colaborador**: entra en el repositorio del autor (`https://github.com/<autor>/manual-git`) y pulsa el botón _Fork_ de la parte superior derecha. Acepta las opciones por defecto y pulsa _Create fork_. En unos segundos tendrás `https://github.com/<colaborador>/manual-git`, con todo el historial del libro del autor.
 
-Ahora clona tu fork (no el repositorio del autor) con la URL SSH del botón _Code_. Clónalo en una carpeta con otro nombre para no confundirlo con tu propio libro:
+Para trabajar en el fork necesitas una copia local, así que clónalo (a él, no al repositorio del autor) con la URL SSH del botón _Code_. Conviene hacerlo en una carpeta con otro nombre, para no confundirlo con tu propio libro:
 
 ```bash
 cd ~/proyectos
@@ -20,13 +22,13 @@ git clone <url_de_tu_fork> manual-git-fork
 cd manual-git-fork
 ```
 
-Es una buena práctica no trabajar directamente en `main` cuando se colabora, sino en una rama con un nombre descriptivo. Así el PR contiene solo ese trabajo y tu `main` se mantiene igual que el del autor:
+Cuando se colabora, es una buena práctica no trabajar directamente en `main`, sino en una rama con un nombre descriptivo. De este modo el PR contiene sólo ese trabajo y tu `main` se mantiene igual que el del autor:
 
 ```bash
 git switch -c capitulo-github
 ```
 
-Escribe el capítulo 5 en `capitulos/05-github.md`:
+En esa rama, escribe el capítulo 5 en `capitulos/05-github.md`:
 
 ```markdown
 # GitHub
@@ -49,23 +51,25 @@ git push -u origin capitulo-github
 
 Como la rama es nueva, `-u` la crea en tu fork y la enlaza. Si el colaborador hubiera trabajado directamente en `main`, bastaría con `git push`.
 
-Ahora, en la página de tu fork en GitHub aparece un aviso amarillo: _capitulo-github had recent pushes_. Pulsa _Compare & pull request_. GitHub muestra qué se va a fusionar y dónde:
+El capítulo ya está en el fork, pero todavía no en el libro del autor: para que llegue allí hay que abrir el pull request. En la página de tu fork en GitHub aparece ahora un aviso amarillo, _capitulo-github had recent pushes_; pulsa _Compare & pull request_. GitHub muestra qué se va a fusionar y dónde:
 
 - **base repository**: `<autor>/manual-git`, rama `main`. Es el destino.
 - **head repository**: `<colaborador>/manual-git`, rama `capitulo-github`. Es el origen.
 
-Escribe un título claro (_Añade el capítulo 5 sobre GitHub_) y una descripción que explique qué aporta el cambio. Pulsa _Create pull request_.
+Escribe un título claro (_Añade el capítulo 5 sobre GitHub_) y una descripción que explique qué aporta el cambio, y pulsa _Create pull request_.
+
+Ahora la pelota está en el tejado del autor.
 
 **Autor**: en tu repositorio, la pestaña _Pull requests_ muestra el PR nuevo. Ábrelo y revísalo:
 
 - La pestaña _Files changed_ muestra el diff del cambio. Puedes pulsar el `+` que aparece junto a cualquier línea para dejar un comentario.
-- Con el botón _Review changes_ puedes aprobar el PR (_Approve_), pedir cambios (_Request changes_) o solo comentar.
+- Con el botón _Review changes_ puedes aprobar el PR (_Approve_), pedir cambios (_Request changes_) o sólo comentar.
 
-Si pides cambios, el colaborador puede hacerlos en su rama `capitulo-github`, hacer commit y `git push`: los commits nuevos se añaden automáticamente al mismo PR. No hace falta abrir otro.
+Si pides cambios, el colaborador puede hacerlos en su rama `capitulo-github`, hacer commit y `git push`, y los commits nuevos se añadirán automáticamente al mismo PR, sin necesidad de abrir otro.
 
-Cuando todo esté bien, pulsa _Merge pull request_ y después _Confirm merge_. El botón tiene una flecha con tres opciones: _Create a merge commit_ (la habitual, que conserva todos los commits y crea un commit de fusión), _Squash and merge_ (junta todos los commits del PR en uno solo) y _Rebase and merge_ (coloca los commits encima de `main` sin commit de fusión). De momento, usa la primera.
+Cuando todo esté bien, pulsa _Merge pull request_ y después _Confirm merge_. El botón tiene una flecha con tres opciones: _Create a merge commit_ (la habitual, que conserva todos los commits y crea un commit de fusión), _Squash and merge_ (junta todos los commits del PR en uno solo) y _Rebase and merge_ (coloca los commits encima de `main` sin commit de fusión). De momento, usaremos la primera.
 
-El capítulo 5 ya forma parte del libro en GitHub. Para tenerlo también en local, el autor lo descarga:
+El capítulo 5 ya forma parte del libro en GitHub. Para tenerlo también en local, el autor sólo tiene que descargarlo:
 
 ```bash
 cd ~/proyectos/manual-git
@@ -76,17 +80,19 @@ Si quieres repetir este proceso con un proyecto real, el repositorio [First Cont
 
 ## 6.2 Sincronización de forks (Sync fork) y resolución de conflictos en la web
 
-Un fork es una copia independiente: cuando el repositorio original avanza, el fork no se actualiza solo. Ahora mismo, la rama `main` del fork del colaborador no tiene el commit de fusión del PR ni los cambios que el autor haya hecho después. Antes de empezar una contribución nueva, el colaborador debe poner su fork al día, o trabajará sobre una versión antigua y tendrá más conflictos.
+Un fork es una copia independiente, así que cuando el repositorio original avanza, el fork no se actualiza solo. Ahora mismo, sin ir más lejos, la rama `main` del fork del colaborador no tiene el commit de fusión del PR ni los cambios que el autor haya hecho después. Antes de empezar una contribución nueva, el colaborador debe poner su fork al día; si no, trabajará sobre una versión antigua y tendrá más conflictos.
 
-Para verlo, el **autor** hace un cambio en su libro. Por ejemplo, edita `capitulos/01-que-es-git.md` desde la web de GitHub, añade una línea al final y confirma el commit en `main`:
+Para verlo, vamos a hacer que el original avance todavía un poco más. El **autor** hace un cambio en su libro: por ejemplo, edita `capitulos/01-que-es-git.md` desde la web de GitHub, añade una línea al final y confirma el commit en `main`:
 
 ```markdown
 Git es software libre y gratuito.
 ```
 
-**Colaborador**: entra en la página de tu fork. Encima de la lista de ficheros verás un mensaje como _This branch is 3 commits behind `<autor>/manual-git:main`_ (el commit del capítulo 5, el commit de fusión del PR y el cambio del autor). Pulsa el botón _Sync fork_ y después _Update branch_. GitHub copia en el `main` de tu fork los commits nuevos del original. Este proceso es solo web: no hace falta la terminal.
+Ya tenemos el escenario: el repositorio del autor tiene varios commits que el fork no tiene, y queremos ponerlo al día.
 
-Tu fork en GitHub ya está al día, pero tu copia local todavía no. Descárgalo como cualquier otro cambio remoto y, de paso, borra la rama del capítulo, que ya está fusionada:
+**Colaborador**: entra en la página de tu fork. Encima de la lista de ficheros verás un mensaje como _This branch is 3 commits behind `<autor>/manual-git:main`_ (el commit del capítulo 5, el commit de fusión del PR y el cambio del autor). Pulsa el botón _Sync fork_ y después _Update branch_, y GitHub copiará en el `main` de tu fork los commits nuevos del original. Todo este proceso se hace en la web, sin necesidad de la terminal.
+
+Tu fork en GitHub ya está al día, pero tu copia local todavía no. La actualizamos como con cualquier otro cambio remoto y, de paso, borramos la rama del capítulo, que ya está fusionada:
 
 ```bash
 cd ~/proyectos/manual-git-fork
@@ -95,7 +101,7 @@ git pull
 git branch -d capitulo-github
 ```
 
-Si quieres sincronizar desde la terminal sin pasar por la web, añade el repositorio original como un segundo remoto, al que por convención se llama `upstream`, y descarga sus cambios:
+Si prefieres sincronizar desde la terminal sin pasar por la web, añade el repositorio original como un segundo remoto, al que por convención se llama `upstream`, y descarga sus cambios:
 
 ```bash
 git remote add upstream <url_ssh_repositorio_del_autor>
@@ -104,7 +110,7 @@ git merge upstream/main
 git push
 ```
 
-El colaborador trabaja así con tres copias del libro. El diagrama resume cómo viajan los cambios entre ellas:
+Como se ve, el colaborador trabaja con tres copias del libro. El diagrama resume cómo viajan los cambios entre ellas:
 
 ```{.dot caption="Repositorio del autor, fork y copia local del colaborador" alt="El fork se crea desde el repositorio del autor y se pone al día con Sync fork. La copia local sube cambios al fork con git push y los baja con git pull o con git fetch upstream. Los cambios vuelven al repositorio del autor con un pull request"}
 digraph {
@@ -121,23 +127,23 @@ digraph {
 }
 ```
 
-Los cambios del colaborador solo llegan al repositorio del autor a través de un pull request, porque el colaborador no tiene permiso para escribir en él.
+Los cambios del colaborador sólo llegan al repositorio del autor a través de un pull request, porque el colaborador no tiene permiso para escribir en él.
 
-**Conflictos en un PR**. Si mientras un PR está abierto alguien cambia en `main` las mismas líneas que el PR, GitHub no puede fusionarlo automáticamente. Para verlo, el colaborador crea una rama nueva en su fork, cambia la línea `title:` de `metadata.yaml` y abre un PR. Mientras tanto, el autor cambia esa misma línea en su `main` desde la web.
+**Conflictos en un PR**. Queda un último caso por ver: qué ocurre si, mientras un PR está abierto, alguien cambia en `main` las mismas líneas que el PR. En esa situación GitHub no puede fusionarlo automáticamente. Para provocarla, el colaborador crea una rama nueva en su fork, cambia la línea `title:` de `metadata.yaml` y abre un PR; mientras tanto, el autor cambia esa misma línea en su `main` desde la web.
 
-En la página del PR, en lugar del botón verde de merge, aparece el mensaje _This branch has conflicts that must be resolved_. Si el conflicto es sencillo, GitHub ofrece un botón _Resolve conflicts_ que abre un editor web con el fichero en conflicto y los mismos marcadores del apartado 4.3 (`<<<<<<<`, `=======` y `>>>>>>>`):
+Con esto, en la página del PR, en lugar del botón verde de merge, aparece el mensaje _This branch has conflicts that must be resolved_. Lo que queremos es resolver el conflicto sin salir de GitHub, y si es sencillo, podemos hacerlo: el botón _Resolve conflicts_ abre un editor web con el fichero en conflicto y los mismos marcadores del apartado 4.3 (`<<<<<<<`, `=======` y `>>>>>>>`):
 
 1. Edita el fichero hasta dejarlo como debe quedar y borra los marcadores.
 2. Pulsa _Mark as resolved_ (si hay varios ficheros en conflicto, repite con cada uno).
 3. Pulsa _Commit merge_. GitHub crea un commit de fusión en la rama del PR y el botón de merge vuelve a estar disponible. El autor ya puede fusionar el PR como en el apartado 6.1.
 
-Si el conflicto es complejo, GitHub te pedirá que lo resuelvas en local: trae la rama a tu ordenador, haz `git merge main` (o `git merge upstream/main` desde un fork), resuelve el conflicto como en el apartado 4.3 y haz `git push`.
+Si el conflicto es complejo, en cambio, GitHub te pedirá que lo resuelvas en local: trae la rama a tu ordenador, haz `git merge main` (o `git merge upstream/main` desde un fork), resuelve el conflicto como en el apartado 4.3 y haz `git push`.
 
 ## 6.3 Uso de Markdown (README.md)
 
-**Markdown** es un lenguaje de marcado ligero: texto plano con unos pocos símbolos que indican el formato. Es fácil de leer incluso sin convertir, funciona muy bien con Git (los diffs muestran exactamente qué ha cambiado, cosa que no ocurre con un `.docx`) y GitHub lo muestra con formato automáticamente. Por eso el `README.md` es la portada de cualquier repositorio, y por eso el libro está escrito en Markdown.
+**Markdown** es un lenguaje de marcado ligero: texto plano con unos pocos símbolos que indican el formato. Es fácil de leer incluso sin convertir, funciona muy bien con Git (los diffs muestran exactamente qué ha cambiado, cosa que no ocurre con un `.docx`) y GitHub lo muestra con formato automáticamente. Por eso el `README.md` es la portada de cualquier repositorio, y por eso nuestro libro está escrito en Markdown.
 
-Como con los comandos de Git, no hace falta memorizar la sintaxis: la [Markdown Guide](https://www.markdownguide.org/) explica cada elemento con ejemplos y su [hoja de referencia](https://www.markdownguide.org/cheat-sheet/) los resume en una página.
+Como ocurre con los comandos de Git, no hace falta memorizar la sintaxis: la [Markdown Guide](https://www.markdownguide.org/) explica cada elemento con ejemplos y su [hoja de referencia](https://www.markdownguide.org/cheat-sheet/) los resume en una página.
 
 Esta es la sintaxis que más usarás:
 
@@ -175,20 +181,22 @@ git status
 | `git commit` | Guarda cambios |
 ````
 
-Algunos detalles importantes:
+Conviene tener en cuenta algunos detalles:
 
 - Los títulos estructuran el documento. En el libro, cada capítulo empieza con un único título de nivel 1 (`#`), que Pandoc convierte en un capítulo y usa para construir el índice.
 - Indica siempre el lenguaje de los bloques de código (`bash`, `yaml`, `markdown`…). GitHub y Pandoc lo usan para colorear la sintaxis.
 - GitHub añade extras a Markdown, como listas de tareas (`- [ ] Pendiente` y `- [x] Hecho`) y avisos (`> [!NOTE]`). Pandoc también tiene los suyos, como las notas al pie (`Texto[^1]` y, más abajo, `[^1]: Contenido de la nota`). Úsalos con cuidado si quieres que el texto se vea igual en los dos sitios. Los extras de GitHub se explican en [Escritura en GitHub](https://docs.github.com/es/get-started/writing-on-github), dentro de su documentación.
 
-Ahora toca aplicarlo para que el `README.md` del libro sea una buena portada. **Autor**: antes de editar, trae a tu copia local los commits que hiciste en la web en el apartado anterior. Si no, tu `main` y el de GitHub divergirán y GitHub rechazará el `git push`:
+Vamos a aplicarlo para que el `README.md` del libro sea una buena portada.
+
+**Autor**: antes de editar, trae a tu copia local los commits que hiciste en la web en el apartado anterior. Si no lo haces, tu `main` y el de GitHub divergirán y GitHub rechazará el `git push`:
 
 ```bash
 cd ~/proyectos/manual-git
 git pull
 ```
 
-Después, sustituye el contenido de tu `README.md` por este:
+Con la copia al día, sustituye el contenido de tu `README.md` por este:
 
 ````markdown
 # Manual de Git
@@ -220,7 +228,7 @@ El libro se genera en la carpeta `dist` en formato Word, PDF y HTML.
 3. Abre un pull request con una descripción de lo que aportas.
 ````
 
-Guarda el cambio y súbelo:
+Y guarda el cambio y súbelo:
 
 ```bash
 git add -A
@@ -228,6 +236,6 @@ git commit -m "Mejora el README con el contenido y cómo colaborar"
 git push
 ```
 
-Abre el repositorio en GitHub y verás el README con formato debajo de la lista de ficheros. Mientras escribes, puedes ver una vista previa de cualquier fichero Markdown en VS Code con `Ctrl+Shift+V` (`Cmd+Shift+V` en macOS).
+Si abres el repositorio en GitHub, verás el README con formato debajo de la lista de ficheros. Mientras escribes, puedes ver una vista previa de cualquier fichero Markdown en VS Code con `Ctrl+Shift+V` (`Cmd+Shift+V` en macOS).
 
-Además del README, los proyectos de código abierto suelen tener un fichero `LICENSE` con la licencia, que indica qué pueden hacer otras personas con el contenido: copiarlo, modificarlo, publicarlo… Sin licencia, nadie tiene permiso legal para reutilizar el proyecto aunque sea público. El libro del curso no la necesita, pero si publicas un proyecto propio, [choosealicense.com](https://choosealicense.com/), de GitHub, te ayuda a elegir la adecuada.
+Además del README, los proyectos de código abierto suelen tener un fichero `LICENSE` con la licencia, que indica qué pueden hacer otras personas con el contenido: copiarlo, modificarlo, publicarlo… Sin licencia, nadie tiene permiso legal para reutilizar el proyecto, aunque sea público. Nuestro libro no la necesita, pero si publicas un proyecto propio, [choosealicense.com](https://choosealicense.com/), de GitHub, te ayudará a elegir la adecuada.

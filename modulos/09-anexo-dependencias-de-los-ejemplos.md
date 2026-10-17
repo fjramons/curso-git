@@ -1,6 +1,6 @@
 # Anexo: dependencias de los ejemplos
 
-Las herramientas de este anexo **no son necesarias para usar Git ni GitHub**. Solo se usan en el ejemplo que recorre el curso: el script `build.sh` del apartado 2.5 convierte el Manual de Git, escrito en Markdown, a Word, PDF y HTML. Si solo te interesa Git, puedes saltarte este anexo y leer los apartados del libro sin generarlo.
+Las herramientas de este anexo **no son necesarias para usar Git ni GitHub**. Sólo se usan en el ejemplo que recorre el curso: el script `build.sh` del apartado 2.5 convierte el Manual de Git, escrito en Markdown, a Word, PDF y HTML. Si sólo te interesa Git, puedes saltarte este anexo y leer los apartados del libro sin generarlo.
 
 En GitHub no hace falta instalar nada: en el módulo 8, el CI instala estas mismas herramientas en sus propias máquinas para publicar cada versión del libro.
 

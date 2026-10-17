@@ -42,7 +42,7 @@ Este anexo recopila los recursos citados a lo largo del curso, agrupados por tem
 
 ## Herramientas del ejemplo
 
-Estas herramientas no forman parte de Git ni de GitHub: solo se usan para generar el libro (ver el [Anexo: dependencias de los ejemplos](09-anexo-dependencias-de-los-ejemplos.md)).
+Estas herramientas no forman parte de Git ni de GitHub: sólo se usan para generar el libro (ver el [Anexo: dependencias de los ejemplos](09-anexo-dependencias-de-los-ejemplos.md)).
 
 - **Pandoc (<https://pandoc.org>)**: convierte el libro de Markdown a Word, PDF y HTML (2.5).
 - **Typst (<https://typst.app>)**: el motor que usa Pandoc para generar el PDF (2.5).

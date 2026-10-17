@@ -20,12 +20,16 @@
 --   o_main [class=remota label="origin/main"]   rama de seguimiento
 --   HEAD [class=head]         HEAD
 --   v010 [class=etiqueta label="v0.1.0"]        etiqueta (tag)
---   X [class=huerfano]        commit que no está en ninguna rama
+--   X [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50]
+--                             commit que no está en ninguna rama. El estilo
+--                             explícito sólo sirve para la vista previa del
+--                             editor; el filtro lo sustituye por el suyo
 --   X [class=nota]            texto suelto, sin caja
 --   repo [class=repo]         repositorio (diagramas de remotos)
 --   z [class=zona]            recuadro rectangular que no es un commit
 --                             (las zonas de Git: trabajo, staging…)
---   A -> B [class=huerfano]   flecha hacia un commit huérfano
+--   A -> B [class=huerfano style=dashed color=gray50]
+--                             flecha hacia un commit huérfano
 --   A -> A2 [class=copia]     A2 es una copia de A (cherry-pick, rebase)
 --   { rank=same; C -> main -> HEAD [class=ref dir=back] }
 --                             HEAD apunta a main, que apunta a C. La fila
@@ -84,7 +88,7 @@ local MACROS = {
   remota = referencia(COLORES.remota),
   head = referencia(COLORES.head),
   etiqueta = referencia(COLORES.etiqueta),
-  huerfano = 'style="rounded,dashed", fillcolor="#f2f2f2", color="#9aa3ad", fontcolor="#7b848e"',
+  huerfano = 'style="rounded,filled,dashed", fillcolor="#f2f2f2", color="#7b848e", fontcolor="#7b848e", penwidth=1.4',
   nota = 'shape=plaintext, style="", fontcolor="#4a5b70", fontsize=9',
   zona = 'shape=box, style="filled", fillcolor="white", color="#4a5b70", margin="0.15,0.08"',
   repo = 'shape=folder, style="filled", fillcolor="#e8eef6", height=0.5, margin="0.15,0.08"',
@@ -129,6 +133,15 @@ local function expandir_sentencia(s, cluster)
     return s
   end
   local resto = atributos:gsub('class%s*=%s*"?[%w_]+"?%s*,?', '', 1):match('^[%s,]*(.-)[%s,]*$')
+  if macro == 'huerfano' then
+    -- El bloque repite el estilo discontinuo para la vista previa del
+    -- editor, que no conoce las macros; aquí manda el estilo del filtro
+    for _, clave in ipairs({ 'style', 'color', 'fontcolor', 'fillcolor' }) do
+      resto = resto:gsub('%f[%w]' .. clave .. '%s*=%s*"[^"]*"%s*,?', '')
+        :gsub('%f[%w]' .. clave .. '%s*=%s*[%w#.]+%s*,?', '')
+    end
+    resto = resto:match('^[%s,]*(.-)[%s,]*$')
+  end
   local extra = resto ~= '' and (', ' .. resto) or ''
   if macro == 'ref' then
     return inicio .. '[' .. REF .. extra .. ']' .. fin

@@ -1,10 +1,10 @@
 # Módulo 7: Flujos de trabajo y comandos avanzados
 
-Este módulo organiza el trabajo del libro como en un proyecto profesional: qué aportan las interfaces gráficas, cómo se organizan las ramas con un flujo de trabajo (GitFlow y GitHub flow) dos comandos que reescriben la historia (cherry-pick y rebase) y cómo deshacer un cambio que ya está en GitHub sin reescribirla (revert).
+Con el libro ya en GitHub y la primera colaboración integrada, ha llegado el momento de organizar el trabajo como en un proyecto profesional. En este módulo veremos qué aportan las interfaces gráficas frente a la terminal, cómo se organizan las ramas con un flujo de trabajo (GitFlow y GitHub flow), dos comandos que reescriben la historia (cherry-pick y rebase) y, por último, cómo deshacer un cambio que ya está en GitHub sin reescribirla (revert).
 
 ## 7.1 Interfaces gráficas (GUI) frente a la terminal
 
-Todo lo hecho en la terminal se puede hacer también con programas gráficos. Estos son los más conocidos:
+Todo lo que hemos hecho hasta ahora en la terminal se puede hacer también con programas gráficos. Estos son los más conocidos:
 
 | Programa | Sistemas | Precio | Puntos fuertes |
 | --- | --- | --- | --- |
@@ -13,17 +13,17 @@ Todo lo hecho en la terminal se puede hacer también con programas gráficos. Es
 | [Sourcetree](https://www.sourcetreeapp.com) | Windows, macOS | Gratuito | Muy completo, expone casi todas las opciones de Git |
 | VS Code (panel _Source Control_) | Windows, macOS, Linux | Gratuito | Integrado en el editor, ideal para escribir y confirmar sin cambiar de ventana |
 
-Las interfaces gráficas son cómodas para tareas visuales: revisar un diff, preparar solo algunas líneas de un fichero, explorar el gráfico de ramas o resolver un conflicto con botones. Pero todas usan por debajo los mismos conceptos que ya conoces: directorio de trabajo, staging, commits, ramas y remotos. Si no entiendes esos conceptos, una GUI solo esconde lo que pasa; si los entiendes, es una herramienta más.
+Las interfaces gráficas resultan cómodas para las tareas visuales, como revisar un diff, preparar sólo algunas líneas de un fichero, explorar el gráfico de ramas o resolver un conflicto con botones. Sin embargo, todas usan por debajo los mismos conceptos que ya conoces: directorio de trabajo, staging, commits, ramas y remotos. Si no se entienden esos conceptos, una GUI sólo esconde lo que pasa; si se entienden, es una herramienta más.
 
-La terminal sigue siendo imprescindible: es lo único disponible en un servidor, es lo que usa toda la documentación y los sistemas de CI, y algunas operaciones (como el rebase interactivo) son más claras en ella. Un buen ejercicio es abrir la carpeta `~/proyectos/manual-git` con la GUI que prefieras y reconocer en ella los commits, ramas y etiquetas del libro.
+Aun así, la terminal sigue siendo imprescindible: es lo único disponible en un servidor, es lo que usan toda la documentación y los sistemas de CI, y algunas operaciones (como el rebase interactivo) resultan más claras en ella. Un buen ejercicio es abrir la carpeta `~/proyectos/manual-git` con la GUI que prefieras e intentar reconocer en ella los commits, las ramas y las etiquetas de nuestro libro.
 
 ## 7.2 Flujos de trabajo: GitFlow y GitHub flow
 
-Git permite organizar las ramas con total libertad, y por eso los equipos acuerdan un **flujo de trabajo**: unas reglas sobre qué ramas existen y cómo se mueven los cambios entre ellas. Los dos más conocidos son GitFlow y GitHub flow.
+Git permite organizar las ramas con total libertad, y precisamente por eso los equipos acuerdan un **flujo de trabajo**: unas reglas sobre qué ramas existen y cómo se mueven los cambios entre ellas. Los dos más conocidos son GitFlow y GitHub flow, y conviene conocer ambos aunque nuestro libro vaya a seguir sólo el segundo.
 
-**GitFlow** está pensado para proyectos que publican versiones numeradas y tienen que mantener varias a la vez, como una aplicación de escritorio. Usa estas ramas:
+**GitFlow** está pensado para proyectos que publican versiones numeradas y tienen que mantener varias a la vez, como una aplicación de escritorio. Para ello usa estas ramas:
 
-- `main`: solo contiene versiones publicadas. Cada commit de `main` es una versión y lleva su etiqueta.
+- `main`: sólo contiene versiones publicadas. Cada commit de `main` es una versión y lleva su etiqueta.
 - `develop`: rama de integración donde se acumula el trabajo para la próxima versión.
 - `feature/<nombre>`: una rama por cada funcionalidad nueva. Sale de `develop` y vuelve a `develop`.
 - `release/<versión>`: prepara una versión (últimos retoques y número de versión). Sale de `develop` y se fusiona en `main` y en `develop`.
@@ -31,9 +31,9 @@ Git permite organizar las ramas con total libertad, y por eso los equipos acuerd
 
 GitFlow lo propuso Vincent Driessen en 2010 en el artículo [A successful Git branching model](https://nvie.com/posts/a-successful-git-branching-model/) (en inglés), que sigue siendo la mejor descripción del flujo.
 
-El diagrama muestra un esquema general de GitFlow, no el historial del libro. Cada rama temporal sale de una rama permanente y vuelve a ella, y `main` solo recibe versiones terminadas:
+El diagrama muestra un esquema general de GitFlow, no el historial de nuestro libro. En él se ve cómo cada rama temporal sale de una rama permanente y vuelve a ella, mientras `main` sólo recibe versiones terminadas:
 
-```{.dot caption="Esquema general de GitFlow" alt="main solo recibe versiones. develop sale de main y recibe una funcionalidad. Una corrección urgente sale de main, crea la versión 1.0.1 y vuelve también a develop. La release 1.1 sale de develop, crea la versión 1.1 en main y vuelve a develop"}
+```{.dot caption="Esquema general de GitFlow" alt="main sólo recibe versiones. develop sale de main y recibe una funcionalidad. Una corrección urgente sale de main, crea la versión 1.0.1 y vuelve también a develop. La release 1.1 sale de develop, crea la versión 1.1 en main y vuelve a develop"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
@@ -64,9 +64,9 @@ digraph {
 }
 ```
 
-Seguir GitFlow con comandos normales de Git exige muchas fusiones, así que existe una extensión, `git-flow`, que las automatiza con comandos como `git flow feature start` o `git flow release finish`. Es útil en equipos grandes con varias versiones en mantenimiento, pero añade ramas y pasos que un proyecto pequeño no necesita.
+Como se aprecia en el diagrama, seguir GitFlow con comandos normales de Git exige muchas fusiones. Por eso existe una extensión, `git-flow`, que las automatiza con comandos como `git flow feature start` o `git flow release finish`. Es útil en equipos grandes con varias versiones en mantenimiento, pero añade ramas y pasos que un proyecto pequeño como el nuestro no necesita.
 
-**GitHub flow** es la alternativa sencilla, y es el flujo que sigue el libro a partir de ahora. Solo tiene una rama permanente, `main`, que siempre debe funcionar, y cada cambio sigue estos pasos:
+**GitHub flow** es la alternativa sencilla, y es el flujo que seguirá nuestro libro a partir de ahora. Sólo tiene una rama permanente, `main`, que siempre debe funcionar, y cada cambio sigue estos pasos:
 
 1. Se crea una rama corta a partir de `main`, con un nombre que describe el cambio.
 2. Se hacen commits en ella y se sube a GitHub.
@@ -75,7 +75,7 @@ Seguir GitFlow con comandos normales de Git exige muchas fusiones, así que exis
 
 La documentación de GitHub lo describe en [GitHub flow](https://docs.github.com/es/get-started/using-github/github-flow).
 
-Es lo que se hizo en el módulo 6 con el capítulo 5: la rama `capitulo-github`, su pull request y el commit de fusión que GitHub creó en `main`. Así quedó el historial del autor después de descargar la fusión con `git pull`:
+En realidad, ya lo pusimos en práctica en el módulo 6 con el capítulo 5: la rama `capitulo-github`, su pull request y el commit de fusión que GitHub creó en `main`. Así quedó el historial del autor después de descargar la fusión con `git pull`:
 
 ```{.dot caption="GitHub flow: el capítulo 5 llegó a main con un pull request" alt="Del commit Amplía el capítulo 4 con reflog sale el commit del capítulo 5, hecho en la rama capitulo-github. Un commit de fusión creado por el pull request lo une a main, donde están main, origin/main y HEAD"}
 digraph {
@@ -92,9 +92,9 @@ digraph {
 }
 ```
 
-El repositorio del autor no tiene la rama `capitulo-github`, que solo existió en el fork del colaborador, pero conserva su commit.
+El repositorio del autor no tiene la rama `capitulo-github`, que sólo existió en el fork del colaborador, pero conserva su commit.
 
-El capítulo 6 del libro, sobre flujos de trabajo, se escribe ya con GitHub flow, en una rama que se integra con un pull request en tu propio repositorio. Asegúrate de partir de la última versión de `main` y crea la rama:
+Vamos a escribir ahora el capítulo 6 del libro, dedicado precisamente a los flujos de trabajo, y lo haremos ya con GitHub flow: en una rama propia que integraremos con un pull request en nuestro propio repositorio. Para no partir de una versión desfasada, nos aseguramos primero de tener la última versión de `main` y, a continuación, creamos la rama:
 
 ```bash
 cd ~/proyectos/manual-git
@@ -103,7 +103,7 @@ git pull
 git switch -c capitulo-flujos
 ```
 
-Crea `capitulos/06-flujos-de-trabajo.md`:
+En la rama nueva, crea `capitulos/06-flujos-de-trabajo.md` con este contenido:
 
 ```markdown
 # Flujos de trabajo
@@ -114,20 +114,20 @@ Un flujo de trabajo son las reglas que sigue un equipo para usar las ramas.
 - **GitHub flow** usa una sola rama permanente, `main`. Cada cambio se hace en una rama corta y llega a `main` con un pull request.
 ```
 
-Guárdalo con un commit:
+Y guárdalo con un commit:
 
 ```bash
 git add -A
 git commit -m "Añade el capítulo 6: flujos de trabajo"
 ```
 
-Con seis capítulos, el libro está listo para su primera versión completa. Añade al final de `metadata.yaml` una línea con la versión, que Pandoc mostrará en la portada debajo del título:
+Con seis capítulos, el libro está listo para su primera versión completa, así que aprovechamos la misma rama para prepararla. Añade al final de `metadata.yaml` una línea con la versión, que Pandoc mostrará en la portada debajo del título:
 
 ```yaml
 date: Versión 1.0.0
 ```
 
-Guarda el cambio en otro commit y sube la rama a GitHub:
+Guardamos este cambio en otro commit y subimos la rama a GitHub:
 
 ```bash
 git add -A
@@ -135,11 +135,11 @@ git commit -m "Prepara la versión 1.0.0"
 git push -u origin capitulo-flujos
 ```
 
-En la página del repositorio en GitHub, pulsa _Compare & pull request_ en el aviso amarillo. Como la rama está en tu propio repositorio, no hace falta un fork: el pull request va de `capitulo-flujos` a `main` del mismo repositorio. Pulsa _Create pull request_ y, como no hay nadie más para revisarlo, fusiónalo tú mismo con _Merge pull request_ y _Confirm merge_. Después pulsa _Delete branch_ para borrar la rama en GitHub, que ya no hace falta.
+Ahora toca abrir el pull request. En la página del repositorio en GitHub, pulsa _Compare & pull request_ en el aviso amarillo. Como la rama está en tu propio repositorio, esta vez no hace falta un fork: el pull request va de `capitulo-flujos` a `main` del mismo repositorio. Pulsa _Create pull request_ y, como no hay nadie más para revisarlo, fusiónalo tú mismo con _Merge pull request_ y _Confirm merge_. Por último, pulsa _Delete branch_ para borrar la rama en GitHub, que ya no hace falta.
 
-En un equipo, otra persona revisaría el pull request antes de fusionarlo, como en el módulo 6. Aunque trabajes solo, cada pull request deja constancia del cambio y, en el módulo 8, servirá para que GitHub revise automáticamente el libro antes de fusionarlo.
+En un equipo, otra persona revisaría el pull request antes de fusionarlo, como hicimos en el módulo 6. Aunque trabajes solo, cada pull request deja constancia del cambio y, en el módulo 8, servirá además para que GitHub revise automáticamente el libro antes de fusionarlo.
 
-Trae la fusión a tu copia local y borra la rama, que ya está integrada en `main`:
+La fusión ya está en GitHub, pero todavía no en nuestra copia local. La traemos y borramos la rama, que ya está integrada en `main`:
 
 ```bash
 git switch main
@@ -149,7 +149,7 @@ git branch -d capitulo-flujos
 
 La opción `--prune` borra también `origin/capitulo-flujos`, la rama de seguimiento de una rama que ya no existe en GitHub.
 
-En GitHub flow, las versiones se marcan con etiquetas en `main`. Crea una etiqueta anotada para la versión 1.0.0, que guarda autor, fecha y mensaje (apartado 3.4), y súbela a GitHub:
+Sólo falta marcar la versión. En GitHub flow, las versiones se marcan con etiquetas en `main`, y en este caso usaremos una etiqueta anotada, que guarda autor, fecha y mensaje (apartado 3.4). La creamos y la subimos a GitHub:
 
 ```bash
 git tag -a v1.0.0 -m "Versión 1.0.0"
@@ -157,7 +157,7 @@ git push origin v1.0.0
 git tree
 ```
 
-El diagrama muestra el resultado. Los dos commits de la rama llegan a `main` con el commit de fusión del pull request, que lleva la etiqueta `v1.0.0`. `N` es el número que GitHub ha asignado al pull request:
+El diagrama muestra el resultado: los dos commits de la rama llegan a `main` con el commit de fusión del pull request, que lleva la etiqueta `v1.0.0`. `N` es el número que GitHub ha asignado al pull request:
 
 ```{.dot caption="La versión 1.0.0, publicada con GitHub flow" alt="Del commit Mejora el README salen los dos commits de la rama capitulo-flujos. El commit de fusión del pull request los une a main y lleva la etiqueta v1.0.0"}
 digraph {
@@ -175,9 +175,9 @@ digraph {
 
 ## 7.3 Comandos avanzados: cherry-pick y rebase
 
-**Cherry-pick** copia un commit concreto de otra rama en la rama actual, sin traer nada más. Es útil cuando una corrección se hizo en una rama pero también hace falta en otra.
+**Cherry-pick** copia un commit concreto de otra rama en la rama actual, sin traer nada más. Resulta útil cuando una corrección se hizo en una rama pero también hace falta en otra.
 
-Para verlo, empieza el capítulo 7 en una rama nueva:
+Para verlo en acción necesitamos un commit valioso atrapado en una rama que todavía no se puede integrar. Vamos a provocar esa situación de una forma muy habitual: empezaremos el capítulo 7 en una rama nueva y, en mitad del trabajo, haremos en esa misma rama una corrección del capítulo 3 que, en realidad, debería llegar cuanto antes a `main`. Primero, empezamos el capítulo:
 
 ```bash
 git switch -c capitulo-avanzados
@@ -186,11 +186,13 @@ git add -A
 git commit -m "Empieza el capítulo 7"
 ```
 
-Mientras escribes, descubres una imprecisión en el capítulo 3. Corrígela en la misma rama: edita `capitulos/03-ramas.md` y cambia la última línea por una versión más precisa:
+Supongamos ahora que, mientras escribes, descubres una imprecisión en el capítulo 3. Lo natural es corregirla en el momento, en la misma rama: edita `capitulos/03-ramas.md` y cambia la última línea por una versión más precisa:
 
 ```markdown
-Las ramas son baratas: Git guarda cada una en un fichero de solo 41 bytes con el identificador de su último commit.
+Las ramas son baratas: Git guarda cada una en un fichero de sólo 41 bytes con el identificador de su último commit.
 ```
+
+Guardamos la corrección en su propio commit y, como la vamos a necesitar enseguida, mostramos su identificador con `git log --oneline -1`, que enseña sólo el último commit:
 
 ```bash
 git add -A
@@ -198,7 +200,7 @@ git commit -m "Precisa el tamaño de una rama en el capítulo 3"
 git log --oneline -1
 ```
 
-`git log --oneline -1` muestra solo el último commit: copia su identificador. La corrección debería llegar ya a `main`, pero el capítulo 7 está a medias y no puede ir con ella. Cherry-pick resuelve el problema: crea una rama a partir de `main` y copia en ella solo ese commit:
+Ya tenemos el escenario: la rama `capitulo-avanzados` contiene dos commits, el principio del capítulo 7 y la corrección del capítulo 3. Y aquí está el problema: la corrección debería llegar ya a `main`, pero el capítulo 7 está a medias y no puede ir con ella. Lo que queremos, por tanto, es llevar a `main` sólo ese commit, dejando el resto de la rama donde está. Eso es justo lo que hace cherry-pick. Copia el identificador que acabas de ver, crea una rama a partir de `main` y copia en ella sólo ese commit:
 
 ```bash
 # Traer un commit específico a la rama actual
@@ -207,7 +209,7 @@ git cherry-pick <id_del_commit>
 git tree
 ```
 
-El último argumento de `git switch -c` indica desde dónde se crea la rama: aquí, desde `main` y no desde la rama actual. `git tree` muestra un commit nuevo en `corrige-capitulo-3` con el mismo mensaje pero distinto identificador: cherry-pick no mueve el commit, crea una copia. En el diagrama, la flecha discontinua une el original con su copia:
+El último argumento de `git switch -c` indica desde dónde se crea la rama: aquí, desde `main` y no desde la rama actual. `git tree` muestra un commit nuevo en `corrige-capitulo-3` con el mismo mensaje pero distinto identificador, porque cherry-pick no mueve el commit, sino que crea una copia. En el diagrama, la flecha discontinua une el original con su copia:
 
 ```{.dot caption="Cherry-pick: una copia de la corrección en una rama que sale de main" alt="De la fusión de la versión 1.0.0 salen dos ramas. En capitulo-avanzados están Empieza el capítulo 7 y la corrección del capítulo 3. En corrige-capitulo-3 hay una copia de esa corrección"}
 digraph {
@@ -227,19 +229,19 @@ digraph {
 }
 ```
 
-Si al aplicar el commit hay un conflicto, Git se detiene como en un merge. Puedes resolverlo y continuar con `git cherry-pick --continue`, o renunciar y volver al estado anterior con:
+Si al aplicar el commit surge un conflicto, Git se detiene como en un merge. En ese caso puedes resolverlo y continuar con `git cherry-pick --continue`, o bien renunciar y volver al estado anterior con:
 
 ```bash
 git cherry-pick --abort
 ```
 
-Integra la corrección en `main` con GitHub flow, como en el apartado anterior. Primero, sube la rama:
+La corrección ya está en su propia rama, lista para integrarse en `main` con GitHub flow, igual que hicimos en el apartado anterior. Primero, subimos la rama:
 
 ```bash
 git push -u origin corrige-capitulo-3
 ```
 
-En GitHub, abre el pull request, fusiónalo y borra la rama. Después, actualiza tu copia local:
+En GitHub, abre el pull request, fusiónalo y borra la rama. Después, actualizamos la copia local:
 
 ```bash
 git switch main
@@ -247,28 +249,34 @@ git pull --prune
 git branch -d corrige-capitulo-3
 ```
 
-**Rebase** es la alternativa a `merge` para integrar los cambios de una rama en otra. En lugar de crear un commit de fusión, toma los commits de tu rama y los vuelve a aplicar, uno a uno, encima de la otra rama. El resultado es un historial lineal, como si hubieras empezado tu trabajo después de los últimos cambios.
+**Rebase** es la alternativa a `merge` para integrar los cambios de una rama en otra. En lugar de crear un commit de fusión, toma los commits de la rama actual y los vuelve a aplicar, uno a uno, encima de la otra rama. El resultado es un historial lineal, como si el trabajo hubiera empezado después de los últimos cambios.
 
-Para verlo, vuelve al capítulo 7 y añade un párrafo sobre cherry-pick, separado del título por una línea en blanco, con su commit:
+Para ver rebase necesitamos dos ramas que hayan divergido, y ya tenemos la mitad del camino recorrido: `main` ha avanzado con la fusión de la corrección, mientras que `capitulo-avanzados` sigue saliendo de la versión 1.0.0. Para que la divergencia se note más, vamos a seguir escribiendo el capítulo 7 con un par de commits. Volvemos primero a su rama:
 
 ```bash
 git switch capitulo-avanzados
 ```
 
+Añade al capítulo un párrafo sobre cherry-pick, separado del título por una línea en blanco:
+
 ```markdown
 Con `git cherry-pick <commit>` se copia un commit concreto de otra rama en la rama actual.
 ```
+
+Y guárdalo con su commit:
 
 ```bash
 git add -A
 git commit -m "Añade cherry-pick al capítulo 7"
 ```
 
-Y otro párrafo sobre rebase, también con una línea en blanco delante y con su commit:
+A continuación, añade otro párrafo sobre rebase, también con una línea en blanco delante:
 
 ```markdown
 Con `git rebase <rama>` se reaplican los commits de la rama actual encima de otra rama.
 ```
+
+Lo guardamos con otro commit y miramos cómo ha quedado el historial:
 
 ```bash
 git add -A
@@ -276,7 +284,29 @@ git commit -m "Añade rebase al capítulo 7"
 git tree
 ```
 
-Mientras tanto, `main` ha avanzado con la fusión de la corrección, así que `git tree` muestra que `main` y `capitulo-avanzados` han divergido. Un merge crearía un commit de fusión; rebase, en cambio, reaplica los commits de la rama encima del último commit de `main`:
+Ya tenemos el escenario que buscábamos: `git tree` muestra que `main` y `capitulo-avanzados` han divergido. Por un lado, `main` tiene la fusión de la corrección; por otro, `capitulo-avanzados` tiene los commits del capítulo 7 y la corrección original:
+
+```{.dot caption="main y capitulo-avanzados han divergido" alt="De la fusión de la versión 1.0.0 salen dos líneas. En main, la corrección del capítulo 3 llega con un pull request. En capitulo-avanzados están los commits del capítulo 7 y la corrección original"}
+digraph {
+  rankdir=BT
+  node [shape=box, style=rounded, group=principal]
+  edge [weight=50]
+  a0 [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]; ac [label="Precisa el tamaño de una rama\nen el capítulo 3" group=mainA]; am [label="Merge pull request #N from\ntu-usuario/corrige-capitulo-3" group=mainA]
+  a1 [label="Empieza el capítulo 7" group=a]; a2 [label="Precisa el tamaño de una rama\nen el capítulo 3" group=a]; a3 [label="Añade cherry-pick al capítulo 7" group=a]; a4 [label="Añade rebase al capítulo 7" group=a]
+  a0 -> am
+  a0 -> ac -> am
+  a0 -> a1 -> a2 -> a3 -> a4
+  node [shape=plaintext, group=""]
+  ram [class=refs label="main, origin/main"]; ca1 [class=rama label="capitulo-avanzados"]; head1 [class=head label="HEAD"]; v1a [class=etiqueta label="v1.0.0"]
+  { rank=same; ram -> am [class=ref dir=forward] }
+  { rank=same; a4 -> ca1 -> head1 [class=ref dir=back] }
+  { rank=same; a0 -> v1a [class=ref dir=back] }
+  { rank=same; ac -> a1 [style=invis] }
+  { rank=same; am -> a2 [style=invis] }
+}
+```
+
+Queremos poner la rama al día con `main`, pero sin el commit de fusión que crearía un merge. Rebase, en cambio, reaplica los commits de la rama encima del último commit de `main`:
 
 ```bash
 # Mover la rama actual sobre otra (rebase)
@@ -284,48 +314,30 @@ git rebase main
 git tree
 ```
 
-Git avisa de que ha omitido un commit (_skipped previously applied commit_): la corrección del capítulo 3 ya está en `main` gracias al cherry-pick, así que no la vuelve a aplicar. Ahora el historial es una línea recta: los tres commits del capítulo 7 están después de la fusión de la corrección. Fíjate en que sus identificadores han cambiado: igual que cherry-pick, rebase crea copias nuevas de los commits. Los originales, en gris en el diagrama, ya no están en ninguna rama, como el commit descartado con `reset` en el apartado 3.2.
+Git avisa de que ha omitido un commit (_skipped previously applied commit_): la corrección del capítulo 3 ya está en `main` gracias al cherry-pick, así que no la vuelve a aplicar. Ahora el historial es una línea recta, con los tres commits del capítulo 7 después de la fusión de la corrección. Fíjate en que sus identificadores han cambiado: igual que cherry-pick, rebase crea copias nuevas de los commits. Los originales, en gris y con el contorno discontinuo en el diagrama, ya no están en ninguna rama, como el commit borrado con `reset` en el apartado 3.2.1:
 
-```{.dot caption="La rama capitulo-avanzados antes y después de git rebase main" alt="Antes, la rama capitulo-avanzados sale de la fusión de la versión 1.0.0, en paralelo a la corrección que llegó a main con un pull request. Después, las copias de los tres commits del capítulo 7 están encima de esa fusión, la corrección repetida desaparece y los originales quedan en gris"}
+```{.dot caption="La rama capitulo-avanzados después de git rebase main" alt="Las copias de los tres commits del capítulo 7 están encima de la fusión de la corrección. La corrección repetida desaparece y los commits originales quedan en gris, con el contorno discontinuo"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  subgraph cluster_antes {
-    label="Antes"
-    a0 [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]; ac [label="Precisa el tamaño de una rama\nen el capítulo 3" group=mainA]; am [label="Merge pull request #N from\ntu-usuario/corrige-capitulo-3" group=mainA]
-    a1 [label="Empieza el capítulo 7" group=a]; a2 [label="Precisa el tamaño de una rama\nen el capítulo 3" group=a]; a3 [label="Añade cherry-pick al capítulo 7" group=a]; a4 [label="Añade rebase al capítulo 7" group=a]
-    a0 -> am
-    a0 -> ac -> am
-    a0 -> a1 -> a2 -> a3 -> a4
-    node [shape=plaintext, group=""]
-    ram [class=refs label="main, origin/main"]; ca1 [class=rama label="capitulo-avanzados"]; head1 [class=head label="HEAD"]; v1a [class=etiqueta label="v1.0.0"]
-    { rank=same; ram -> am [class=ref dir=forward] }
-    { rank=same; a4 -> ca1 -> head1 [class=ref dir=back] }
-    { rank=same; a0 -> v1a [class=ref dir=back] }
-    { rank=same; ac -> a1 [style=invis] }
-    { rank=same; am -> a2 [style=invis] }
-  }
-  subgraph cluster_despues {
-    label="Después"
-    d0 [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]; dc [label="Precisa el tamaño de una rama\nen el capítulo 3" group=lado]; dm [label="Merge pull request #N from\ntu-usuario/corrige-capitulo-3"]
-    d1 [label="e41b07c Empieza el capítulo 7"]; d2 [label="9a3d5f2 Añade cherry-pick al capítulo 7"]; d3 [label="c7f2e18 Añade rebase al capítulo 7"]
-    o1 [class=huerfano label="Empieza el capítulo 7"]; o2 [class=huerfano label="Precisa el tamaño de una rama\nen el capítulo 3"]; o3 [class=huerfano label="Añade cherry-pick al capítulo 7"]; o4 [class=huerfano label="Añade rebase al capítulo 7"]
-    d0 -> dm -> d1 -> d2 -> d3
-    d0 -> dc -> dm
-    d0 -> o1 [class=huerfano]; o1 -> o2 [class=huerfano]; o2 -> o3 [class=huerfano]; o3 -> o4 [class=huerfano]
-    node [shape=plaintext, group=""]
-    rdm [class=refs label="main, origin/main"]; ca2 [class=rama label="capitulo-avanzados"]; head2 [class=head label="HEAD"]; v1d [class=etiqueta label="v1.0.0"]
-    { rank=same; rdm -> dm [class=ref dir=forward] }
-    { rank=same; d3 -> ca2 -> head2 [class=ref dir=back] }
-    { rank=same; d0 -> v1d [class=ref dir=back] }
-    { rank=same; dc -> o1 [style=invis] }
-    { rank=same; dm -> o2 [style=invis] }
-  }
+  d0 [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]; dc [label="Precisa el tamaño de una rama\nen el capítulo 3" group=lado]; dm [label="Merge pull request #N from\ntu-usuario/corrige-capitulo-3"]
+  d1 [label="e41b07c Empieza el capítulo 7"]; d2 [label="9a3d5f2 Añade cherry-pick al capítulo 7"]; d3 [label="c7f2e18 Añade rebase al capítulo 7"]
+  o1 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Empieza el capítulo 7"]; o2 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Precisa el tamaño de una rama\nen el capítulo 3"]; o3 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Añade cherry-pick al capítulo 7"]; o4 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Añade rebase al capítulo 7"]
+  d0 -> dm -> d1 -> d2 -> d3
+  d0 -> dc -> dm
+  d0 -> o1 [class=huerfano style=dashed color=gray50]; o1 -> o2 [class=huerfano style=dashed color=gray50]; o2 -> o3 [class=huerfano style=dashed color=gray50]; o3 -> o4 [class=huerfano style=dashed color=gray50]
+  node [shape=plaintext, group=""]
+  rdm [class=refs label="main, origin/main"]; ca2 [class=rama label="capitulo-avanzados"]; head2 [class=head label="HEAD"]; v1d [class=etiqueta label="v1.0.0"]
+  { rank=same; rdm -> dm [class=ref dir=forward] }
+  { rank=same; d3 -> ca2 -> head2 [class=ref dir=back] }
+  { rank=same; d0 -> v1d [class=ref dir=back] }
+  { rank=same; dc -> o1 [style=invis] }
+  { rank=same; dm -> o2 [style=invis] }
 }
 ```
 
-El **rebase interactivo** va más allá: permite reordenar, editar, juntar o borrar commits antes de integrarlos. Los tres commits del capítulo 7 son pasos intermedios que no aportan nada al historial del libro, así que conviene juntarlos en uno:
+El **rebase interactivo** va más allá: permite reordenar, editar, juntar o borrar commits antes de integrarlos. Nuestra rama nos ofrece un buen motivo para usarlo, porque los tres commits del capítulo 7 son pasos intermedios que no aportan nada al historial del libro. Lo ideal sería que el capítulo llegara a `main` como un único commit, así que vamos a juntarlos:
 
 ```bash
 git rebase -i main
@@ -339,7 +351,7 @@ pick 9a3d5f2 Añade cherry-pick al capítulo 7
 pick c7f2e18 Añade rebase al capítulo 7
 ```
 
-Cambia `pick` por `squash` (o simplemente `s`) en las dos últimas líneas, para fundirlas con la anterior:
+Para fundir los dos últimos con el anterior, cambia `pick` por `squash` (o simplemente `s`) en esas dos líneas:
 
 ```text
 pick e41b07c Empieza el capítulo 7
@@ -347,7 +359,7 @@ squash 9a3d5f2 Añade cherry-pick al capítulo 7
 squash c7f2e18 Añade rebase al capítulo 7
 ```
 
-Guarda y cierra el editor. Git abre otro editor con los tres mensajes, que se combinarán en uno: sustitúyelos por `Añade el capítulo 7: comandos avanzados`, guarda y cierra. `git tree` muestra ahora un único commit para el capítulo.
+Guarda y cierra el editor. A continuación, Git abre otro editor con los tres mensajes, que se combinarán en uno: sustitúyelos por `Añade el capítulo 7: comandos avanzados`, guarda y cierra. Si ahora ejecutas `git tree`, verás un único commit para el capítulo.
 
 Si un rebase se complica (por ejemplo, con conflictos en varios commits seguidos), puedes cancelarlo en cualquier momento y volver al estado anterior:
 
@@ -355,11 +367,13 @@ Si un rebase se complica (por ejemplo, con conflictos en varios commits seguidos
 git rebase --abort
 ```
 
-El capítulo 7 está terminado. Intégralo en `main` con GitHub flow, como la corrección: sube la rama, abre el pull request, fusiónalo y borra la rama en GitHub. Después, actualiza tu copia local:
+Con esto, el capítulo 7 está terminado y sólo queda integrarlo en `main` con GitHub flow, como la corrección. Subimos la rama:
 
 ```bash
 git push -u origin capitulo-avanzados
 ```
+
+En GitHub, abre el pull request, fusiónalo y borra la rama. Después, actualizamos la copia local:
 
 ```bash
 git switch main
@@ -367,25 +381,25 @@ git pull --prune
 git branch -d capitulo-avanzados
 ```
 
-La regla de oro del rebase: **no hagas rebase de commits que ya hayas subido y que otras personas puedan estar usando**. Como rebase crea commits nuevos, las demás personas tendrían una historia distinta de la tuya. Úsalo para ordenar tu trabajo local antes de compartirlo, como aquí: la rama `capitulo-avanzados` no se subió a GitHub hasta después del rebase. El capítulo [Reorganizar el trabajo realizado](https://git-scm.com/book/es/v2/Ramificaciones-en-Git-Reorganizar-el-Trabajo-Realizado) de _Pro Git_ explica con más detalle cómo funciona el rebase y cuándo conviene evitarlo. Si lo que necesitas es deshacer commits que ya están en GitHub, tampoco sirven `rebase` ni `reset`: para eso está `revert`, que se usa en el apartado siguiente.
+Antes de seguir, conviene recordar la regla de oro del rebase: **no hagas rebase de commits que ya hayas subido y que otras personas puedan estar usando**. Como rebase crea commits nuevos, las demás personas tendrían una historia distinta de la tuya. Úsalo, en cambio, para ordenar tu trabajo local antes de compartirlo, como acabamos de hacer: la rama `capitulo-avanzados` no se subió a GitHub hasta después del rebase. El capítulo [Reorganizar el trabajo realizado](https://git-scm.com/book/es/v2/Ramificaciones-en-Git-Reorganizar-el-Trabajo-Realizado) de _Pro Git_ explica con más detalle cómo funciona el rebase y cuándo conviene evitarlo. Y si lo que necesitas es deshacer commits que ya están en GitHub, tampoco sirven `rebase` ni `reset`: para eso está `revert`, que veremos en el apartado siguiente.
 
 ## 7.4 Deshacer cambios ya publicados (revert)
 
-En el apartado 3.3 se usó `git revert` para anular un commit sin reescribir el historial. Allí el libro solo estaba en tu ordenador y `reset` también habría servido. Ahora el libro está en GitHub, el colaborador del módulo 6 tiene su fork y puede haber otros clones, como el del «portátil» del apartado 5.4. En esta situación, `revert` es la única forma segura de deshacer un cambio que ya ha llegado a `main`.
+En el apartado 3.3 usamos `git revert` para anular un commit sin reescribir el historial. Entonces el libro sólo estaba en tu ordenador, y `reset` también habría servido. Ahora la situación es distinta: el libro está en GitHub, el colaborador del módulo 6 tiene su fork y puede haber otros clones, como el del «portátil» del apartado 5.4. En estas condiciones, `revert` es la única forma segura de deshacer un cambio que ya ha llegado a `main`.
 
-Para provocar esa situación, amplía el capítulo 6 en una rama nueva, como cualquier otro cambio:
+Para comprobarlo necesitamos un error que ya esté publicado, así que vamos a fabricarlo siguiendo el camino completo de cualquier cambio: añadiremos al capítulo 6 un párrafo equivocado en una rama, lo integraremos con un pull request y lo traeremos a nuestra copia local. Empezamos por la rama:
 
 ```bash
 git switch -c amplia-capitulo-6
 ```
 
-Añade al final de `capitulos/06-flujos-de-trabajo.md` este párrafo, separado de la lista por una línea en blanco:
+En ella, añade al final de `capitulos/06-flujos-de-trabajo.md` este párrafo, separado de la lista por una línea en blanco:
 
 ```markdown
 En GitHub flow, cada versión se prepara en una rama `develop` antes de llegar a `main`.
 ```
 
-Guarda el cambio y sube la rama:
+Guardamos el cambio y subimos la rama:
 
 ```bash
 git add -A
@@ -393,7 +407,7 @@ git commit -m "Amplía el capítulo 6 con las versiones"
 git push -u origin amplia-capitulo-6
 ```
 
-En GitHub, abre el pull request, fusiónalo y borra la rama. Después, actualiza tu copia local:
+En GitHub, abre el pull request, fusiónalo y borra la rama. Después, actualizamos la copia local:
 
 ```bash
 git switch main
@@ -401,17 +415,17 @@ git pull --prune
 git branch -d amplia-capitulo-6
 ```
 
-Al releer el capítulo publicado, salta el error: en GitHub flow no hay rama `develop`, como explica el apartado 7.2, y las versiones se marcan con etiquetas en `main`. El párrafo sobra.
+Ya tenemos el escenario: el párrafo está en `main`, tanto en GitHub como en nuestra copia y, potencialmente, en las de los demás. Y al releer el capítulo publicado salta el error: en GitHub flow no hay rama `develop`, como explica el apartado 7.2, y las versiones se marcan con etiquetas en `main`. El párrafo sobra, y queremos quitarlo sin perjudicar a nadie que ya tenga una copia del libro.
 
-Con un `git reset --hard` en `main`, el commit desaparecería de tu copia local, pero no de GitHub. `git push` se negaría a subir el resultado, porque `main` en GitHub tiene un commit que tu `main` ya no tiene, y solo se podría forzar con `git push --force`. Eso reescribiría `main` en GitHub, y a partir de ese momento las copias de los demás serían incompatibles con la oficial:
+Antes de ver la solución, merece la pena entender por qué `reset` no sirve aquí. Con un `git reset --hard` en `main`, el commit desaparecería de tu copia local, pero no de GitHub. `git push` se negaría a subir el resultado, porque `main` en GitHub tiene un commit que tu `main` ya no tiene, y sólo se podría forzar con `git push --force`. Eso reescribiría `main` en GitHub, y a partir de ese momento las copias de los demás serían incompatibles con la oficial:
 
 - Quien ya tuviera el commit seguiría teniéndolo en su `main`. Para Git, ese commit sería trabajo suyo pendiente de subir, así que en su próximo `git pull` y `git push` el commit borrado volvería a GitHub, sin que esa persona supiera que alguien lo había quitado.
 - Las ramas y los pull requests abiertos que partieran de ese commit lo llevarían dentro, y al fusionarlos lo traerían de vuelta.
 - Para evitarlo, cada colaborador tendría que enterarse y rehacer su copia a mano, con su propio `reset`.
 
-En un proyecto con varias personas, reescribir `main` rompe la colaboración. `revert`, en cambio, solo añade un commit: para los demás es un cambio más, que les llega con su próximo `git pull` como cualquier otro. Por eso, con commits ya publicados no se usa `reset`, sino `revert`.
+En un proyecto con varias personas, reescribir `main` rompe la colaboración. `revert`, en cambio, sólo añade un commit: para los demás es un cambio más, que les llega con su próximo `git pull` como cualquier otro. Por eso, con commits ya publicados no se usa `reset`, sino `revert`.
 
-En GitHub flow, la corrección también es un cambio más: se hace en una rama y llega a `main` con un pull request. Crea la rama y busca el commit que hay que deshacer:
+En GitHub flow, la corrección también es un cambio más, así que se hace en una rama y llega a `main` con un pull request. Creamos la rama y buscamos el commit que hay que deshacer:
 
 ```bash
 git switch -c revierte-capitulo-6
@@ -424,11 +438,13 @@ a91d3f7 (HEAD -> revierte-capitulo-6, origin/main, main) Merge pull request #N f
 6b0e2d9 Merge pull request #N from tu-usuario/capitulo-avanzados
 ```
 
-El último commit es la fusión del pull request, y debajo está el commit que añadió el párrafo. Ese es el que hay que deshacer. Copia su identificador y anúlalo:
+El último commit es la fusión del pull request, y justo debajo está el commit que añadió el párrafo, que es el que queremos deshacer. La sintaxis es `git revert <id_del_commit>`, y en el ejemplo su identificador es `4f8a2c6`:
 
 ```bash
-git revert <id_del_commit>
+git revert 4f8a2c6
 ```
+
+Usa el identificador que aparezca en tu `git log`.
 
 Como en el apartado 3.3, Git abre el editor con el mensaje propuesto:
 
@@ -444,7 +460,7 @@ Guarda y cierra el editor, y revisa el resultado:
 git tree
 ```
 
-El commit original y su fusión siguen en el historial, y encima está el commit que los anula, en la rama `revierte-capitulo-6`. `main` y `origin/main` no han cambiado:
+El commit original y su fusión siguen en el historial, y encima de ellos está el commit que los anula, en la rama `revierte-capitulo-6`. Fíjate en que `main` y `origin/main` no han cambiado:
 
 ```{.dot caption="git revert anula un cambio ya publicado sin reescribir main" alt="Del commit de fusión del capítulo 7 sale el commit Amplía el capítulo 6 con las versiones, que llega a main con un pull request. Encima de esa fusión, en la rama revierte-capitulo-6, está el commit Revert que lo anula"}
 digraph {
@@ -461,11 +477,13 @@ digraph {
 }
 ```
 
-La rama `revierte-capitulo-6` solo añade un commit encima de `main`, así que integrarla no reescribe nada: para quien tenga una copia del libro, es un cambio más que llegará con su próximo `git pull`. Intégrala con GitHub flow, como los cambios anteriores. Sube la rama, abre el pull request, fusiónalo y borra la rama en GitHub. Después, actualiza tu copia local:
+La rama `revierte-capitulo-6` sólo añade un commit encima de `main`, de modo que integrarla no reescribe nada: para quien tenga una copia del libro, es un cambio más que llegará con su próximo `git pull`. La integramos con GitHub flow, como los cambios anteriores, empezando por subir la rama:
 
 ```bash
 git push -u origin revierte-capitulo-6
 ```
+
+En GitHub, abre el pull request, fusiónalo y borra la rama. Después, actualizamos la copia local:
 
 ```bash
 git switch main
@@ -473,17 +491,17 @@ git pull --prune
 git branch -d revierte-capitulo-6
 ```
 
-El capítulo 6 vuelve a estar como antes del párrafo erróneo, y el historial de `main` cuenta lo que pasó: el párrafo se añadió y después se anuló.
+El capítulo 6 vuelve a estar como antes del párrafo erróneo, y el historial de `main` cuenta con honestidad lo que pasó: el párrafo se añadió y después se anuló.
 
-Se ha revertido el commit de la rama, no la fusión del pull request. Es lo más sencillo cuando el pull request tiene un solo commit. Para deshacer un pull request con varios commits de una vez, se revierte su commit de fusión con `git revert -m 1 <id_de_la_fusión>`. La opción `-m 1` indica que se conservan los cambios del primer padre, `main`, y se anulan los que trajo la rama. GitHub ofrece lo mismo con un botón: en la página de un pull request fusionado, _Revert_ crea una rama con el revert de la fusión y abre un pull request nuevo para integrarlo.
+Hay un detalle que conviene aclarar: hemos revertido el commit de la rama, no la fusión del pull request. Es lo más sencillo cuando el pull request tiene un solo commit. Para deshacer de una vez un pull request con varios commits, se revierte su commit de fusión con `git revert -m 1 <id_de_la_fusión>`. La opción `-m 1` indica que se conservan los cambios del primer padre, `main`, y se anulan los que trajo la rama. GitHub ofrece lo mismo con un botón: en la página de un pull request fusionado, _Revert_ crea una rama con el revert de la fusión y abre un pull request nuevo para integrarlo.
 
-Si el commit que se revierte toca líneas que han cambiado después, `git revert` puede encontrar un conflicto, igual que un merge. Resuélvelo como en el apartado 4.3 y continúa con `git revert --continue`, o renuncia y vuelve al estado anterior con:
+Por último, si el commit que se revierte toca líneas que han cambiado después, `git revert` puede encontrar un conflicto, igual que un merge. En ese caso, resuélvelo como en el apartado 4.3 y continúa con `git revert --continue`, o bien renuncia y vuelve al estado anterior con:
 
 ```bash
 git revert --abort
 ```
 
-Para terminar, deja escrito en el libro lo que has aprendido. Como cualquier otro cambio, va en su propia rama:
+Para terminar, vamos a dejar escrito en el libro lo que acabamos de aprender. Como cualquier otro cambio, va en su propia rama:
 
 ```bash
 git switch -c capitulo-7-revert
@@ -495,7 +513,7 @@ Añade al final de `capitulos/07-comandos-avanzados.md` este párrafo, separado 
 Con `git revert <commit>` se crea un commit nuevo que anula los cambios de otro. A diferencia de `git reset`, no reescribe el historial, así que es la forma de deshacer commits que ya se han compartido sin romper las copias de los demás.
 ```
 
-Guarda el cambio y sube la rama:
+Guardamos el cambio y subimos la rama:
 
 ```bash
 git add -A
@@ -503,7 +521,7 @@ git commit -m "Añade revert al capítulo 7"
 git push -u origin capitulo-7-revert
 ```
 
-Abre el pull request, fusiónalo y borra la rama en GitHub. Después, actualiza tu copia local:
+Una vez más, abre el pull request, fusiónalo y borra la rama en GitHub. Después, actualizamos la copia local:
 
 ```bash
 git switch main
@@ -511,4 +529,4 @@ git pull --prune
 git branch -d capitulo-7-revert
 ```
 
-El libro ya tiene siete capítulos. En el siguiente módulo, GitHub se encargará de revisarlo en cada pull request y de publicar automáticamente cada versión.
+Nuestro libro ya tiene siete capítulos. En el siguiente módulo, GitHub se encargará de revisarlo en cada pull request y de publicar automáticamente cada versión.

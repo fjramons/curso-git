@@ -110,6 +110,14 @@ git status
 git tree
 ```
 
+La salida de `git tree` empieza así:
+
+```text
+* 71d265c (origin/main) Update README.md
+*   09f9e15 (HEAD -> main) Merge branch 'capitulo-historial'
+...
+```
+
 `git fetch` descarga los commits nuevos del remoto, pero no toca la rama local. Por eso `git status` avisa de que `main` está _behind_ (por detrás) de `origin/main` en un commit, y `git tree` muestra `origin/main` un paso por delante de `main`. `origin/main` es una rama de seguimiento, es decir, la copia local de cómo estaba `main` en GitHub en la última sincronización. En los diagramas aparece en morado:
 
 ```{.dot caption="Después de git fetch, origin/main va un commit por delante de main" alt="origin/main apunta al commit Update README.md hecho en GitHub, y main y HEAD al commit anterior"}
@@ -117,7 +125,7 @@ digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; m2 [label="Merge branch 'capitulo-historial'"]; w1 [label="Update README.md"]
+  e [class=nota label="…"]; m2 [label="09f9e15 Merge branch 'capitulo-historial'"]; w1 [label="71d265c Update README.md"]
   e -> m2 -> w1
   node [shape=plaintext, group=""]
   main [class=rama]; HEAD [class=head]; om [class=remota label="origin/main"]
@@ -152,14 +160,28 @@ git commit -m "Amplía el capítulo 3"
 git pull
 ```
 
-Esta vez `git pull` falla con el mensaje _Need to specify how to reconcile divergent branches_. Ya tenemos el escenario que buscábamos: las dos ramas han divergido, porque cada una tiene un commit que la otra no tiene, y Git quiere saber si debe unirlas con un merge o con un rebase (el rebase se explica en el módulo 7). El diagrama muestra la situación:
+Esta vez `git pull` falla con el mensaje _Need to specify how to reconcile divergent branches_. Ya tenemos el escenario que buscábamos: las dos ramas han divergido, porque cada una tiene un commit que la otra no tiene, y Git quiere saber si debe unirlas con un merge o con un rebase (el rebase se explica en el módulo 7). Para ver la situación, consultamos el historial:
+
+```bash
+git tree
+```
+
+```text
+* 7f7f300 (HEAD -> main) Amplía el capítulo 3
+| * 65f4e2c (origin/main) Update README.md
+|/
+* 71d265c Update README.md
+...
+```
+
+`main` y `origin/main` salen del mismo commit, pero cada una tiene un commit propio, como muestra el diagrama:
 
 ```{.dot caption="main y origin/main han divergido" alt="Del primer commit Update README.md salen dos commits: Amplía el capítulo 3, con main y HEAD, y un segundo Update README.md, con origin/main"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…" group=a]; a1 [label="Update README.md" group=a]; a2 [label="Amplía el capítulo 3" group=a]; a3 [label="Update README.md"]
+  e [class=nota label="…" group=a]; a1 [label="71d265c Update README.md" group=a]; a2 [label="7f7f300 Amplía el capítulo 3" group=a]; a3 [label="65f4e2c Update README.md" group=remota]
   e -> a1 -> a2; a1 -> a3
   node [shape=plaintext, group=""]
   main [class=rama]; HEAD [class=head]; om [class=remota label="origin/main"]
@@ -177,14 +199,30 @@ git config pull.rebase false
 git pull
 ```
 
-Git crea un commit de fusión y abre el editor para que confirmes el mensaje. Como se ve en el diagrama, es la misma situación que la del apartado 4.3, sólo que con `origin/main` en lugar de otra rama local:
+Git crea un commit de fusión y abre el editor para que confirmes el mensaje. Guarda y cierra el editor, y consulta de nuevo el historial:
+
+```bash
+git tree
+```
+
+```text
+*   1fcd879 (HEAD -> main) Merge branch 'main' of github.com:tu-usuario/manual-git
+|\
+| * 65f4e2c (origin/main) Update README.md
+* | 7f7f300 Amplía el capítulo 3
+|/
+* 71d265c Update README.md
+...
+```
+
+Como se ve en la salida y en el diagrama, es la misma situación que la del apartado 4.2, sólo que con `origin/main` en lugar de otra rama local:
 
 ```{.dot caption="git pull crea un commit de fusión que une las dos historias" alt="Un commit de fusión une Amplía el capítulo 3 y el segundo Update README.md. main y HEAD apuntan a la fusión, y origin/main sigue en el segundo Update README.md"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…" group=d]; d1 [label="Update README.md" group=d]; d2 [label="Amplía el capítulo 3" group=d]; d3 [label="Update README.md"]; d4 [label="Merge branch 'main' of\ngithub.com:tu-usuario/manual-git" group=d]
+  e [class=nota label="…" group=d]; d1 [label="71d265c Update README.md" group=d]; d2 [label="7f7f300 Amplía el capítulo 3" group=d]; d3 [label="65f4e2c Update README.md" group=remota]; d4 [label="1fcd879 Merge branch 'main' of\ngithub.com:tu-usuario/manual-git" group=d]
   e -> d1 -> d2 -> d4; d1 -> d3 -> d4
   node [shape=plaintext, group=""]
   main [class=rama]; HEAD [class=head]; om [class=remota label="origin/main"]

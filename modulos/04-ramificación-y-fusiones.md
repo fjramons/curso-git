@@ -10,16 +10,23 @@ Una rama no es más que un puntero con nombre a un commit, que avanza cada vez q
 
 ```bash
 git branch capitulo-ramas
+git tree
 ```
 
-Si ejecutas `git branch` sin argumentos, verás la lista de ramas con un asterisco en la actual. Las dos ramas apuntan al mismo commit, pero la rama actual sigue siendo `main`, porque crear una rama no implica cambiar a ella:
+```text
+* 852e4f5 (HEAD -> main, capitulo-ramas) Explica en el README cómo generar el libro
+* 7bbac28 (tag: v0.1.0) Revert "Reescribe el capítulo 2"
+...
+```
+
+Las dos ramas apuntan al mismo commit, pero la rama actual sigue siendo `main` (`HEAD -> main`), porque crear una rama no implica cambiar a ella. Recuerda que tus identificadores serán distintos de los del ejemplo. Si ejecutas `git branch` sin argumentos, verás además la lista de ramas, con un asterisco en la actual:
 
 ```{.dot caption="Rama recién creada: dos ramas en el mismo commit" alt="main y capitulo-ramas apuntan al mismo commit, y HEAD apunta a main"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c5 [label="Revert \"Reescribe el capítulo 2\""]; c6 [label="Explica en el README cómo\ngenerar el libro"]
+  e [class=nota label="…"]; c5 [label="7bbac28 Revert \"Reescribe el capítulo 2\""]; c6 [label="852e4f5 Explica en el README cómo\ngenerar el libro"]
   e -> c5 -> c6
   node [shape=plaintext, group=""]
   main [class=rama]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]; v010 [class=etiqueta label="v0.1.0"]
@@ -52,21 +59,46 @@ Y guárdalo con un commit en la rama nueva:
 ```bash
 git add -A
 git commit -m "Añade el capítulo 3: ramas"
+```
+
+Lo normal es que una rama reúna varios commits antes de darse por terminada, así que vamos a seguir escribiendo en ella. Añade al final de la lista del capítulo una línea más:
+
+```markdown
+- `git branch` muestra las ramas, con un asterisco en la actual.
+```
+
+Y guárdala en un segundo commit, también en la rama:
+
+```bash
+git add -A
+git commit -m "Añade al capítulo 3 cómo listar las ramas"
 git tree
 ```
 
-En `git tree` verás que `capitulo-ramas` está un commit por delante de `main`. Esto ocurre porque, al hacer un commit, sólo avanza la rama actual (la que señala `HEAD`), mientras que las demás se quedan donde estaban:
+```text
+* cf013da (HEAD -> capitulo-ramas) Añade al capítulo 3 cómo listar las ramas
+* 3b59d7e Añade el capítulo 3: ramas
+* 852e4f5 (main) Explica en el README cómo generar el libro
+* 7bbac28 (tag: v0.1.0) Revert "Reescribe el capítulo 2"
+...
+```
 
-```{.dot caption="capitulo-ramas avanza con el commit y main se queda atrás" alt="capitulo-ramas apunta al commit del capítulo 3, HEAD apunta a capitulo-ramas y main apunta al commit anterior"}
+En la salida se ve que `capitulo-ramas` está dos commits por delante de `main`. Esto ocurre porque, al hacer un commit, sólo avanza la rama actual (la que señala `HEAD`), mientras que las demás se quedan donde estaban. Como la historia sigue siendo una línea recta, `git tree` todavía dibuja todos los commits en una sola columna; en el diagrama, en cambio, colocamos los de la rama a la derecha para que se vea la línea de trabajo que sale de `main`:
+
+```{.dot caption="capitulo-ramas avanza con sus commits y main se queda atrás" alt="Del commit del README, donde está main, sale una línea a la derecha con los dos commits del capítulo 3. capitulo-ramas y HEAD apuntan al último"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c5 [label="Revert \"Reescribe el capítulo 2\""]; c6 [label="Explica en el README cómo\ngenerar el libro"]; c7 [label="Añade el capítulo 3: ramas"]
-  e -> c5 -> c6 -> c7
+  e [class=nota label="…" group=main]; c5 [label="7bbac28 Revert \"Reescribe el capítulo 2\"" group=main]; c6 [label="852e4f5 Explica en el README cómo\ngenerar el libro" group=main]; c7 [label="3b59d7e Añade el capítulo 3: ramas" group=ramas]; c8 [label="cf013da Añade al capítulo 3 cómo\nlistar las ramas" group=ramas]
+  e -> c5 -> c6
+  c6 -> c7 -> c8
+  hueco1 [style=invis group=main label="852e4f5 Explica en el README cómo\ngenerar el libro"]; hueco2 [style=invis group=main label="852e4f5 Explica en el README cómo\ngenerar el libro"]
+  c6 -> hueco1 -> hueco2 [style=invis]
   node [shape=plaintext, group=""]
   main [class=rama]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]; v010 [class=etiqueta label="v0.1.0"]
-  { rank=same; c7 -> cr -> HEAD [class=ref dir=back] }
+  { rank=same; hueco1 -> c7 [style=invis] }
+  { rank=same; c8 -> cr -> HEAD [class=ref dir=back] }
   { rank=same; c6 -> main [class=ref dir=back] }
   { rank=same; c5 -> v010 [class=ref dir=back] }
 }
@@ -79,40 +111,113 @@ git switch main
 ls capitulos
 ```
 
-El capítulo 3 no está, porque sólo existe en su rama. Por cierto, un atajo muy común es `git switch -c <nombre>`, que crea la rama y cambia a ella en un solo paso. En documentación antigua verás también `git checkout <rama>` y `git checkout -b <rama>`, que hacen lo mismo.
+El capítulo 3 no está, porque sólo existe en su rama. Sin embargo, `main` no tiene por qué quedarse quieta mientras tanto: el libro sigue vivo y podemos seguir mejorándolo en ella. Supongamos que, mientras el capítulo 3 se escribe en su rama, nos damos cuenta de que al capítulo 2 le falta `git diff`. Añade este párrafo al final de `capitulos/02-primeros-comandos.md`, separado del anterior por una línea en blanco:
+
+```markdown
+Con `git diff` se ven los cambios que aún no se han guardado.
+```
+
+Y guárdalo con un commit, esta vez en `main`:
+
+```bash
+git add -A
+git commit -m "Añade git diff al capítulo 2"
+git tree
+```
+
+```text
+* 112a731 (HEAD -> main) Añade git diff al capítulo 2
+| * cf013da (capitulo-ramas) Añade al capítulo 3 cómo listar las ramas
+| * 3b59d7e Añade el capítulo 3: ramas
+|/
+* 852e4f5 Explica en el README cómo generar el libro
+* 7bbac28 (tag: v0.1.0) Revert "Reescribe el capítulo 2"
+...
+```
+
+Ahora sí, `git tree` dibuja dos líneas que salen del mismo commit: a la izquierda, `main` con el commit del capítulo 2, y a la derecha, `capitulo-ramas` con los dos commits del capítulo 3. Cada rama tiene commits que la otra no tiene, y por eso se dice que las dos ramas han **divergido**. Cada una avanza por su cuenta, sin que lo que pasa en una afecte a la otra:
+
+```{.dot caption="main y capitulo-ramas avanzan por separado" alt="Del commit del README salen dos líneas: a la izquierda, el commit del capítulo 2, con main y HEAD; a la derecha, los dos commits del capítulo 3, con capitulo-ramas"}
+digraph {
+  rankdir=BT
+  node [shape=box, style=rounded, group=principal]
+  edge [weight=50]
+  e [class=nota label="…" group=main]; c5 [label="7bbac28 Revert \"Reescribe el capítulo 2\"" group=main]; c6 [label="852e4f5 Explica en el README cómo\ngenerar el libro" group=main]; c9 [label="112a731 Añade git diff al capítulo 2" group=main]; c7 [label="3b59d7e Añade el capítulo 3: ramas" group=ramas]; c8 [label="cf013da Añade al capítulo 3 cómo\nlistar las ramas" group=ramas]
+  e -> c5 -> c6 -> c9
+  c6 -> c7 -> c8
+  node [shape=plaintext, group=""]
+  main [class=rama]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]; v010 [class=etiqueta label="v0.1.0"]
+  { rank=same; HEAD -> main -> c9 [class=ref dir=forward] }
+  { rank=same; c9 -> c7 [style=invis] }
+  { rank=same; c8 -> cr [class=ref dir=back] }
+  { rank=same; c5 -> v010 [class=ref dir=back] }
+}
+```
+
+Por cierto, un atajo muy común es `git switch -c <nombre>`, que crea la rama y cambia a ella en un solo paso. En documentación antigua verás también `git checkout <rama>` y `git checkout -b <rama>`, que hacen lo mismo.
 
 ## 4.2 Fusión de ramas (merge)
 
-El capítulo 3 está terminado, así que toca incorporarlo al libro. Para fusionar dos ramas hay que situarse en la que recibe los cambios, en nuestro caso `main`, e indicar la rama que se quiere traer:
+El capítulo 3 está terminado, así que toca incorporarlo al libro. Para fusionar dos ramas hay que situarse en la que recibe los cambios, en nuestro caso `main`, donde ya estamos, e indicar la rama que se quiere traer:
 
 ```bash
 # Desde la rama principal (receptora)
 git merge capitulo-ramas
 ```
 
-La salida dice _Fast-forward_, y tiene una explicación sencilla: como `main` no había avanzado desde que se creó la rama, Git no necesita mezclar nada ni crear ningún commit, así que simplemente adelanta `main` hasta el último commit de `capitulo-ramas`. Si ahora ejecutas `ls capitulos`, verás los tres capítulos. Comparado con el último diagrama del apartado anterior, la única diferencia es que `main` (y con ella `HEAD`) ha subido hasta el commit del capítulo 3, donde ya estaba `capitulo-ramas`:
+Como las dos ramas han divergido, Git tiene que combinar sus cambios en un commit nuevo, así que abre el editor con un mensaje ya escrito, _Merge branch 'capitulo-ramas'_. Guarda y cierra el editor para aceptarlo, y verás esta salida:
 
-```{.dot caption="Después de la fusión fast-forward, main alcanza a capitulo-ramas" alt="main, HEAD y capitulo-ramas apuntan al commit del capítulo 3. La etiqueta v0.1.0 sigue en el commit Revert"}
+```text
+Merge made by the 'ort' strategy.
+ capitulos/03-ramas.md | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ create mode 100644 capitulos/03-ramas.md
+```
+
+La salida resume lo que ha llegado de la rama: el capítulo 3 completo, con lo que añadieron sus dos commits. Git no nos ha preguntado nada, porque cada rama había cambiado ficheros distintos, el capítulo 2 en `main` y el capítulo 3 en `capitulo-ramas`, y no había nada que decidir. Si ejecutas `ls capitulos`, verás los tres capítulos, y el capítulo 2 conserva el párrafo de `git diff`. Veamos ahora cómo ha quedado el historial:
+
+```bash
+git tree
+```
+
+```text
+*   c1ecec8 (HEAD -> main) Merge branch 'capitulo-ramas'
+|\
+| * cf013da (capitulo-ramas) Añade al capítulo 3 cómo listar las ramas
+| * 3b59d7e Añade el capítulo 3: ramas
+* | 112a731 Añade git diff al capítulo 2
+|/
+* 852e4f5 Explica en el README cómo generar el libro
+...
+```
+
+El commit nuevo es un **commit de fusión** (_merge commit_), y se distingue de los demás en que tiene dos padres: el último commit de `main` y el último de `capitulo-ramas`. Es el punto en el que las dos líneas de historia se vuelven a unir, como se ve en la salida y en el diagrama. `main` (y con ella `HEAD`) avanza hasta la fusión, mientras que `capitulo-ramas` se queda donde estaba:
+
+```{.dot caption="El commit de fusión une main y capitulo-ramas" alt="El commit Merge branch capitulo-ramas tiene dos padres: el commit del capítulo 2 y el último del capítulo 3. main y HEAD apuntan a la fusión, y capitulo-ramas sigue en su último commit"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c5 [label="Revert \"Reescribe el capítulo 2\""]; c6 [label="Explica en el README cómo\ngenerar el libro"]; c7 [label="Añade el capítulo 3: ramas"]
-  e -> c5 -> c6 -> c7
+  e [class=nota label="…" group=main]; c6 [label="852e4f5 Explica en el README cómo\ngenerar el libro" group=main]; c9 [label="112a731 Añade git diff al capítulo 2" group=main]; c7 [label="3b59d7e Añade el capítulo 3: ramas" group=ramas]; c8 [label="cf013da Añade al capítulo 3 cómo\nlistar las ramas" group=ramas]; m1 [label="c1ecec8 Merge branch 'capitulo-ramas'" group=main]
+  e -> c6 -> c9 -> m1
+  c6 -> c7 -> c8 -> m1
   node [shape=plaintext, group=""]
-  r [class=refs label="HEAD -> main, capitulo-ramas"]; v010 [class=etiqueta label="v0.1.0"]
-  { rank=same; c7 -> r [class=ref dir=back] }
-  { rank=same; c5 -> v010 [class=ref dir=back] }
+  main [class=rama]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]
+  { rank=same; m1 -> main -> HEAD [class=ref dir=back] }
+  { rank=same; c9 -> c7 [style=invis] }
+  { rank=same; c8 -> cr [class=ref dir=back] }
 }
 ```
 
-Si las dos ramas hubieran avanzado por separado, en cambio, Git crearía un **commit de fusión** (_merge commit_) con dos padres, que une ambas historias. Veremos ese caso en el apartado siguiente.
+No todas las fusiones crean un commit de fusión. Si hubiéramos fusionado la rama antes del commit del capítulo 2, con `main` todavía en el commit del README, como en el primer diagrama con los dos commits del capítulo 3, no habría habido nada que combinar, porque `main` no tenía ningún commit que la rama no tuviera. En ese caso, Git se limita a adelantar `main` hasta el último commit de la rama, sin crear ningún commit nuevo, y la salida de `git merge` dice _Fast-forward_ (avance rápido). Es lo que suele ocurrir cuando nadie ha tocado `main` mientras trabajábamos en una rama, y el historial queda en línea recta, como si los commits se hubieran hecho directamente en `main`.
+
+En las dos fusiones, Git ha sabido mezclarlo todo sin ayuda. Falta ver qué ocurre cuando no puede, y eso es lo que haremos en el apartado siguiente.
 
 ## 4.3 Resolución de conflictos
 
-Git sabe fusionar automáticamente cambios en ficheros distintos, e incluso en partes distintas de un mismo fichero. Pero si dos ramas cambian las mismas líneas, Git no puede saber cuál es la buena y pide que alguien decida: es lo que se llama un **conflicto**. No hay comandos exclusivos para resolverlo: basta con editar el fichero en conflicto, guardarlo y finalizar el merge con `add` y `commit`.
+Git sabe fusionar automáticamente cambios en ficheros distintos, como acabamos de ver, e incluso en partes distintas de un mismo fichero. Pero si dos ramas cambian las mismas líneas, Git no puede saber cuál es la buena y pide que alguien decida: es lo que se llama un **conflicto**. No hay comandos exclusivos para resolverlo: basta con editar el fichero en conflicto, guardarlo y finalizar el merge con `add` y `commit`.
 
-Para ver un conflicto necesitamos dos ramas que cambien la misma línea de formas distintas, así que vamos a provocarlo: cambiaremos el título del libro en una rama nueva y, después, cambiaremos ese mismo título de otra manera en `main`. Empezamos por la rama:
+Para ver un conflicto necesitamos dos ramas que cambien la misma línea de formas distintas, así que vamos a provocarlo: cambiaremos el título del libro en una rama nueva y, después, cambiaremos ese mismo título de otra manera en `main`. Además, la rama tendrá un segundo cambio que no choca con nada, para ver cómo Git separa lo que sabe fusionar de lo que no. Empezamos por la rama:
 
 ```bash
 git switch -c cambio-titulo
@@ -131,7 +236,20 @@ git add -A
 git commit -m "Cambia el título del libro"
 ```
 
-Ahora volvemos a `main` para cambiar esa misma línea de otra forma:
+El título también aparece en la primera línea del `README.md`, así que lo cambiamos allí para que los dos coincidan:
+
+```markdown
+# Manual de Git para principiantes
+```
+
+Y lo guardamos en un segundo commit:
+
+```bash
+git add -A
+git commit -m "Pone el título nuevo en el README"
+```
+
+Ahora volvemos a `main` para cambiar el título de `metadata.yaml` de otra forma:
 
 ```bash
 git switch main
@@ -148,24 +266,40 @@ Y guárdalo también en un commit:
 ```bash
 git add -A
 git commit -m "Cambia el título a Manual práctico"
+git tree
 ```
 
-Ya tenemos el escenario: las dos ramas han divergido, porque cada una tiene un commit que la otra no tiene, y los dos commits cambian la misma línea. El diagrama muestra la situación:
+```text
+* d75c28a (HEAD -> main) Cambia el título a Manual práctico
+| * 0a7610b (cambio-titulo) Pone el título nuevo en el README
+| * 4a61dfa Cambia el título del libro
+|/
+*   c1ecec8 Merge branch 'capitulo-ramas'
+|\
+| * cf013da (capitulo-ramas) Añade al capítulo 3 cómo listar las ramas
+| * 3b59d7e Añade el capítulo 3: ramas
+* | 112a731 Añade git diff al capítulo 2
+...
+```
 
-```{.dot caption="main y cambio-titulo han divergido" alt="Del commit del capítulo 3 salen dos commits que cambian el título: uno en main y otro en cambio-titulo"}
+Ya tenemos el escenario: las dos ramas han vuelto a divergir, como en el apartado anterior, pero esta vez el commit de `main` y el primero de `cambio-titulo` cambian la misma línea de `metadata.yaml`. El diagrama muestra la situación:
+
+```{.dot caption="main y cambio-titulo han divergido" alt="De la fusión de capitulo-ramas salen dos líneas: a la izquierda, Cambia el título a Manual práctico, con main y HEAD; a la derecha, los dos commits de cambio-titulo"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c7 [label="Añade el capítulo 3: ramas" group=main]; t2 [label="Cambia el título a Manual práctico" group=main]; t1 [label="Cambia el título del libro"]
-  e -> c7 -> t2
-  c7 -> t1
+  e [class=nota label="…" group=main]; c9 [label="112a731 Añade git diff al capítulo 2" group=main]; c8 [label="cf013da Añade al capítulo 3 cómo\nlistar las ramas" group=ramas]; m1 [label="c1ecec8 Merge branch 'capitulo-ramas'" group=main]; t3 [label="d75c28a Cambia el título a Manual práctico" group=main]; t1 [label="4a61dfa Cambia el título del libro" group=titulo]; t2 [label="0a7610b Pone el título nuevo en el README" group=titulo]
+  e -> c9 -> m1 -> t3
+  e -> c8 -> m1
+  m1 -> t1 -> t2
   node [shape=plaintext, group=""]
   main [class=rama]; ct [class=rama label="cambio-titulo"]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]
-  { rank=same; HEAD -> main -> t2 [class=ref dir=forward] }
-  { rank=same; t2 -> t1 [style=invis] }
-  { rank=same; t1 -> ct [class=ref dir=back] }
-  { rank=same; c7 -> cr [class=ref dir=back] }
+  { rank=same; HEAD -> main -> t3 [class=ref dir=forward] }
+  { rank=same; t3 -> t1 [style=invis] }
+  { rank=same; t2 -> ct [class=ref dir=back] }
+  { rank=same; c9 -> c8 [style=invis] }
+  { rank=same; c8 -> cr [class=ref dir=back] }
 }
 ```
 
@@ -181,7 +315,27 @@ CONFLICT (content): Merge conflict in metadata.yaml
 Automatic merge failed; fix conflicts and then commit the result.
 ```
 
-Git no sabe con qué título quedarse, así que el merge se queda a medias y `git status` muestra `metadata.yaml` en _both modified_. Si abres el fichero, verás que Git ha marcado la zona en conflicto con las dos versiones:
+Git no sabe con qué título quedarse, así que el merge se queda a medias. Para ver en qué punto está, consultamos el estado:
+
+```bash
+git status
+```
+
+```text
+On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Changes to be committed:
+        modified:   README.md
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+        both modified:   metadata.yaml
+```
+
+La salida separa los dos ficheros. `README.md` está en _Changes to be committed_: el cambio sólo venía de la rama, así que Git lo ha fusionado sin ayuda y lo ha dejado preparado para el commit. `metadata.yaml`, en cambio, está en _Unmerged paths_ como _both modified_, porque las dos ramas han cambiado la misma línea. Es decir, Git sólo nos pide ayuda con lo que no sabe mezclar. Si abres `metadata.yaml`, verás que ha marcado la zona en conflicto con las dos versiones:
 
 ```text
 <<<<<<< HEAD
@@ -190,42 +344,63 @@ title: Manual práctico de Git
 title: Manual de Git para principiantes
 >>>>>>> cambio-titulo
 subtitle: Lo que aprendí en el curso de Git y GitHub
+author: Tu Nombre
+lang: es-ES
 ```
 
 - Entre `<<<<<<< HEAD` y `=======` está la versión de la rama actual (`main`).
 - Entre `=======` y `>>>>>>> cambio-titulo` está la versión de la rama que se está fusionando.
 
-Resolver el conflicto consiste en dejar el fichero como queremos que quede y borrar las tres líneas de marcadores. Podemos quedarnos con una versión, con la otra o con una mezcla de las dos; en este ejemplo, optamos por la mezcla:
+Resolver el conflicto consiste en dejar el fichero como queremos que quede y borrar las tres líneas de marcadores. Podemos quedarnos con la versión de la rama actual, con la de la rama que llega o con una mezcla de las dos. En este ejemplo nos quedamos con la de `cambio-titulo`, porque es el título que ya ha llegado al README con la fusión:
 
 ```yaml
-title: Manual práctico de Git para principiantes
+title: Manual de Git para principiantes
 subtitle: Lo que aprendí en el curso de Git y GitHub
 ```
 
-Editores como VS Code muestran botones (_Accept Current_, _Accept Incoming_, _Accept Both_) que hacen esto por ti. Cuando el fichero esté limpio, sólo queda marcarlo como resuelto añadiéndolo al staging y terminar el merge con un commit:
+Editores como VS Code muestran botones (_Accept Current_, _Accept Incoming_, _Accept Both_) que hacen esto por ti; en nuestro caso, el que corresponde es _Accept Incoming_. Cuando el fichero esté limpio, sólo queda marcarlo como resuelto añadiéndolo al staging y terminar el merge con un commit:
 
 ```bash
 git add metadata.yaml
-git commit -m "Resolución de conflicto durante merge"
+git commit
 git tree
 ```
 
-Ahora `git tree` muestra las dos líneas de historia uniéndose en el commit de fusión. A diferencia de los demás, este commit tiene dos padres: el último commit de `main` y el de `cambio-titulo`.
+Como en el apartado anterior, `git commit` abre el editor con el mensaje _Merge branch 'cambio-titulo'_ ya escrito, así que basta con guardar y cerrar. Después, `git tree` muestra el resultado:
 
-```{.dot caption="El commit de fusión une las dos líneas de historia" alt="El commit de resolución del conflicto tiene dos padres, los dos commits que cambian el título. main apunta a él"}
+```text
+*   cf02aa6 (HEAD -> main) Merge branch 'cambio-titulo'
+|\
+| * 0a7610b (cambio-titulo) Pone el título nuevo en el README
+| * 4a61dfa Cambia el título del libro
+* | d75c28a Cambia el título a Manual práctico
+|/
+*   c1ecec8 Merge branch 'capitulo-ramas'
+|\
+| * cf013da (capitulo-ramas) Añade al capítulo 3 cómo listar las ramas
+| * 3b59d7e Añade el capítulo 3: ramas
+* | 112a731 Añade git diff al capítulo 2
+...
+```
+
+Las dos líneas de historia se unen en el nuevo commit de fusión, cuyos padres son el commit del título en `main` y el último de `cambio-titulo`. En el historial de `main`, el resultado tiene la misma forma que la fusión del apartado anterior; la diferencia es que esta vez hemos tenido que decidir nosotros una parte del contenido:
+
+```{.dot caption="El commit de fusión une main y cambio-titulo después de resolver el conflicto" alt="El commit Merge branch cambio-titulo tiene dos padres: Cambia el título a Manual práctico y Pone el título nuevo en el README. main y HEAD apuntan a la fusión"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c7 [label="Añade el capítulo 3: ramas" group=main]; t2 [label="Cambia el título a Manual práctico" group=main]; t1 [label="Cambia el título del libro"]; m [label="Resolución de conflicto\ndurante merge" group=main]
-  e -> c7 -> t2 -> m
-  c7 -> t1 -> m
+  e [class=nota label="…" group=main]; c9 [label="112a731 Añade git diff al capítulo 2" group=main]; c8 [label="cf013da Añade al capítulo 3 cómo\nlistar las ramas" group=ramas]; m1 [label="c1ecec8 Merge branch 'capitulo-ramas'" group=main]; t3 [label="d75c28a Cambia el título a Manual práctico" group=main]; t1 [label="4a61dfa Cambia el título del libro" group=titulo]; t2 [label="0a7610b Pone el título nuevo en el README" group=titulo]; m2 [label="cf02aa6 Merge branch 'cambio-titulo'" group=main]
+  e -> c9 -> m1 -> t3 -> m2
+  e -> c8 -> m1
+  m1 -> t1 -> t2 -> m2
   node [shape=plaintext, group=""]
   main [class=rama]; ct [class=rama label="cambio-titulo"]; cr [class=rama label="capitulo-ramas"]; HEAD [class=head]
-  { rank=same; m -> main -> HEAD [class=ref dir=back] }
-  { rank=same; t2 -> t1 [style=invis] }
-  { rank=same; t1 -> ct [class=ref dir=back] }
-  { rank=same; c7 -> cr [class=ref dir=back] }
+  { rank=same; m2 -> main -> HEAD [class=ref dir=back] }
+  { rank=same; t3 -> t1 [style=invis] }
+  { rank=same; t2 -> ct [class=ref dir=back] }
+  { rank=same; c9 -> c8 [style=invis] }
+  { rank=same; c8 -> cr [class=ref dir=back] }
 }
 ```
 
@@ -289,14 +464,31 @@ git switch main
 git merge capitulo-historial
 ```
 
-Como `main` había avanzado con la corrección del README, esta vez no hay fast-forward: Git crea un commit de fusión y abre el editor para que confirmes su mensaje. Guarda y cierra el editor para terminar. Fíjate en que el stash no deja rastro en el historial, donde sólo quedan los commits:
+Como `main` había avanzado con la corrección del README, esta vez no hay fast-forward: Git crea un commit de fusión y abre el editor para que confirmes su mensaje. Guarda y cierra el editor para terminar y consulta el historial:
 
-```{.dot caption="Fusión de capitulo-historial después de corregir el README en main" alt="Del commit de resolución del conflicto salen dos líneas: Corrige el README en main y los dos commits del capítulo 4 en capitulo-historial. Se unen en un commit de fusión, al que apunta main"}
+```bash
+git tree
+```
+
+```text
+*   09f9e15 (HEAD -> main) Merge branch 'capitulo-historial'
+|\
+| * 89dcf4e (capitulo-historial) Termina el capítulo 4: historial
+| * 7a2c9e1 Empieza el capítulo 4: historial
+* | 8b182a8 Corrige el README
+|/
+*   cf02aa6 Merge branch 'cambio-titulo'
+...
+```
+
+Fíjate en que el stash no deja rastro en el historial, donde sólo quedan los commits:
+
+```{.dot caption="Fusión de capitulo-historial después de corregir el README en main" alt="De la fusión de cambio-titulo salen dos líneas: Corrige el README en main y los dos commits del capítulo 4 en capitulo-historial. Se unen en un commit de fusión, al que apunta main"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; m1 [label="Resolución de conflicto\ndurante merge" group=main]; r [label="Corrige el README" group=main]; h1 [label="7a2c9e1 Empieza el capítulo 4: historial"]; h2 [label="Termina el capítulo 4: historial"]; m2 [label="Merge branch 'capitulo-historial'" group=main]
+  e [class=nota label="…" group=main]; m1 [label="cf02aa6 Merge branch 'cambio-titulo'" group=main]; r [label="8b182a8 Corrige el README" group=main]; h1 [label="7a2c9e1 Empieza el capítulo 4: historial" group=historial]; h2 [label="89dcf4e Termina el capítulo 4: historial" group=historial]; m2 [label="09f9e15 Merge branch 'capitulo-historial'" group=main]
   e -> m1 -> r -> m2
   m1 -> h1 -> h2 -> m2
   node [shape=plaintext, group=""]
@@ -328,23 +520,48 @@ git branch -d capitulo-historial
 git tree
 ```
 
+```text
+*   09f9e15 (HEAD -> main) Merge branch 'capitulo-historial'
+|\
+| * 89dcf4e Termina el capítulo 4: historial
+| * 7a2c9e1 Empieza el capítulo 4: historial
+* | 8b182a8 Corrige el README
+|/
+*   cf02aa6 Merge branch 'cambio-titulo'
+|\
+| * 0a7610b Pone el título nuevo en el README
+| * 4a61dfa Cambia el título del libro
+* | d75c28a Cambia el título a Manual práctico
+|/
+*   c1ecec8 Merge branch 'capitulo-ramas'
+|\
+| * cf013da Añade al capítulo 3 cómo listar las ramas
+| * 3b59d7e Añade el capítulo 3: ramas
+* | 112a731 Añade git diff al capítulo 2
+|/
+* 852e4f5 Explica en el README cómo generar el libro
+...
+```
+
 Borrar una rama no borra sus commits, que siguen en el historial de `main`: sólo desaparece el nombre de la rama, es decir, el puntero. Por seguridad, `git branch -d` se niega a borrar una rama cuyos cambios no se han fusionado; si de verdad quieres tirar ese trabajo, usa `git branch -D <nombre_rama>`.
 
 Así queda el historial del módulo completo, ya sin las ramas:
 
-```{.dot caption="Historial del módulo 4 después de borrar las ramas" alt="Historial con el capítulo 3, las dos fusiones y los commits de las ramas borradas. Sólo quedan main y HEAD en el último commit"}
+```{.dot caption="Historial del módulo 4 después de borrar las ramas" alt="Historial del módulo: tres líneas de trabajo, la del capítulo 3, la del título y la del capítulo 4, salen de main y vuelven a ella en tres commits de fusión. Sólo quedan main y HEAD en el último commit"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c6 [label="Explica en el README cómo\ngenerar el libro" group=main]; c7 [label="Añade el capítulo 3: ramas" group=main]; t2 [label="Cambia el título a Manual práctico" group=main]; t1 [label="Cambia el título del libro"]; m1 [label="Resolución de conflicto\ndurante merge" group=main]; r [label="Corrige el README" group=main]; h1 [label="Empieza el capítulo 4: historial"]; h2 [label="Termina el capítulo 4: historial"]; m2 [label="Merge branch 'capitulo-historial'" group=main]
-  e -> c6 -> c7 -> t2 -> m1 -> r -> m2
-  c7 -> t1 -> m1
-  m1 -> h1 -> h2 -> m2
+  e [class=nota label="…" group=main]; c6 [label="852e4f5 Explica en el README cómo\ngenerar el libro" group=main]; c9 [label="112a731 Añade git diff al capítulo 2" group=main]; c7 [label="3b59d7e Añade el capítulo 3: ramas" group=ramas]; c8 [label="cf013da Añade al capítulo 3 cómo\nlistar las ramas" group=ramas]; m1 [label="c1ecec8 Merge branch 'capitulo-ramas'" group=main]; t3 [label="d75c28a Cambia el título a Manual práctico" group=main]; t1 [label="4a61dfa Cambia el título del libro" group=titulo]; t2 [label="0a7610b Pone el título nuevo en el README" group=titulo]; m2 [label="cf02aa6 Merge branch 'cambio-titulo'" group=main]; r [label="8b182a8 Corrige el README" group=main]; h1 [label="7a2c9e1 Empieza el capítulo 4: historial" group=historial]; h2 [label="89dcf4e Termina el capítulo 4: historial" group=historial]; m3 [label="09f9e15 Merge branch 'capitulo-historial'" group=main]
+  e -> c6 -> c9 -> m1 -> t3 -> m2 -> r -> m3
+  c6 -> c7 -> c8 -> m1
+  m1 -> t1 -> t2 -> m2
+  m2 -> h1 -> h2 -> m3
   node [shape=plaintext, group=""]
   main [class=rama]; HEAD [class=head]
-  { rank=same; m2 -> main -> HEAD [class=ref dir=back] }
-  { rank=same; t2 -> t1 [style=invis] }
+  { rank=same; m3 -> main -> HEAD [class=ref dir=back] }
+  { rank=same; c9 -> c7 [style=invis] }
+  { rank=same; t3 -> t1 [style=invis] }
   { rank=same; r -> h1 [style=invis] }
 }
 ```

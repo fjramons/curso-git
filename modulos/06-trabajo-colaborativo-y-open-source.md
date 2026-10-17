@@ -199,7 +199,7 @@ git pull
 Con la copia al día, sustituye el contenido de tu `README.md` por este:
 
 ````markdown
-# Manual de Git
+# Manual de Git para principiantes
 
 Libro práctico sobre Git y GitHub, escrito en Markdown durante el curso de Git y GitHub.
 

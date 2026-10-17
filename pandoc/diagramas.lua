@@ -103,6 +103,27 @@ local HUERFANO_ARISTA = 'style=dashed, color="#9aa3ad"'
 -- Sustituye "[class=macro ...]" por "[atributos ...]" en cada sentencia.
 -- Las sentencias se separan con saltos de línea o con ";", así que las
 -- etiquetas no pueden contener ";".
+-- Busca label="…" en los atributos, respetando las comillas escapadas
+-- (\"), y devuelve dónde empieza y acaba y su contenido sin las comillas
+local function etiqueta(atributos)
+  local ini, abre = atributos:find('label%s*=%s*"')
+  if not ini then
+    return nil
+  end
+  local i = abre + 1
+  while i <= #atributos do
+    local c = atributos:sub(i, i)
+    if c == '\\' then
+      i = i + 2
+    elseif c == '"' then
+      return ini, i, atributos:sub(abre + 1, i - 1)
+    else
+      i = i + 1
+    end
+  end
+  return nil
+end
+
 local function expandir_sentencia(s, cluster)
   local inicio, atributos, fin = s:match('^(.-)%[(.-)%](.*)$')
   local macro = atributos and atributos:match('class%s*=%s*"?([%w_]+)"?')
@@ -117,15 +138,19 @@ local function expandir_sentencia(s, cluster)
   end
   -- Un hash al principio de la etiqueta ("5e7b3a2 Añade…") se escribe en
   -- gris, como el que muestra git tree
-  local hash, texto = (atributos or ''):match('label%s*=%s*"(%x%x%x%x%x%x%x) (.-)"')
+  local ini, fin_etiqueta, valor = etiqueta(atributos or '')
+  local hash, texto
+  if valor then
+    hash, texto = valor:match('^(%x%x%x%x%x%x%x) (.*)$')
+  end
   if id and hash then
-    texto = texto:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;'):gsub('\\n', '<BR/>')
+    texto = texto:gsub('\\"', '"'):gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;'):gsub('\\n', '<BR/>')
     -- Dos celdas con separación fija: así el hueco no depende de cómo mida
     -- cada programa el ancho del texto
     local html = '<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="4" CELLPADDING="0"><TR>'
       .. '<TD><FONT COLOR="' .. COLOR_HASH .. '">' .. hash .. '</FONT></TD>'
       .. '<TD>' .. texto .. '</TD></TR></TABLE>>'
-    atributos = atributos:gsub('label%s*=%s*"[^"]*"', function() return 'label=' .. html end, 1)
+    atributos = atributos:sub(1, ini - 1) .. 'label=' .. html .. atributos:sub(fin_etiqueta + 1)
     -- Graphviz calcula algo corto el ancho de las etiquetas HTML: más margen
     s = inicio .. '[' .. atributos .. ', margin="0.12,0.02"]' .. fin
   end

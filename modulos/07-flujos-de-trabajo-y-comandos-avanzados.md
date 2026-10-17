@@ -45,7 +45,9 @@ digraph {
   f1 [label="feature: funcionalidad nueva" group=feature]
   m1 -> m2 -> m3
   m1 -> h1 -> m2
-  m1 -> d1 -> d2 -> d3 -> d4
+  m1 -> d1
+  d1 -> paso [arrowhead=none headclip=false]; paso -> d2 [tailclip=false]
+  d2 -> d3 -> d4
   d1 -> f1 -> d2
   h1 -> d3
   d3 -> r1 -> m3
@@ -57,9 +59,8 @@ digraph {
   { rank=same; v10 -> m1 [class=ref dir=forward] }
   { rank=same; d4 -> develop [class=ref dir=back] }
   { rank=same; h1 -> d1 [style=invis] }
-  hueco [style=invis label="" group=develop]
-  d1 -> hueco [style=invis]
-  { rank=same; m2 -> hueco -> f1 [style=invis] }
+  paso [shape=point width=0.015 height=0.015 color="#4a5b70" fillcolor="#4a5b70" group=develop]
+  { rank=same; m2 -> paso -> f1 [style=invis] }
   { rank=same; m3 -> d4 [style=invis] }
 }
 ```
@@ -75,20 +76,33 @@ Como se aprecia en el diagrama, seguir GitFlow con comandos normales de Git exig
 
 La documentación de GitHub lo describe en [GitHub flow](https://docs.github.com/es/get-started/using-github/github-flow).
 
-En realidad, ya lo pusimos en práctica en el módulo 6 con el capítulo 5: la rama `capitulo-github`, su pull request y el commit de fusión que GitHub creó en `main`. Así quedó el historial del autor después de descargar la fusión con `git pull`:
+En realidad, ya lo pusimos en práctica en el módulo 6 con el capítulo 5: la rama `capitulo-github`, su pull request y el commit de fusión que GitHub creó en `main`. Después de descargar la fusión con `git pull`, la parte de arriba de `git tree` en la copia del autor era esta:
+
+```text
+*   6dce13e (HEAD -> main, origin/main) Merge pull request #1 from <colaborador>/capitulo-github
+|\
+| * 7429b59 Mi aportación colaborativa: capítulo 5 sobre GitHub
+|/
+* 57c522f Amplía el capítulo 4 con reflog
+...
+```
+
+El diagrama la dibuja con el commit de la rama a la derecha de `main`:
 
 ```{.dot caption="GitHub flow: el capítulo 5 llegó a main con un pull request" alt="Del commit Amplía el capítulo 4 con reflog sale el commit del capítulo 5, hecho en la rama capitulo-github. Un commit de fusión creado por el pull request lo une a main, donde están main, origin/main y HEAD"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; r [label="Amplía el capítulo 4 con reflog"]; c5 [label="Mi aportación colaborativa:\ncapítulo 5 sobre GitHub" group=rama]; pr [label="Merge pull request #1 from\n<colaborador>/capitulo-github"]
-  e -> r -> pr
+  e [class=nota label="…" group=main]; r [label="57c522f Amplía el capítulo 4 con reflog" group=main]; c5 [label="7429b59 Mi aportación colaborativa:\ncapítulo 5 sobre GitHub" group=rama]; pr [label="6dce13e Merge pull request #1 from\n<colaborador>/capitulo-github" group=main]
+  e -> r
   r -> c5 -> pr
+  paso [shape=point width=0.015 height=0.015 color="#4a5b70" fillcolor="#4a5b70" group=main]; hueco [style=invis label="" width=1.4]
+  r -> paso [arrowhead=none headclip=false]; paso -> pr [tailclip=false]
   node [shape=plaintext, group=""]
-  main [class=rama]; HEAD [class=head]; om [class=remota label="origin/main"]
-  { rank=same; pr -> main -> HEAD [class=ref dir=back] }
-  { rank=same; om -> pr [class=ref dir=forward] }
+  rpr [class=refs label="HEAD -> main, origin/main"]
+  { rank=same; pr -> rpr [class=ref dir=back] }
+  { rank=same; paso -> hueco -> c5 [style=invis] }
 }
 ```
 
@@ -157,6 +171,16 @@ git push origin v1.0.0
 git tree
 ```
 
+```text
+*   5656f2f (HEAD -> main, tag: v1.0.0, origin/main) Merge pull request #N from tu-usuario/capitulo-flujos
+|\
+| * 6439eeb Prepara la versión 1.0.0
+| * b8a12b2 Añade el capítulo 6: flujos de trabajo
+|/
+* 45a644f Mejora el README con el contenido y cómo colaborar
+...
+```
+
 El diagrama muestra el resultado: los dos commits de la rama llegan a `main` con el commit de fusión del pull request, que lleva la etiqueta `v1.0.0`. `N` es el número que GitHub ha asignado al pull request:
 
 ```{.dot caption="La versión 1.0.0, publicada con GitHub flow" alt="Del commit Mejora el README salen los dos commits de la rama capitulo-flujos. El commit de fusión del pull request los une a main y lleva la etiqueta v1.0.0"}
@@ -164,12 +188,16 @@ digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; p [label="Mejora el README con el\ncontenido y cómo colaborar"]; c6 [label="Añade el capítulo 6:\nflujos de trabajo" group=rama]; v [label="Prepara la versión 1.0.0" group=rama]; pr [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]
-  e -> p -> pr
+  e [class=nota label="…" group=main]; p [label="45a644f Mejora el README con el\ncontenido y cómo colaborar" group=main]; c6 [label="b8a12b2 Añade el capítulo 6:\nflujos de trabajo" group=rama]; v [label="6439eeb Prepara la versión 1.0.0" group=rama]; pr [label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos" group=main]
+  e -> p
   p -> c6 -> v -> pr
+  paso1 [shape=point width=0.015 height=0.015 color="#4a5b70" fillcolor="#4a5b70" group=main]; paso2 [shape=point width=0.015 height=0.015 color="#4a5b70" fillcolor="#4a5b70" group=main]; hueco1 [style=invis label="" width=1.4]; hueco2 [style=invis label="" width=1.4]
+  p -> paso1 [arrowhead=none headclip=false]; paso1 -> paso2 [arrowhead=none headclip=false tailclip=false]; paso2 -> pr [tailclip=false]
   node [shape=plaintext, group=""]
   rpr [class=refs label="HEAD -> main, origin/main, v1.0.0"]
   { rank=same; pr -> rpr [class=ref dir=back] }
+  { rank=same; paso1 -> hueco1 -> c6 [style=invis] }
+  { rank=same; paso2 -> hueco2 -> v [style=invis] }
 }
 ```
 
@@ -200,32 +228,50 @@ git commit -m "Precisa el tamaño de una rama en el capítulo 3"
 git log --oneline -1
 ```
 
-Ya tenemos el escenario: la rama `capitulo-avanzados` contiene dos commits, el principio del capítulo 7 y la corrección del capítulo 3. Y aquí está el problema: la corrección debería llegar ya a `main`, pero el capítulo 7 está a medias y no puede ir con ella. Lo que queremos, por tanto, es llevar a `main` sólo ese commit, dejando el resto de la rama donde está. Eso es justo lo que hace cherry-pick. Copia el identificador que acabas de ver, crea una rama a partir de `main` y copia en ella sólo ese commit:
+```text
+8d5d3fd (HEAD -> capitulo-avanzados) Precisa el tamaño de una rama en el capítulo 3
+```
+
+Ya tenemos el escenario: la rama `capitulo-avanzados` contiene dos commits, el principio del capítulo 7 y la corrección del capítulo 3. Y aquí está el problema: la corrección debería llegar ya a `main`, pero el capítulo 7 está a medias y no puede ir con ella. Lo que queremos, por tanto, es llevar a `main` sólo ese commit, dejando el resto de la rama donde está. Eso es justo lo que hace cherry-pick, cuya sintaxis es `git cherry-pick <id_del_commit>`. Creamos una rama a partir de `main` y copiamos en ella sólo ese commit, que en el ejemplo es `8d5d3fd`:
 
 ```bash
 # Traer un commit específico a la rama actual
 git switch -c corrige-capitulo-3 main
-git cherry-pick <id_del_commit>
+git cherry-pick 8d5d3fd
 git tree
 ```
 
-El último argumento de `git switch -c` indica desde dónde se crea la rama: aquí, desde `main` y no desde la rama actual. `git tree` muestra un commit nuevo en `corrige-capitulo-3` con el mismo mensaje pero distinto identificador, porque cherry-pick no mueve el commit, sino que crea una copia. En el diagrama, la flecha discontinua une el original con su copia:
+Usa el identificador que aparezca en tu `git log`. La salida de `git tree` es esta:
+
+```text
+* 5ec836d (HEAD -> corrige-capitulo-3) Precisa el tamaño de una rama en el capítulo 3
+| * 8d5d3fd (capitulo-avanzados) Precisa el tamaño de una rama en el capítulo 3
+| * d52353a Empieza el capítulo 7
+|/
+*   5656f2f (tag: v1.0.0, origin/main, main) Merge pull request #N from tu-usuario/capitulo-flujos
+...
+```
+
+El último argumento de `git switch -c` indica desde dónde se crea la rama: aquí, desde `main` y no desde la rama actual. `git tree` muestra un commit nuevo en `corrige-capitulo-3` con el mismo mensaje pero distinto identificador (`5ec836d` en lugar de `8d5d3fd`), porque cherry-pick no mueve el commit, sino que crea una copia. En el diagrama, la flecha discontinua une el original con su copia:
 
 ```{.dot caption="Cherry-pick: una copia de la corrección en una rama que sale de main" alt="De la fusión de la versión 1.0.0 salen dos ramas. En capitulo-avanzados están Empieza el capítulo 7 y la corrección del capítulo 3. En corrige-capitulo-3 hay una copia de esa corrección"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; pr [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]; s [label="Empieza el capítulo 7" group=avanzados]; c [label="Precisa el tamaño de una rama\nen el capítulo 3" group=avanzados]; c2 [label="Precisa el tamaño de una rama\nen el capítulo 3"]
+  e [class=nota label="…" group=main]; pr [label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos" group=main]; s [label="d52353a Empieza el capítulo 7" group=avanzados]; c [label="8d5d3fd Precisa el tamaño de una rama\nen el capítulo 3" group=avanzados]; c2 [label="5ec836d Precisa el tamaño de una rama\nen el capítulo 3" group=corrige]
   e -> pr -> s -> c
   pr -> c2
-  c -> c2 [class=copia]
+  c -> c2 [class=copia constraint=false]
+  hueco1 [style=invis group=main label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos"]; hueco2 [style=invis group=main label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos"]
+  pr -> hueco1 -> hueco2 [style=invis]
   node [shape=plaintext, group=""]
   rpr [class=refs label="main, origin/main, v1.0.0"]; ca [class=rama label="capitulo-avanzados"]; cc [class=rama label="corrige-capitulo-3"]; HEAD [class=head]
   { rank=same; pr -> rpr [class=ref dir=back] }
-  { rank=same; ca -> c [class=ref dir=forward] }
+  { rank=same; hueco1 -> s -> c2 [style=invis] }
   { rank=same; c2 -> cc -> HEAD [class=ref dir=back] }
-  { rank=same; s -> c2 [style=invis] }
+  { rank=same; hueco2 -> c [style=invis] }
+  { rank=same; c -> ca [class=ref dir=back] }
 }
 ```
 
@@ -284,6 +330,19 @@ git commit -m "Añade rebase al capítulo 7"
 git tree
 ```
 
+```text
+* ea70d95 (HEAD -> capitulo-avanzados) Añade rebase al capítulo 7
+* d1dfabd Añade cherry-pick al capítulo 7
+* 8d5d3fd Precisa el tamaño de una rama en el capítulo 3
+* d52353a Empieza el capítulo 7
+| * af8bb0b (origin/main, main) Merge pull request #N from tu-usuario/corrige-capitulo-3
+|/|
+| * 5ec836d Precisa el tamaño de una rama en el capítulo 3
+|/
+*   5656f2f (tag: v1.0.0) Merge pull request #N from tu-usuario/capitulo-flujos
+...
+```
+
 Ya tenemos el escenario que buscábamos: `git tree` muestra que `main` y `capitulo-avanzados` han divergido. Por un lado, `main` tiene la fusión de la corrección; por otro, `capitulo-avanzados` tiene los commits del capítulo 7 y la corrección original:
 
 ```{.dot caption="main y capitulo-avanzados han divergido" alt="De la fusión de la versión 1.0.0 salen dos líneas. En main, la corrección del capítulo 3 llega con un pull request. En capitulo-avanzados están los commits del capítulo 7 y la corrección original"}
@@ -291,17 +350,18 @@ digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  a0 [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]; ac [label="Precisa el tamaño de una rama\nen el capítulo 3" group=mainA]; am [label="Merge pull request #N from\ntu-usuario/corrige-capitulo-3" group=mainA]
-  a1 [label="Empieza el capítulo 7" group=a]; a2 [label="Precisa el tamaño de una rama\nen el capítulo 3" group=a]; a3 [label="Añade cherry-pick al capítulo 7" group=a]; a4 [label="Añade rebase al capítulo 7" group=a]
-  a0 -> am
+  a0 [label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos" group=main]; ac [label="5ec836d Precisa el tamaño de una rama\nen el capítulo 3" group=corrige]; am [label="af8bb0b Merge pull request #N from\ntu-usuario/corrige-capitulo-3" group=main]
+  a1 [label="d52353a Empieza el capítulo 7" group=a]; a2 [label="8d5d3fd Precisa el tamaño de una rama\nen el capítulo 3" group=a]; a3 [label="d1dfabd Añade cherry-pick al capítulo 7" group=a]; a4 [label="ea70d95 Añade rebase al capítulo 7" group=a]
   a0 -> ac -> am
   a0 -> a1 -> a2 -> a3 -> a4
+  paso [shape=point width=0.015 height=0.015 color="#4a5b70" fillcolor="#4a5b70" group=main]; hueco [style=invis label="" width=1.4]
+  a0 -> paso [arrowhead=none headclip=false]; paso -> am [tailclip=false]
   node [shape=plaintext, group=""]
   ram [class=refs label="main, origin/main"]; ca1 [class=rama label="capitulo-avanzados"]; head1 [class=head label="HEAD"]; v1a [class=etiqueta label="v1.0.0"]
   { rank=same; ram -> am [class=ref dir=forward] }
   { rank=same; a4 -> ca1 -> head1 [class=ref dir=back] }
   { rank=same; a0 -> v1a [class=ref dir=back] }
-  { rank=same; ac -> a1 [style=invis] }
+  { rank=same; paso -> hueco -> ac -> a1 [style=invis] }
   { rank=same; am -> a2 [style=invis] }
 }
 ```
@@ -314,26 +374,44 @@ git rebase main
 git tree
 ```
 
-Git avisa de que ha omitido un commit (_skipped previously applied commit_): la corrección del capítulo 3 ya está en `main` gracias al cherry-pick, así que no la vuelve a aplicar. Ahora el historial es una línea recta, con los tres commits del capítulo 7 después de la fusión de la corrección. Fíjate en que sus identificadores han cambiado: igual que cherry-pick, rebase crea copias nuevas de los commits. Los originales, en gris y con el contorno discontinuo en el diagrama, ya no están en ninguna rama, como el commit borrado con `reset` en el apartado 3.2.1:
+```text
+* c7f2e18 (HEAD -> capitulo-avanzados) Añade rebase al capítulo 7
+* 9a3d5f2 Añade cherry-pick al capítulo 7
+* e41b07c Empieza el capítulo 7
+*   af8bb0b (origin/main, main) Merge pull request #N from tu-usuario/corrige-capitulo-3
+|\
+| * 5ec836d Precisa el tamaño de una rama en el capítulo 3
+|/
+*   5656f2f (tag: v1.0.0) Merge pull request #N from tu-usuario/capitulo-flujos
+...
+```
+
+Git avisa de que ha omitido un commit (_skipped previously applied commit_): la corrección del capítulo 3 ya está en `main` gracias al cherry-pick, así que no la vuelve a aplicar. Ahora el historial es una línea recta, con los tres commits del capítulo 7 después de la fusión de la corrección. Fíjate en que sus identificadores han cambiado (_Empieza el capítulo 7_, por ejemplo, ha pasado de `d52353a` a `e41b07c`): igual que cherry-pick, rebase crea copias nuevas de los commits. Los originales, en gris y con el contorno discontinuo en el diagrama, ya no están en ninguna rama, como el commit borrado con `reset` en el apartado 3.2.1:
 
 ```{.dot caption="La rama capitulo-avanzados después de git rebase main" alt="Las copias de los tres commits del capítulo 7 están encima de la fusión de la corrección. La corrección repetida desaparece y los commits originales quedan en gris, con el contorno discontinuo"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  d0 [label="Merge pull request #N from\ntu-usuario/capitulo-flujos"]; dc [label="Precisa el tamaño de una rama\nen el capítulo 3" group=lado]; dm [label="Merge pull request #N from\ntu-usuario/corrige-capitulo-3"]
-  d1 [label="e41b07c Empieza el capítulo 7"]; d2 [label="9a3d5f2 Añade cherry-pick al capítulo 7"]; d3 [label="c7f2e18 Añade rebase al capítulo 7"]
-  o1 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Empieza el capítulo 7"]; o2 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Precisa el tamaño de una rama\nen el capítulo 3"]; o3 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Añade cherry-pick al capítulo 7"]; o4 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="Añade rebase al capítulo 7"]
-  d0 -> dm -> d1 -> d2 -> d3
+  d0 [label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos" group=main]; dc [label="5ec836d Precisa el tamaño de una rama\nen el capítulo 3" group=lado]; dm [label="af8bb0b Merge pull request #N from\ntu-usuario/corrige-capitulo-3" group=main]
+  d1 [label="e41b07c Empieza el capítulo 7" group=lado]; d2 [label="9a3d5f2 Añade cherry-pick al capítulo 7" group=lado]; d3 [label="c7f2e18 Añade rebase al capítulo 7" group=lado]
+  o1 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="d52353a Empieza el capítulo 7" group=huerfanos]; o2 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="8d5d3fd Precisa el tamaño de una rama\nen el capítulo 3" group=huerfanos]; o3 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="d1dfabd Añade cherry-pick al capítulo 7" group=huerfanos]; o4 [class=huerfano style="rounded,dashed" color=gray50 fontcolor=gray50 label="ea70d95 Añade rebase al capítulo 7" group=huerfanos]
+  dm -> d1 -> d2 -> d3
   d0 -> dc -> dm
   d0 -> o1 [class=huerfano style=dashed color=gray50]; o1 -> o2 [class=huerfano style=dashed color=gray50]; o2 -> o3 [class=huerfano style=dashed color=gray50]; o3 -> o4 [class=huerfano style=dashed color=gray50]
+  paso1 [shape=point width=0.015 height=0.015 color="#4a5b70" fillcolor="#4a5b70" group=main]; hueco1 [style=invis label="" width=1.4]; hueco3 [style=invis group=main label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos"]; hueco4 [style=invis group=main label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos"]; hueco5 [style=invis group=main label="5656f2f Merge pull request #N from\ntu-usuario/capitulo-flujos"]
+  d0 -> paso1 [arrowhead=none headclip=false]; paso1 -> dm [tailclip=false]
+  dm -> hueco3 -> hueco4 -> hueco5 [style=invis]
   node [shape=plaintext, group=""]
   rdm [class=refs label="main, origin/main"]; ca2 [class=rama label="capitulo-avanzados"]; head2 [class=head label="HEAD"]; v1d [class=etiqueta label="v1.0.0"]
   { rank=same; rdm -> dm [class=ref dir=forward] }
-  { rank=same; d3 -> ca2 -> head2 [class=ref dir=back] }
   { rank=same; d0 -> v1d [class=ref dir=back] }
-  { rank=same; dc -> o1 [style=invis] }
+  { rank=same; paso1 -> hueco1 -> dc -> o1 [style=invis] }
   { rank=same; dm -> o2 [style=invis] }
+  { rank=same; hueco3 -> d1 -> o3 [style=invis] }
+  { rank=same; hueco4 -> d2 -> o4 [style=invis] }
+  { rank=same; hueco5 -> d3 [style=invis] }
+  { rank=same; d3 -> ca2 -> head2 [class=ref dir=back] }
 }
 ```
 
@@ -460,6 +538,16 @@ Guarda y cierra el editor, y revisa el resultado:
 git tree
 ```
 
+```text
+* 8a52213 (HEAD -> revierte-capitulo-6) Revert "Amplía el capítulo 6 con las versiones"
+*   a91d3f7 (origin/main, main) Merge pull request #N from tu-usuario/amplia-capitulo-6
+|\
+| * 4f8a2c6 Amplía el capítulo 6 con las versiones
+|/
+*   6b0e2d9 Merge pull request #N from tu-usuario/capitulo-avanzados
+...
+```
+
 El commit original y su fusión siguen en el historial, y encima de ellos está el commit que los anula, en la rama `revierte-capitulo-6`. Fíjate en que `main` y `origin/main` no han cambiado:
 
 ```{.dot caption="git revert anula un cambio ya publicado sin reescribir main" alt="Del commit de fusión del capítulo 7 sale el commit Amplía el capítulo 6 con las versiones, que llega a main con un pull request. Encima de esa fusión, en la rama revierte-capitulo-6, está el commit Revert que lo anula"}
@@ -467,12 +555,18 @@ digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; m7 [label="6b0e2d9 Merge pull request #N from\ntu-usuario/capitulo-avanzados"]; c [label="4f8a2c6 Amplía el capítulo 6\ncon las versiones" group=rama]; m [label="a91d3f7 Merge pull request #N from\ntu-usuario/amplia-capitulo-6"]; r [label="Revert \"Amplía el capítulo 6\ncon las versiones\""]
-  e -> m7 -> m -> r
+  e [class=nota label="…" group=main]; m7 [label="6b0e2d9 Merge pull request #N from\ntu-usuario/capitulo-avanzados" group=main]; c [label="4f8a2c6 Amplía el capítulo 6\ncon las versiones" group=rama]; m [label="a91d3f7 Merge pull request #N from\ntu-usuario/amplia-capitulo-6" group=main]; r [label="8a52213 Revert \"Amplía el capítulo 6\ncon las versiones\"" group=rama]
+  e -> m7
+  m -> r
   m7 -> c -> m
+  paso1 [shape=point width=0.015 height=0.015 color="#4a5b70" fillcolor="#4a5b70" group=main]; hueco1 [style=invis label="" width=1.4]; hueco2 [style=invis group=main label="6b0e2d9 Merge pull request #N from\ntu-usuario/capitulo-avanzados"]
+  m7 -> paso1 [arrowhead=none headclip=false]; paso1 -> m [tailclip=false]
+  m -> hueco2 [style=invis]
   node [shape=plaintext, group=""]
   rm [class=refs label="main, origin/main"]; rc [class=rama label="revierte-capitulo-6"]; HEAD [class=head]
   { rank=same; m -> rm [class=ref dir=back] }
+  { rank=same; paso1 -> hueco1 -> c [style=invis] }
+  { rank=same; hueco2 -> r [style=invis] }
   { rank=same; r -> rc -> HEAD [class=ref dir=back] }
 }
 ```

@@ -33,6 +33,14 @@ ls capitulos
 git tree
 ```
 
+```text
+* 5e7b3a2 (main) Añade el origen de Git al capítulo 1
+* 9d1c4f8 Añade el script de generación del libro con Pandoc
+* 3f2a1b9 Añade el capítulo 2: primeros comandos
+* 8c4d2e7 (HEAD) Añade el capítulo 1: qué es Git
+* 1a9f0c3 Añade el README del libro
+```
+
 En `capitulos` sólo queda `01-que-es-git.md`, y tampoco existen `build.sh` ni `metadata.yaml`: los ficheros han vuelto exactamente al estado de aquel commit. `git tree`, por su parte, muestra que `HEAD` está en el commit antiguo mientras `main` sigue en el más reciente, que es lo que refleja el diagrama:
 
 ```{.dot caption="HEAD desacoplado: HEAD apunta a un commit, no a una rama" alt="Cinco commits. main apunta al último y HEAD apunta directamente al commit del capítulo 1"}
@@ -212,14 +220,30 @@ Revert "Reescribe el capítulo 2"
 This reverts commit 7c1e5b8a3f9d2e6c4b1a0f8e7d5c3b2a9e6f4d10.
 ```
 
-El mensaje indica qué commit se deshace, con su identificador completo, así que podemos aceptarlo tal cual: guarda y cierra el editor sin cambiar nada. Si prefieres que no se abra el editor, `git revert --no-edit HEAD` acepta directamente el mensaje propuesto. El capítulo 2 vuelve a tener su contenido y, a diferencia de lo que pasaba con `reset`, `git tree` muestra los dos commits, el malo y el que lo anula:
+El mensaje indica qué commit se deshace, con su identificador completo, así que podemos aceptarlo tal cual: guarda y cierra el editor sin cambiar nada. Si prefieres que no se abra el editor, `git revert --no-edit HEAD` acepta directamente el mensaje propuesto. El capítulo 2 vuelve a tener su contenido, y para ver qué ha pasado con el historial lo consultamos de nuevo:
+
+```bash
+git tree
+```
+
+```text
+* 7bbac28 (HEAD -> main) Revert "Reescribe el capítulo 2"
+* 7c1e5b8 Reescribe el capítulo 2
+* 5e7b3a2 Añade el origen de Git al capítulo 1
+* 9d1c4f8 Añade el script de generación del libro con Pandoc
+* 3f2a1b9 Añade el capítulo 2: primeros comandos
+* 8c4d2e7 Añade el capítulo 1: qué es Git
+* 1a9f0c3 Añade el README del libro
+```
+
+A diferencia de lo que pasaba con `reset`, `git tree` muestra los dos commits, el malo y el que lo anula:
 
 ```{.dot caption="git revert añade un commit que anula el anterior" alt="Después del commit Añade el origen de Git al capítulo 1 están el commit Reescribe el capítulo 2 y el commit Revert que lo anula. main y HEAD apuntan al commit Revert"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c5 [label="5e7b3a2 Añade el origen de Git al capítulo 1"]; c6 [label="7c1e5b8 Reescribe el capítulo 2"]; c7 [label="Revert \"Reescribe el capítulo 2\""]
+  e [class=nota label="…"]; c5 [label="5e7b3a2 Añade el origen de Git al capítulo 1"]; c6 [label="7c1e5b8 Reescribe el capítulo 2"]; c7 [label="7bbac28 Revert \"Reescribe el capítulo 2\""]
   e -> c5 -> c6 -> c7
   node [shape=plaintext, group=""]
   main [class=rama]; HEAD [class=head]
@@ -278,16 +302,28 @@ Y guarda el cambio con un commit:
 ```bash
 git add -A
 git commit -m "Explica en el README cómo generar el libro"
+git tree
 ```
 
-El diagrama muestra justo lo que queríamos ver: `main` ha avanzado con el commit nuevo, pero la etiqueta, en ocre, se ha quedado en su commit:
+```text
+* 852e4f5 (HEAD -> main) Explica en el README cómo generar el libro
+* 7bbac28 (tag: v0.1.0) Revert "Reescribe el capítulo 2"
+* 7c1e5b8 Reescribe el capítulo 2
+* 5e7b3a2 Añade el origen de Git al capítulo 1
+* 9d1c4f8 Añade el script de generación del libro con Pandoc
+* 3f2a1b9 Añade el capítulo 2: primeros comandos
+* 8c4d2e7 Añade el capítulo 1: qué es Git
+* 1a9f0c3 Añade el README del libro
+```
+
+La salida y el diagrama muestran justo lo que queríamos ver: `main` ha avanzado con el commit nuevo, pero la etiqueta, en ocre en el diagrama, se ha quedado en su commit:
 
 ```{.dot caption="La etiqueta v0.1.0 se queda fija cuando main avanza" alt="La etiqueta v0.1.0 apunta al commit Revert Reescribe el capítulo 2, y main y HEAD al commit siguiente"}
 digraph {
   rankdir=BT
   node [shape=box, style=rounded, group=principal]
   edge [weight=50]
-  e [class=nota label="…"]; c4 [label="Reescribe el capítulo 2"]; c5 [label="Revert \"Reescribe el capítulo 2\""]; c6 [label="Explica en el README cómo\ngenerar el libro"]
+  e [class=nota label="…"]; c4 [label="7c1e5b8 Reescribe el capítulo 2"]; c5 [label="7bbac28 Revert \"Reescribe el capítulo 2\""]; c6 [label="852e4f5 Explica en el README cómo\ngenerar el libro"]
   e -> c4 -> c5 -> c6
   node [shape=plaintext, group=""]
   main [class=rama]; HEAD [class=head]; v010 [class=etiqueta label="v0.1.0"]

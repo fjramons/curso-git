@@ -8,8 +8,11 @@
 --   para que la plantilla de Pandoc no dibuje su bloque de título, y el
 --   título y el autor del documento se fijan aquí.
 -- - Word: la portada es el bloque de título de Pandoc (así el título sigue
---   en las propiedades del fichero), seguido de un salto de página y del
---   índice. Word rellena el índice al abrir el documento.
+--   en las propiedades del fichero), con los estilos del reference.docx que
+--   genera scripts/reference-docx.py, seguida de un salto de página y del
+--   índice. El índice va relleno con enlaces a los títulos, para que se vea
+--   en cualquier programa, y Word ofrece actualizarlo al abrir el documento
+--   para añadir los números de página.
 -- El estilo del índice del PDF está en estilo-pdf.typ.
 
 local TITULO_INDICE = 'Índice'
@@ -54,13 +57,41 @@ local function portada_typst(meta, profundidad)
     TITULO_INDICE, profundidad)
 end
 
-local function indice_docx(profundidad)
+-- Marcador que el escritor docx de Pandoc pone en cada título: «_» y el id
+-- si sólo tiene letras, números y «_» y cabe en los 40 caracteres de Word,
+-- y si no, «_» y un resumen SHA-1 (es el caso de los ids de --file-scope,
+-- que llevan «.md»).
+local function marcador_docx(id)
+  if not id:gsub('_', ''):find('[%p%s]') and utf8.len(id) <= 39 then
+    return '_' .. id
+  end
+  return '_' .. pandoc.utils.sha1(id):sub(2)
+end
+
+local function xml(texto)
+  return (texto:gsub('&', '&amp;'):gsub('<', '&lt;'):gsub('>', '&gt;'))
+end
+
+-- El índice va relleno de antemano con un enlace a cada título, para que
+-- se vea en cualquier programa. Word lo regenera al actualizar el campo
+-- (y entonces añade los números de página).
+local function indice_docx(blocks, profundidad)
+  local entradas = {}
+  for _, b in ipairs(blocks) do
+    if b.t == 'Header' and b.level <= profundidad and b.identifier ~= '' then
+      entradas[#entradas + 1] = string.format(
+        '<w:p><w:pPr><w:pStyle w:val="TOC%d"/></w:pPr><w:hyperlink w:anchor="%s" w:history="1"><w:r><w:t xml:space="preserve">%s</w:t></w:r></w:hyperlink></w:p>',
+        b.level, marcador_docx(b.identifier), xml(pandoc.utils.stringify(b.content)))
+    end
+  end
   return string.format([[
 <w:p><w:r><w:br w:type="page"/></w:r></w:p>
 <w:sdt><w:sdtPr><w:docPartObj><w:docPartGallery w:val="Table of Contents"/><w:docPartUnique/></w:docPartObj></w:sdtPr><w:sdtContent>
 <w:p><w:pPr><w:pStyle w:val="TOCHeading"/></w:pPr><w:r><w:t xml:space="preserve">%s</w:t></w:r></w:p>
-<w:p><w:r><w:fldChar w:fldCharType="begin" w:dirty="true"/><w:instrText xml:space="preserve">TOC \o "1-%d" \h \z \u</w:instrText><w:fldChar w:fldCharType="separate"/><w:fldChar w:fldCharType="end"/></w:r></w:p>
-</w:sdtContent></w:sdt>]], TITULO_INDICE, profundidad)
+<w:p><w:r><w:fldChar w:fldCharType="begin" w:dirty="true"/><w:instrText xml:space="preserve">TOC \o "1-%d" \h \z \u</w:instrText><w:fldChar w:fldCharType="separate"/></w:r></w:p>
+%s
+<w:p><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>
+</w:sdtContent></w:sdt>]], TITULO_INDICE, profundidad, table.concat(entradas, '\n'))
 end
 
 function Pandoc(doc)
@@ -69,7 +100,8 @@ function Pandoc(doc)
     doc.blocks:insert(1, pandoc.RawBlock('typst', portada_typst(doc.meta, profundidad)))
     doc.meta.title, doc.meta.subtitle, doc.meta.author, doc.meta.date = nil, nil, nil, nil
   elseif FORMAT == 'docx' then
-    doc.blocks:insert(1, pandoc.RawBlock('openxml', indice_docx(profundidad)))
+    doc.blocks:insert(1, pandoc.RawBlock('openxml', indice_docx(doc.blocks, profundidad)))
+    doc.meta.title = partir_titulo(doc.meta.title)
   else
     return nil
   end

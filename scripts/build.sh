@@ -34,6 +34,11 @@ if ! command -v dot > /dev/null; then
   echo "Error: Graphviz no está instalado y hace falta para los diagramas" >&2
   exit 1
 fi
+# El reference.docx del Word (portada e índice) se genera con Python
+if ! command -v python3 > /dev/null; then
+  echo "Error: Python 3 no está instalado y hace falta para el Word" >&2
+  exit 1
+fi
 # Sin rsvg-convert, el Word lleva los diagramas solo en SVG, sin copia en PNG
 if ! command -v rsvg-convert > /dev/null; then
   echo "Aviso: rsvg-convert no está instalado, así que el Word no lleva copia en PNG de los diagramas" >&2
@@ -41,7 +46,11 @@ fi
 
 mkdir -p outputs
 
-pandoc "${OPCIONES[@]}" "${LIBRO[@]}" modulos/*.md -o "outputs/$NOMBRE.docx"
+TEMPORAL="$(mktemp -d)"
+trap 'rm -rf "$TEMPORAL"' EXIT
+python3 scripts/reference-docx.py "$TEMPORAL/reference.docx"
+pandoc "${OPCIONES[@]}" "${LIBRO[@]}" modulos/*.md --reference-doc="$TEMPORAL/reference.docx" \
+  --lua-filter=pandoc/codigo-word.lua -o "outputs/$NOMBRE.docx"
 echo "Generado outputs/$NOMBRE.docx"
 
 if command -v typst > /dev/null; then

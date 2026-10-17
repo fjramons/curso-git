@@ -91,13 +91,15 @@ curso-git/
 - `pandoc/diagramas.lua` convierte los diagramas del historial, escritos en texto dentro de los módulos, en imágenes SVG (ver [Diagramas](#diagramas)).
 - `pandoc/estilo-pdf.typ` da estilo a los bloques de código del PDF: fondo y filete para las órdenes y el contenido de ficheros, borde fino para las salidas de comandos (bloques `text`) y sangría en la continuación de las líneas largas.
 - `pandoc/saltos-de-pagina.lua` empieza cada módulo en una página nueva en el Word y en el PDF.
+- `pandoc/codigo-word.lua` da a las salidas de comandos (bloques `text`) del Word su propio estilo, con borde fino, para distinguirlas de las órdenes, que llevan fondo y filete como en el PDF.
 - `pandoc/portada.lua` añade al Word y al PDF una portada, con el autor y la versión o la fecha de generación, y un índice en página aparte. La web no lleva portada y tiene su propio índice de navegación.
 - `scripts/build.sh` genera el curso en `outputs/`.
+- `scripts/reference-docx.py` prepara la plantilla del Word a partir de la de Pandoc: página A4, estilos de la portada y del índice, número de página al pie (salvo en la portada), bloques de código como los del PDF, y el aviso para que Word actualice el índice (y añada los números de página) al abrir el documento. `build.sh` la genera en cada ejecución, así que no se guarda en Git.
 - `outputs/` sólo guarda en Git el fichero `.gitkeep`, para que la carpeta exista. Todo lo que se genera dentro está en el `.gitignore`.
 
 ### En local
 
-Instala Pandoc y, para el PDF, Typst (ver el [anexo](modulos/09-anexo-dependencias-de-los-ejemplos.md)). Los diagramas necesitan además Graphviz y, para que el Word incluya una copia en PNG para los programas que no muestran SVG, `rsvg-convert`:
+Instala Pandoc y, para el PDF, Typst (ver el [anexo](modulos/09-anexo-dependencias-de-los-ejemplos.md)). La plantilla del Word necesita Python 3, que ya viene con Linux y macOS (en Windows: `winget install Python.Python.3.12`). Los diagramas necesitan además Graphviz y, para que el Word incluya una copia en PNG para los programas que no muestran SVG, `rsvg-convert`:
 
 - Linux (Debian/Ubuntu): `sudo apt install graphviz librsvg2-bin`
 - macOS: `brew install graphviz librsvg`

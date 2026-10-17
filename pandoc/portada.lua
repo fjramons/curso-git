@@ -15,7 +15,9 @@
 --   para añadir los números de página.
 -- El estilo del índice del PDF está en estilo-pdf.typ.
 
-local TITULO_INDICE = 'Índice'
+-- Título del índice según el idioma del documento (lang en los metadatos)
+local TITULOS_INDICE = { es = 'Índice', en = 'Contents' }
+local TITULO_INDICE = TITULOS_INDICE.es
 
 local function typst(inlines)
   return inlines and pandoc.write(pandoc.Pandoc({ pandoc.Plain(inlines) }), 'typst'):gsub('%s+$', '') or ''
@@ -95,6 +97,8 @@ local function indice_docx(blocks, profundidad)
 end
 
 function Pandoc(doc)
+  local idioma = pandoc.utils.stringify(doc.meta.lang or 'es'):match('^%a+')
+  TITULO_INDICE = TITULOS_INDICE[idioma] or TITULOS_INDICE.es
   local profundidad = tonumber(pandoc.utils.stringify(doc.meta['toc-depth'] or '2')) or 2
   if FORMAT == 'typst' then
     doc.blocks:insert(1, pandoc.RawBlock('typst', portada_typst(doc.meta, profundidad)))

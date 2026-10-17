@@ -50,6 +50,7 @@ book:
 filters:
   - pandoc/diagramas.lua
   - web/enlaces-portada.lua
+  - web/idiomas.lua
 
 format:
   html:

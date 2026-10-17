@@ -3,15 +3,31 @@
 // barra lateral. Sustituye al interruptor de Quarto, que es un icono pequeño
 // sin texto entre los del título (web/estilo.scss lo oculta). El botón muestra
 // el modo al que se cambia: luna y «Modo oscuro» en el claro, y sol y «Modo
-// claro» en el oscuro. Quarto recuerda la elección en el navegador.
+// claro» en el oscuro. Quarto recuerda la elección en el navegador. Debajo
+// va el botón para leer la misma página en el otro idioma. Los
+// textos dependen del idioma de la página (lang del <html>): la edición en
+// inglés usa «Dark mode» y «Light mode».
 (() => {
+  const TEXTOS = {
+    es: {
+      claro: "Modo claro", oscuro: "Modo oscuro",
+      cambiarClaro: "Cambiar al modo claro", cambiarOscuro: "Cambiar al modo oscuro",
+    },
+    en: {
+      claro: "Light mode", oscuro: "Dark mode",
+      cambiarClaro: "Switch to light mode", cambiarOscuro: "Switch to dark mode",
+    },
+  };
+  const idioma = (document.documentElement.lang || "es").slice(0, 2);
+  const textos = TEXTOS[idioma] || TEXTOS.es;
+
   const actualizar = (boton) => {
     const oscuro = document.body.classList.contains("quarto-dark");
-    const destino = oscuro ? "claro" : "oscuro";
+    const cambio = oscuro ? textos.cambiarClaro : textos.cambiarOscuro;
     boton.querySelector("i").className = "bi " + (oscuro ? "bi-sun" : "bi-moon");
-    boton.querySelector("span").textContent = "Modo " + destino;
-    boton.title = "Cambiar al modo " + destino;
-    boton.setAttribute("aria-label", "Cambiar al modo " + destino);
+    boton.querySelector("span").textContent = oscuro ? textos.claro : textos.oscuro;
+    boton.title = cambio;
+    boton.setAttribute("aria-label", cambio);
   };
 
   const crear = () => {
@@ -28,6 +44,22 @@
     actualizar(boton);
     new MutationObserver(() => actualizar(boton))
       .observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+    // Cambio de idioma: lleva a la misma página en el otro idioma, que
+    // web/idiomas.lua indica en la cabecera con <link rel="alternate">.
+    const alternativa = document.querySelector('link[rel="alternate"][hreflang]');
+    if (alternativa) {
+      const destino = alternativa.getAttribute("hreflang");
+      const enlace = document.createElement("a");
+      enlace.className = "boton-tema boton-idioma";
+      enlace.href = alternativa.getAttribute("href");
+      enlace.hreflang = destino;
+      enlace.lang = destino;
+      enlace.innerHTML = '<i class="bi bi-translate" aria-hidden="true"></i><span></span>';
+      enlace.querySelector("span").textContent = destino === "en" ? "English" : "Español";
+      enlace.title = destino === "en" ? "Read this page in English" : "Leer esta página en español";
+      boton.after(enlace);
+    }
   };
 
   if (document.readyState === "loading") {

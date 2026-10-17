@@ -1,0 +1,7 @@
+::: {.portada}
+
+[Start the course](modules/01-introduction-and-first-steps.md){.btn .btn-primary} [Download as PDF and Word](https://github.com/fjramons/curso-git/releases/latest){.btn .btn-outline-primary}
+
+:::
+
+{{< include modules/00-preface.md >}}

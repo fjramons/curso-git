@@ -28,6 +28,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v7
+      # No se publica una versión con la traducción al inglés desfasada
+      - name: Comprobar que la edición en inglés sigue a la española
+        run: python3 scripts/comprobar-traduccion.py
       - uses: pandoc/actions/setup@v1
       - uses: typst-community/setup-typst@v5
       - uses: quarto-dev/quarto-actions/setup@v2
@@ -42,6 +45,8 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             "outputs/git-y-github-mas-alla-del-codigo-$GITHUB_REF_NAME.docx#Git y GitHub, más allá del código $GITHUB_REF_NAME (Word)" \
             "outputs/git-y-github-mas-alla-del-codigo-$GITHUB_REF_NAME.pdf#Git y GitHub, más allá del código $GITHUB_REF_NAME (PDF)" \
+            "outputs/git-and-github-beyond-the-code-$GITHUB_REF_NAME.docx#Git and GitHub, Beyond the Code $GITHUB_REF_NAME (English, Word)" \
+            "outputs/git-and-github-beyond-the-code-$GITHUB_REF_NAME.pdf#Git and GitHub, Beyond the Code $GITHUB_REF_NAME (English, PDF)" \
             --title "Git y GitHub, más allá del código $GITHUB_REF_NAME" \
             --generate-notes
       - uses: actions/upload-pages-artifact@v5

@@ -4,30 +4,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Con versión (p. ej. v1.0.0), nombre convencional para las releases.
-# Sin versión, fecha y hora delante del nombre para las copias locales.
-# La portada del Word y del PDF muestra la versión o, sin ella, la fecha.
-VERSION="${1:-}"
-if [[ -n "$VERSION" ]]; then
-  NOMBRE="git-y-github-mas-alla-del-codigo-$VERSION"
-  EDICION="Versión ${VERSION#v}"
-else
-  NOMBRE="$(date +%Y%m%d_%H%M) Git y GitHub, más allá del código"
-  EDICION="Borrador del $(date +%d/%m/%Y)"
-fi
+# Opciones comunes a los dos idiomas y a los dos formatos
 OPCIONES=(
-  --metadata-file=pandoc/metadata.yaml
   --file-scope
   --lua-filter=pandoc/diagramas.lua
   --lua-filter=pandoc/enlaces-internos.lua
   --lua-filter=pandoc/saltos-de-pagina.lua
 )
-# Portada e índice del Word y del PDF (pandoc/portada.lua). La web se genera
-# aparte con Quarto (_quarto.yml) y tiene su propia portada y navegación.
-LIBRO=(
-  --metadata="date=$EDICION"
-  --lua-filter=pandoc/portada.lua
-)
+VERSION="${1:-}"
 
 # Los diagramas se generan con Graphviz: sin él, el curso queda incompleto
 if ! command -v dot > /dev/null; then
@@ -49,22 +33,58 @@ mkdir -p outputs
 TEMPORAL="$(mktemp -d)"
 trap 'rm -rf "$TEMPORAL"' EXIT
 python3 scripts/reference-docx.py "$TEMPORAL/reference.docx"
-pandoc "${OPCIONES[@]}" "${LIBRO[@]}" modulos/*.md --reference-doc="$TEMPORAL/reference.docx" \
-  --lua-filter=pandoc/codigo-word.lua -o "outputs/$NOMBRE.docx"
-echo "Generado outputs/$NOMBRE.docx"
 
-if command -v typst > /dev/null; then
-  pandoc "${OPCIONES[@]}" "${LIBRO[@]}" modulos/*.md --pdf-engine=typst \
-    --include-in-header=pandoc/estilo-pdf.typ -o "outputs/$NOMBRE.pdf"
-  echo "Generado outputs/$NOMBRE.pdf"
-else
+# Genera el Word y el PDF de un idioma. Con versión (p. ej. v1.0.0), nombre
+# convencional para las releases; sin versión, fecha y hora delante del
+# nombre para las copias locales. La portada del Word y del PDF muestra la
+# versión o, sin ella, la fecha.
+#   generar <metadatos> <carpeta de módulos> <nombre con versión> <nombre local> <«Versión»> <«Borrador del» y fecha>
+generar() {
+  local metadatos="$1" modulos="$2" nombre edicion
+  if [[ -n "$VERSION" ]]; then
+    nombre="$3-$VERSION"
+    edicion="$5 ${VERSION#v}"
+  else
+    nombre="$(date +%Y%m%d_%H%M) $4"
+    edicion="$6"
+  fi
+  # Portada e índice del Word y del PDF (pandoc/portada.lua). La web se
+  # genera aparte con Quarto y tiene su propia portada y navegación.
+  local libro=(
+    "${OPCIONES[@]}"
+    --metadata-file="$metadatos"
+    --metadata="date=$edicion"
+    --lua-filter=pandoc/portada.lua
+  )
+
+  pandoc "${libro[@]}" "$modulos"/*.md --reference-doc="$TEMPORAL/reference.docx" \
+    --lua-filter=pandoc/codigo-word.lua -o "outputs/$nombre.docx"
+  echo "Generado outputs/$nombre.docx"
+
+  if command -v typst > /dev/null; then
+    pandoc "${libro[@]}" "$modulos"/*.md --pdf-engine=typst \
+      --include-in-header=pandoc/estilo-pdf.typ -o "outputs/$nombre.pdf"
+    echo "Generado outputs/$nombre.pdf"
+  fi
+}
+
+if ! command -v typst > /dev/null; then
   echo "Aviso: Typst no está instalado, así que no se genera el PDF" >&2
 fi
+generar pandoc/metadata.yaml modulos git-y-github-mas-alla-del-codigo \
+  "Git y GitHub, más allá del código" "Versión" "Borrador del $(date +%d/%m/%Y)"
+# La edición en inglés, traducida de la española, está en en/
+generar en/metadata.yaml en/modules git-and-github-beyond-the-code \
+  "Git and GitHub, Beyond the Code" "Version" "Draft of $(date +%Y-%m-%d)"
 
-# La web: un libro de Quarto con una página por módulo, en outputs/web
+# La web: un libro de Quarto con una página por módulo, en outputs/web, y
+# la edición en inglés en outputs/web/en. El inglés va después, porque
+# quarto render vacía outputs/web antes de generar el español.
 if command -v quarto > /dev/null; then
   quarto render --quiet
   echo "Generado outputs/web/index.html"
+  quarto render en --quiet
+  echo "Generado outputs/web/en/index.html"
 else
   echo "Aviso: Quarto no está instalado, así que no se genera la web" >&2
 fi

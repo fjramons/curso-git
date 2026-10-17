@@ -6,6 +6,8 @@ Curso práctico de Git y GitHub basado en la construcción de un proyecto real d
 
 El curso se puede leer en la web, en <https://fjramons.github.io/curso-git/>, y descargar en PDF y Word desde la [última versión publicada](https://github.com/fjramons/curso-git/releases/latest).
 
+_English edition_: the course is also available in English as _Git and GitHub, Beyond the Code_, on the web at <https://fjramons.github.io/curso-git/en/> and as PDF and Word in the same [releases](https://github.com/fjramons/curso-git/releases/latest). Its source is in [`en/`](en/).
+
 ## Módulos
 
 El curso empieza con un [prefacio](modulos/00-prefacio.md) que explica a quién va dirigido, por qué Git y GitHub son útiles también fuera del desarrollo de software y cómo está organizado.
@@ -72,6 +74,14 @@ curso-git/
 ├── .github/workflows/ci.yml
 ├── _quarto.yml
 ├── index.qmd
+├── en/
+│   ├── _quarto.yml
+│   ├── index.qmd
+│   ├── metadata.yaml
+│   └── modules/
+│       ├── 00-preface.md
+│       ├── ...
+│       └── 10-appendix-useful-references.md
 ├── modulos/
 │   ├── 00-prefacio.md
 │   ├── 01-introducción-y-primeros-pasos.md
@@ -87,10 +97,13 @@ curso-git/
 │   └── saltos-de-pagina.lua
 ├── web/
 │   ├── enlaces-portada.lua
+│   ├── idiomas.lua
 │   ├── estilo.scss
-│   └── oscuro.scss
+│   ├── oscuro.scss
+│   └── tema.html
 ├── scripts/
 │   ├── build.sh
+│   ├── comprobar-traduccion.py
 │   └── reference-docx.py
 └── outputs/
     └── .gitkeep
@@ -104,7 +117,10 @@ curso-git/
 - `pandoc/codigo-word.lua` da a las salidas de comandos (bloques `text`) del Word su propio estilo, con borde fino, para distinguirlas de las órdenes, que llevan fondo y filete como en el PDF.
 - `pandoc/portada.lua` añade al Word y al PDF una portada, con el autor y la versión o la fecha de generación, y un índice en página aparte. La web no lleva portada y tiene su propio índice de navegación.
 - `_quarto.yml` define la web: el orden de los módulos y de los anexos, la barra lateral, el pie de página y el estilo. `index.qmd` es su portada, que incluye el prefacio, y `web/` contiene el estilo (`estilo.scss` y, para el modo oscuro, `oscuro.scss`) y `enlaces-portada.lua`, que corrige en la portada los enlaces del prefacio a los módulos. En la web, `pandoc/diagramas.lua` inserta cada diagrama como SVG dentro de la página.
-- `scripts/build.sh` genera el curso en `outputs/`.
+- `en/` contiene la edición en inglés (ver [Edición en inglés](#edición-en-inglés)).
+- `web/idiomas.lua` enlaza cada página de la web con la misma página en el otro idioma, y `web/tema.html` pone en la barra lateral los botones del modo claro u oscuro y del cambio de idioma.
+- `scripts/build.sh` genera el curso en `outputs/`, en los dos idiomas.
+- `scripts/comprobar-traduccion.py` comprueba que la edición en inglés tiene la misma estructura que la española.
 - `scripts/reference-docx.py` prepara la plantilla del Word a partir de la de Pandoc: página A4, estilos de la portada y del índice, número de página al pie (salvo en la portada), bloques de código como los del PDF, y el aviso para que Word actualice el índice (y añada los números de página) al abrir el documento. `build.sh` la genera en cada ejecución, así que no se guarda en Git.
 - `outputs/` sólo guarda en Git el fichero `.gitkeep`, para que la carpeta exista. Todo lo que se genera dentro está en el `.gitignore`.
 
@@ -135,7 +151,8 @@ El script genera en `outputs/` estos ficheros, con la fecha y la hora de generac
 
 - `YYYYMMDD_HHmm Git y GitHub, más allá del código.docx`
 - `YYYYMMDD_HHmm Git y GitHub, más allá del código.pdf` (sólo si Typst está instalado)
-- `web/`, la versión web del curso (sólo si Quarto está instalado), que se puede revisar en local como se explica en [Ver la web en local](#ver-la-web-en-local).
+- `YYYYMMDD_HHmm Git and GitHub, Beyond the Code.docx` y `.pdf`, la edición en inglés.
+- `web/`, la versión web del curso (sólo si Quarto está instalado), con la edición en inglés en `web/en/`, que se puede revisar en local como se explica en [Ver la web en local](#ver-la-web-en-local).
 
 Si le pasas una versión, el script usa un nombre convencional asociado a esa versión, que es lo que hace el CI al publicar una Release:
 
@@ -143,7 +160,7 @@ Si le pasas una versión, el script usa un nombre convencional asociado a esa ve
 scripts/build.sh v1.0.0
 ```
 
-Genera `git-y-github-mas-alla-del-codigo-v1.0.0.docx` y `git-y-github-mas-alla-del-codigo-v1.0.0.pdf`, además de la web en `outputs/web/`.
+Genera `git-y-github-mas-alla-del-codigo-v1.0.0.docx` y `.pdf`, `git-and-github-beyond-the-code-v1.0.0.docx` y `.pdf`, y la web en `outputs/web/`.
 
 ### Ver la web en local
 
@@ -153,7 +170,7 @@ Para revisar la web antes de publicarla, lo más cómodo es la vista previa de Q
 quarto preview --port 4321
 ```
 
-Quarto genera la web, la sirve en <http://localhost:4321/> y la abre en el navegador (con `--no-browser` no la abre). Mientras está en marcha, vigila los ficheros: si cambias un módulo, `_quarto.yml` o los estilos de `web/`, vuelve a generar la página y el navegador la recarga solo. Para pararla, pulsa `Ctrl+C` en la terminal.
+Quarto genera la web, la sirve en <http://localhost:4321/> y la abre en el navegador (con `--no-browser` no la abre). La edición en inglés es un proyecto de Quarto aparte, que se revisa igual con `quarto preview en --port 4322`. El botón de cambio de idioma lleva a la otra edición generada en `outputs/web`, así que, para probarlo, lo más cómodo es ejecutar `scripts/build.sh` y servir esa carpeta con `python3 -m http.server 4321 --directory outputs/web`. Mientras está en marcha, vigila los ficheros: si cambias un módulo, `_quarto.yml` o los estilos de `web/`, vuelve a generar la página y el navegador la recarga solo. Para pararla, pulsa `Ctrl+C` en la terminal.
 
 También puedes abrir directamente `outputs/web/index.html` después de ejecutar `scripts/build.sh`, aunque así el buscador no funciona, porque el navegador no deja que una página abierta como fichero cargue el índice de búsqueda.
 
@@ -162,7 +179,7 @@ También puedes abrir directamente `outputs/web/index.html` después de ejecutar
 El workflow `.github/workflows/ci.yml` hace dos cosas:
 
 - En cada push y en cada pull request, revisa la sintaxis de todos los ficheros Markdown con markdownlint, usando las reglas de `.markdownlint.jsonc`.
-- Al subir una etiqueta que empieza por `v`, genera el curso con el nombre de la etiqueta (`git-y-github-mas-alla-del-codigo-v1.0.0.docx` y `.pdf`), crea una Release con los dos ficheros adjuntos y publica la versión web en GitHub Pages.
+- Al subir una etiqueta que empieza por `v`, comprueba que la edición en inglés sigue a la española, genera el curso en los dos idiomas con el nombre de la etiqueta, crea una Release con los cuatro ficheros adjuntos (Word y PDF en español y en inglés) y publica la web de los dos idiomas en GitHub Pages.
 
 Para publicar una versión:
 
@@ -174,6 +191,22 @@ git push origin v1.0.0
 El workflow instala Graphviz, `rsvg-convert` y Quarto antes de generar el curso, y publica en GitHub Pages el contenido de `outputs/web/`.
 
 Antes de la primera publicación hay que activar Pages en _Settings_ → _Pages_ → _Source_: **GitHub Actions**, y permitir las etiquetas `v*` en _Settings_ → _Environments_ → _github-pages_, como se explica en el apartado 8.6.
+
+## Edición en inglés
+
+La edición en inglés, _Git and GitHub, Beyond the Code_, está en `en/` y se traduce de la española, que es la principal: los cambios se discuten y se escriben primero en `modulos/` y después se trasladan a `en/modules/`. Cada módulo inglés lleva el mismo número que el español (`04-ramificación-y-fusiones.md` ↔ `04-branching-and-merging.md`) y conserva sus apartados, su numeración, sus bloques de código y sus diagramas.
+
+El ejemplo del libro también está traducido (el repositorio se llama `git-handbook`, los capítulos están en `chapters/`, las ramas y los commits van en inglés), pero los hashes son los mismos que en español, así que el historial tiene exactamente la misma forma en las dos ediciones.
+
+Para comprobar que la traducción está al día:
+
+```bash
+scripts/comprobar-traduccion.py
+```
+
+El script compara cada pareja de módulos (títulos, bloques de código, diagramas y hashes) y avisa si algo falta o sobra. El CI lo ejecuta antes de publicar una Release, de modo que no se puede publicar una versión con la traducción desfasada.
+
+La web inglesa es un proyecto de Quarto aparte (`en/_quarto.yml`) que se publica en `/curso-git/en/` y comparte con la española los filtros de `pandoc/` y el estilo de `web/`. Cada página tiene un botón que lleva a la misma página en el otro idioma.
 
 ## Diagramas
 

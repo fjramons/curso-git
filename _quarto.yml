@@ -51,6 +51,7 @@ filters:
   - pandoc/diagramas.lua
   - web/enlaces-portada.lua
   - web/idiomas.lua
+  - web/portada.lua
 
 format:
   html:
@@ -59,6 +60,7 @@ format:
       dark: [cosmo, web/estilo.scss, web/oscuro.scss]
     # Modo claro u oscuro según la preferencia del sistema o del navegador
     respect-user-color-scheme: true
+    include-in-header: web/cabecera.html
     include-after-body: web/tema.html
     number-sections: false
     toc: true
@@ -66,8 +68,10 @@ format:
     toc-title: "En esta página"
     code-copy: true
     code-overflow: wrap
+    # Temas de resaltado de GitHub con los colores corregidos para llegar al
+    # contraste AA (4,5:1) sobre el fondo de los bloques de código
     highlight-style:
-      light: github
-      dark: github-dark
+      light: web/resaltado-claro.theme
+      dark: web/resaltado-oscuro.theme
     smooth-scroll: true
     anchor-sections: true

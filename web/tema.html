@@ -40,7 +40,7 @@
     boton.className = "boton-tema";
     boton.innerHTML = '<i class="bi" aria-hidden="true"></i><span></span>';
     boton.addEventListener("click", () => window.quartoToggleColorScheme());
-    busqueda.parentElement.after(boton);
+    busqueda.after(boton);
     actualizar(boton);
     new MutationObserver(() => actualizar(boton))
       .observe(document.body, { attributes: true, attributeFilter: ["class"] });

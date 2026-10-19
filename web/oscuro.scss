@@ -1,27 +1,49 @@
 /*-- scss:defaults --*/
 
-// Colores del tema oscuro de la web. Se aplica después de web/estilo.scss.
-// Los diagramas tienen texto oscuro sobre fondo transparente, así que en
-// este tema van sobre una tarjeta clara.
+// Colores del tema oscuro de la web. Se aplica después de web/estilo.scss,
+// que usa estas mismas variables.
 
-$body-bg: #14181e;
-$body-color: #d8dee6;
-$headings-color: #eef2f6;
-$primary: #7fb0e0;
+$body-bg: #0e1217;
+$body-color: #d9e0e8;
+$headings-color: #f1f4f8;
+$primary: #9db0ff;
 $link-color: $primary;
-$code-color: #f08cb4;
 
-$curso-pizarra: #7f93ab;
-$curso-rama: #5fbf88;
-$curso-codigo-fondo: #1d232b;
-$curso-salida-fondo: #14181e;
-$curso-salida-borde: #3a4552;
-$curso-diagrama-fondo: #f3f6fa;
-$curso-suave: #9aa6b4;
-$curso-linea: #2a323c;
+$curso-suave: #9aa6b5;
+$curso-acento: #ff8f57;
+$curso-linea: #252d38;
+$curso-linea-fuerte: #3a4452;
+$curso-superficie: #151b23;
+$curso-codigo-fondo: #131920;
+$curso-sombra: none;
 
 /*-- scss:rules --*/
 
+// Diagramas: pandoc/diagramas.lua los dibuja con colores fijos para el
+// fondo claro (los mismos del Word y del PDF). En este tema se sustituyen
+// por sus equivalentes para el fondo oscuro, color por color. Si cambias un
+// color en el filtro, cámbialo también aquí.
 svg.diagrama {
-  padding: 0.8rem;
+  // Recuadro de los commits (y de los repositorios)
+  [fill="#e8eef6"] { fill: #1d2531; }
+  [stroke="#4a5b70"] { stroke: #8496ad; }
+  [fill="#4a5b70"] { fill: #8496ad; }
+  // Texto de los commits y de los hashes
+  [fill="#1d2733"] { fill: #e6edf3; }
+  [fill="#6b7785"] { fill: #a3b1c2; }
+  [stroke="#6b7785"] { stroke: #a3b1c2; }
+  // Referencias: ramas, ramas remotas, HEAD y etiquetas
+  [fill="#2e7d4f"] { fill: #5fd394; }
+  [fill="#7a4fa3"] { fill: #c9a3f5; }
+  [fill="#d9822b"] { fill: #ff9d57; }
+  [fill="#9a6b00"] { fill: #e8be4f; }
+  // Commits sin rama
+  [fill="#f2f2f2"] { fill: #171c23; }
+  [fill="#7b848e"] { fill: #959fab; }
+  [stroke="#7b848e"] { stroke: #959fab; }
+  // Copias entre repositorios, zonas y grupos
+  [fill="#9aa3ad"] { fill: #8a94a1; }
+  [stroke="#9aa3ad"] { stroke: #8a94a1; }
+  [fill="white"] { fill: #151b23; }
+  [stroke="#c5ced8"] { stroke: #3a4452; }
 }

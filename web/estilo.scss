@@ -1,42 +1,161 @@
 /*-- scss:defaults --*/
 
 // Estilo de la web del curso (tema claro). web/oscuro.scss cambia los
-// colores para el tema oscuro. Los colores parten de los diagramas
-// (pandoc/diagramas.lua) y de los bloques de código del PDF
-// (pandoc/estilo-pdf.typ). Los colores llevan !default para que el tema
-// oscuro los pueda cambiar.
+// colores para el tema oscuro, así que los colores llevan !default. Las
+// fuentes se cargan en web/cabecera.html, no aquí: un @import dentro del CSS
+// retrasa la primera vista de la página.
+//
+// Secciones de las reglas:
+//   1. Base: texto, títulos y enlaces
+//   2. Código en línea y bloques de código
+//   3. Diagramas
+//   4. Tablas
+//   5. Portada
+//   6. Barra lateral, buscador y botones de tema e idioma
+//   7. Índice de la página
+//   8. Navegación entre capítulos y pie
+//   9. Pantallas estrechas
+//  10. Accesibilidad: foco visible y movimiento reducido
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap");
-
-$font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+// Tipografía: Inter para el texto y la interfaz, Source Serif 4 para los
+// títulos y JetBrains Mono para el código. Sólo se usan los pesos 400 y 600
+// (y la cursiva de Inter): web/cabecera.html carga sólo esos.
+$font-family-sans-serif: "Inter", "Inter Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 $font-family-monospace: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 $headings-font-family: "Source Serif 4", Georgia, serif;
-$headings-font-weight: 700;
+$headings-font-weight: 600;
+$font-weight-bold: 600;
+$font-weight-bolder: 600;
 $font-size-root: 17px;
+// El tema base (Cosmo) carga su propia fuente de Google Fonts, que no usamos
+$web-font-path: false;
 $line-height-base: 1.7;
+$code-font-size: 0.86em;
 
-$body-bg: #fcfcfd !default;
-$body-color: #1d2733 !default;
-$headings-color: #16202b !default;
-$primary: #2f5d8a !default;
+// Anchos. La columna central deja sitio para unos 80 caracteres de código
+// (casi todas las líneas de los bloques del curso) y para los diagramas
+// anchos sin encogerlos. Los párrafos y las listas son más estrechos
+// ($curso-medida), unos 75 caracteres por línea con Inter a 17 px: como el
+// texto va alineado a la izquierda, la diferencia no se nota.
+$grid-body-width: 760px;
+$grid-sidebar-width: 260px;
+$grid-margin-width: 240px;
+$curso-medida: 38rem;
+
+// Colores
+$body-bg: #ffffff !default;
+$body-color: #1b2430 !default;
+$headings-color: #111823 !default;
+$primary: #3451c7 !default;
 $link-color: $primary !default;
-$code-color: #a8325e !default;
 
 // Variables propias del curso
-$curso-pizarra: #4a5b70 !default;
-$curso-rama: #2e7d4f !default;
-$curso-codigo-fondo: #f3f6fa !default;
-$curso-salida-fondo: #ffffff !default;
-$curso-salida-borde: #c5ced8 !default;
-$curso-diagrama-fondo: transparent !default;
-$curso-suave: #6b7785 !default;
-$curso-linea: #e3e8ee !default;
+$curso-suave: #5a6575 !default;       // texto secundario (contraste 5,9:1)
+$curso-acento: #c2410c !default;      // naranja de Git, con moderación
+$curso-linea: #e4e7ec !default;       // filetes y bordes
+$curso-linea-fuerte: #c3c9d2 !default; // bordes de salidas y botones
+$curso-superficie: #f6f7f9 !default;  // tarjetas y fondos suaves
+$curso-codigo-fondo: #f6f8fa !default;
+$curso-sombra: 0 1px 2px rgba(16, 24, 40, 0.05) !default;
 
-// Código en línea y salidas de comandos, con los colores de cada tema
-$code-bg: $curso-codigo-fondo !default;
+// Variables de Bootstrap y de Quarto que dependen de las anteriores
+$code-color: $body-color !default;
+$code-bg: $curso-superficie !default;
 $pre-color: $body-color !default;
+$border-color: $curso-linea !default;
+$table-border-color: $curso-linea !default;
+$sidebar-bg: $body-bg !default;
+$sidebar-fg: $curso-suave !default;
+$sidebar-font-size: 0.9rem;
+$toc-color: $curso-suave !default;
+$toc-active-border: $primary !default;
+$toc-inactive-border: $curso-linea !default;
+$footer-bg: $body-bg !default;
+$footer-fg: $curso-suave !default;
+$btn-code-copy-color: $curso-suave !default;
+$btn-code-copy-color-active: $primary !default;
 
 /*-- scss:rules --*/
+
+// Fuente de reserva con las medidas de Inter: mientras llega Inter (que se
+// carga sin bloquear la página, ver web/cabecera.html), el texto se ve con
+// Arial ajustada a su tamaño, y al cambiar de fuente no se mueve
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+  size-adjust: 107.12%;
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+}
+
+// 1. Base: texto, títulos y enlaces --------------------------------------
+
+// Las direcciones largas (anexo de referencias) se parten en vez de
+// desbordar la pantalla en el móvil
+main.content {
+  overflow-wrap: break-word;
+
+  p, li, dd {
+    max-width: $curso-medida;
+  }
+}
+
+// Títulos repartidos en líneas de longitud parecida, sin una palabra suelta
+// en la última
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+// Título de cada página (el del módulo o el de la portada)
+#title-block-header {
+  margin-bottom: 2rem;
+}
+
+// Ruta sobre el título de los anexos («Apéndices › Anexo: …»): el gris de
+// Bootstrap no llega al contraste AA en el tema oscuro
+.quarto-title-breadcrumbs .breadcrumb {
+  --bs-breadcrumb-item-active-color: #{$curso-suave};
+  --bs-breadcrumb-divider-color: #{$curso-suave};
+  font-size: 0.85rem;
+
+  a,
+  li:last-of-type a {
+    color: $curso-suave;
+  }
+}
+
+h1.title {
+  font-size: 2.6rem;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 1.75rem;
+  margin-top: 3.4rem;
+  margin-bottom: 1rem;
+  border-bottom: none;
+}
+
+h3 {
+  font-size: 1.3rem;
+  margin-top: 2.4rem;
+}
+
+a {
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}
 
 // Sin ligaduras en el código: JetBrains Mono dibujaría «->» como una flecha
 // y el lector tiene que ver lo mismo que escribe o que muestra la terminal
@@ -45,124 +164,358 @@ code, pre, kbd, samp {
   font-feature-settings: "liga" 0, "calt" 0;
 }
 
-// Anchura de lectura cómoda
-main.content {
-  max-width: 50rem;
-}
+// 2. Código en línea y bloques de código ---------------------------------
 
-h1, h2, h3, h4 {
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-}
-
-h1.title {
-  font-size: 2.4rem;
-}
-
-h2 {
-  margin-top: 2.8rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid $curso-linea;
-}
-
-h3 {
-  margin-top: 2rem;
-}
-
-a {
-  text-underline-offset: 0.18em;
-}
-
-// Código en línea
+// Código en línea: el color del texto sobre un fondo suave, para no competir
+// con los enlaces. Si se parte entre dos líneas, cada trozo lleva su fondo.
 :not(pre) > code {
-  font-size: 0.88em;
-  padding: 0.1em 0.3em;
-  border-radius: 4px;
-  background-color: $curso-codigo-fondo;
+  padding: 0.12em 0.35em;
+  color: $body-color;
+  background-color: $curso-superficie;
+  border: 1px solid $curso-linea;
+  border-radius: 5px;
+  // Las órdenes y direcciones largas sin guiones se parten donde haga falta
+  // en vez de desbordar la pantalla del móvil (también en las listas, donde
+  // Quarto no deja partir el código)
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
-// Órdenes y ficheros: fondo y filete a la izquierda, como en el PDF
-div.sourceCode,
-pre:not(.text):not(.sourceCode) {
+// Órdenes y ficheros: una caja con una cabecera que dice qué es cada bloque
+// («Terminal», «Markdown», «YAML»…), según el lenguaje que le pone Pandoc.
+// El botón de copiar de Quarto queda en esa cabecera.
+div.sourceCode {
   background-color: $curso-codigo-fondo;
-  border: none;
-  border-left: 3px solid $curso-pizarra;
-  border-radius: 0 6px 6px 0;
+  border: 1px solid $curso-linea;
+  border-radius: 10px;
+  margin: 1.2rem 0;
 }
+
+pre.sourceCode {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+
+  &::before {
+    display: block;
+    padding: 0.4rem 1rem;
+    border-bottom: 1px solid $curso-linea;
+    color: $curso-suave;
+    font-family: $font-family-sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  > code {
+    display: block;
+    padding: 0.8rem 1rem;
+  }
+}
+
+pre.sourceCode.bash::before { content: "Terminal"; }
+pre.sourceCode.powershell::before { content: "PowerShell"; }
+pre.sourceCode.markdown::before { content: "Markdown"; }
+pre.sourceCode.yaml::before { content: "YAML"; }
+pre.sourceCode.jsonc::before { content: "JSONC"; }
 
 pre code {
   font-size: 0.86rem;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
-// Salidas de comandos (bloques text): borde fino, sin filete
-pre.text {
-  background-color: $curso-salida-fondo;
-  border: 1px solid $curso-salida-borde;
+// Botón de copiar, alineado con la cabecera del bloque
+.code-copy-outer-scaffold .code-copy-button {
+  top: 0.15rem;
+  right: 0.35rem;
+  padding: 0.1rem 0.4rem;
   border-radius: 6px;
-  padding: 0.6rem 0.9rem;
 }
 
-// Diagramas: centrados y con el ancho natural, sin pasar del texto
-figure.diagrama,
-.diagrama.quarto-float,
-div.quarto-figure:has(svg.diagrama) {
+// Salidas de comandos (bloques text): caja con borde discontinuo y la
+// etiqueta «Salida», distinta de la de las órdenes
+pre.text {
+  position: relative;
+  padding: 2.1rem 1rem 0.8rem;
+  color: $body-color;
+  background-color: transparent;
+  border: 1px dashed $curso-linea-fuerte;
+  border-radius: 10px;
+
+  &::before {
+    content: "Salida";
+    position: absolute;
+    top: 0.55rem;
+    left: 1rem;
+    color: $curso-suave;
+    font-family: $font-family-sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+:lang(en) pre.text::before {
+  content: "Output";
+}
+
+// 3. Diagramas -----------------------------------------------------------
+
+// Cada diagrama va en una tarjeta suave, con el pie debajo. En el tema
+// oscuro, web/oscuro.scss cambia los colores del propio SVG.
+figure.diagrama {
+  margin: 2rem 0;
+  padding: 1.5rem 0.5rem 0.9rem;
   text-align: center;
-  margin: 1.8rem 0;
+  background-color: $curso-superficie;
+  border: 1px solid $curso-linea;
+  border-radius: 14px;
 }
 
 svg.diagrama {
   max-width: 100%;
   height: auto;
-  background-color: $curso-diagrama-fondo;
-  border-radius: 8px;
 }
 
 figcaption,
 .figure-caption {
+  margin-top: 0.8rem;
   color: $curso-suave;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   text-align: center;
-  margin-top: 0.6rem;
 }
 
-// Portada: botones bajo el título
-.portada {
-  margin: 0.5rem 0 2.5rem;
+// 4. Tablas --------------------------------------------------------------
 
-  .btn {
-    margin: 0 0.5rem 0.5rem 0;
-    padding: 0.55rem 1.2rem;
+main table {
+  font-size: 0.93rem;
+  line-height: 1.5;
+
+  // Bootstrap pinta el fondo de las celdas con --bs-table-bg
+  thead {
+    --bs-table-bg: #{$curso-superficie};
+  }
+
+  thead th {
     font-weight: 600;
-    border-radius: 999px;
+    border-bottom-width: 1px;
+  }
+
+  th, td {
+    padding: 0.6rem 0.8rem;
   }
 }
 
-// Barra lateral: módulos con más aire
-.sidebar-navigation .sidebar-item {
-  font-size: 0.93rem;
+// 5. Portada -------------------------------------------------------------
+
+// Una línea pequeña sobre el título, sólo en la portada (la única página
+// con subtítulo)
+.quarto-title:has(> .subtitle)::before {
+  content: "Curso gratuito y de código abierto";
+  display: block;
+  margin-bottom: 1rem;
+  color: $curso-acento;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+:lang(en) .quarto-title:has(> .subtitle)::before {
+  content: "A free and open-source course";
+}
+
+.quarto-title:has(> .subtitle) {
+  padding-top: 1.5rem;
+
+  h1.title {
+    font-size: 3.3rem;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .subtitle {
+    max-width: none;
+    margin-top: 1rem;
+    text-wrap: pretty;
+    color: $curso-suave;
+    font-size: 1.3rem;
+    line-height: 1.45;
+  }
+}
+
+// El autor, como «Por fjramons». El rótulo «Autor» de Quarto se oculta a
+// la vista, pero los lectores de pantalla lo siguen leyendo.
+#title-block-header .quarto-title-meta {
+  margin-top: 1.2rem;
+
+  .quarto-title-meta-heading {
+    @include visually-hidden;
+  }
+
+  .quarto-title-meta-contents p {
+    margin: 0;
+    color: $curso-suave;
+    font-size: 0.95rem;
+
+    &::before {
+      content: "Por ";
+    }
+  }
+}
+
+:lang(en) #title-block-header .quarto-title-meta-contents p::before {
+  content: "By ";
+}
+
+.portada {
+  margin: 1.8rem 0 2rem;
+
+  .btn {
+    margin: 0 0.5rem 0.6rem 0;
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+
+  .btn-outline-primary {
+    color: $body-color;
+    border-color: $curso-linea-fuerte;
+
+    &:hover,
+    &:focus-visible {
+      color: $primary;
+      background-color: transparent;
+      border-color: $primary;
+    }
+  }
+}
+
+// Rejilla de módulos, que genera web/portada.lua
+.modulos-portada {
+  margin: 0 0 3rem;
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  li {
+    margin: 0;
+  }
+
+  a {
+    display: block;
+    height: 100%;
+    padding: 0.9rem 1.1rem;
+    color: $body-color;
+    text-decoration: none;
+    background-color: $body-bg;
+    border: 1px solid $curso-linea;
+    border-radius: 12px;
+    box-shadow: $curso-sombra;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $primary;
+      transform: translateY(-1px);
+    }
+  }
+
+  .tarjeta-numero {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: $curso-acento;
+    font-family: $font-family-monospace;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .tarjeta-titulo {
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+}
+
+// 6. Barra lateral, buscador y botones de tema e idioma ------------------
+
+#quarto-sidebar {
+  border-right: 1px solid $curso-linea;
 }
 
 .sidebar-title {
   font-family: $headings-font-family;
   font-size: 1.15rem;
-}
+  line-height: 1.3;
 
-// En pantallas estrechas, Quarto pliega la barra lateral en un menú que no
-// parte las líneas, y los títulos largos de los módulos lo ensanchan más que
-// la pantalla
-@include media-breakpoint-down(lg) {
-  #quarto-sidebar {
-    max-width: 100vw;
+  a {
+    color: $headings-color;
   }
 
-  #quarto-sidebar .sidebar-menu-container {
-    white-space: normal;
+  // Descarga y GitHub: iconos con un área de pulsación de 28 px
+  .sidebar-tools-main .quarto-navigation-tool:not(.quarto-color-scheme-toggle) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    min-height: 28px;
+    color: $curso-suave;
+    font-size: 1rem;
+    border-radius: 6px;
+
+    &:hover {
+      color: $primary;
+      background-color: $curso-superficie;
+    }
   }
 }
 
-// Cambio de tema: web/tema.html pone bajo el buscador un botón con icono y
-// texto en lugar del interruptor de Quarto, que se oculta
+.sidebar-navigation {
+  .sidebar-item {
+    margin: 1px 0;
+  }
+
+  .sidebar-item-container .sidebar-link {
+    display: block;
+    width: 100%;
+    padding: 0.3rem 0.6rem;
+    line-height: 1.4;
+    border-radius: 6px;
+
+    &:hover {
+      color: $body-color;
+      background-color: $curso-superficie;
+    }
+
+    &.active {
+      color: $primary;
+      font-weight: 600;
+      background-color: $curso-superficie;
+    }
+  }
+
+  // Título del grupo de anexos («Apéndices»)
+  .sidebar-item-section > .sidebar-item-container .sidebar-item-text {
+    color: $body-color;
+    font-weight: 600;
+  }
+}
+
+// El interruptor de Quarto se oculta: web/tema.html pone en su lugar, bajo
+// el buscador, un botón con icono y texto
 .sidebar-tools-main .quarto-color-scheme-toggle {
   display: none;
 }
@@ -170,17 +523,17 @@ figcaption,
 .boton-tema {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   width: 100%;
-  margin-top: 0.6rem;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.88rem;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.75rem;
   color: $body-color;
+  font-size: 0.88rem;
+  text-decoration: none;
   background: transparent;
   border: 1px solid $curso-linea;
-  border-radius: 999px;
+  border-radius: 8px;
   cursor: pointer;
-  text-decoration: none;
 
   &:hover,
   &:focus-visible {
@@ -189,23 +542,252 @@ figcaption,
   }
 }
 
-// Navegación de anterior y siguiente al pie de cada módulo
-.page-navigation {
-  margin-top: 3rem;
-  padding-top: 1.2rem;
-  border-top: 1px solid $curso-linea;
+// 7. Índice de la página -------------------------------------------------
 
-  .nav-page a {
+#TOC {
+  #toc-title {
+    color: $body-color;
+    font-family: $font-family-sans-serif;
+    font-size: 0.75rem;
     font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .nav-link.active {
+    color: $primary;
   }
 }
 
-blockquote {
-  border-left: 3px solid $curso-rama;
-  color: inherit;
-  padding-left: 1rem;
+// 8. Navegación entre capítulos y pie ------------------------------------
+
+// Anterior y siguiente: dos tarjetas con su rótulo encima del título
+.page-navigation {
+  gap: 0.75rem;
+  margin-top: 4rem;
+  padding-top: 0;
+  border-top: none;
+
+  .nav-page {
+    flex: 1 1 0;
+    min-width: 0;
+
+    // En flex desaparecen los espacios entre el icono oculto y el título
+    a {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 0.9rem 1.1rem;
+      color: $body-color;
+      font-weight: 600;
+      line-height: 1.4;
+      text-decoration: none;
+      border: 1px solid $curso-linea;
+      border-radius: 12px;
+
+      &:hover,
+      &:focus-visible {
+        border-color: $primary;
+      }
+
+      &::before {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: $curso-suave;
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+    }
+
+    .bi {
+      display: none;
+    }
+  }
+
+  .nav-page-previous a {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .nav-page-previous a::before { content: "← Anterior"; }
+  .nav-page-next a {
+    align-items: flex-end;
+    text-align: right;
+  }
+  .nav-page-next a::before { content: "Siguiente →"; }
 }
 
-table {
-  font-size: 0.93rem;
+:lang(en) .page-navigation {
+  .nav-page-previous a::before { content: "← Previous"; }
+  .nav-page-next a::before { content: "Next →"; }
+}
+
+// Pie: licencia y créditos centrados, en una sola línea si caben
+.nav-footer {
+  justify-content: center;
+  gap: 0 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid $curso-linea;
+
+  .nav-footer-left,
+  .nav-footer-right {
+    flex: 0 1 auto;
+    text-align: center;
+  }
+
+  // El bloque central sólo tiene contenido en pantallas estrechas («Informar
+  // de un problema»); en las anchas ocuparía un hueco vacío
+  @include media-breakpoint-up(md) {
+    .nav-footer-center {
+      display: none;
+    }
+  }
+
+  a {
+    color: $curso-suave;
+  }
+}
+
+// 9. Pantallas estrechas -------------------------------------------------
+
+@include media-breakpoint-down(lg) {
+  // Quarto pliega la barra lateral en un menú que no parte las líneas, y
+  // los títulos largos de los módulos lo ensanchan más que la pantalla
+  #quarto-sidebar {
+    max-width: 100vw;
+  }
+
+  #quarto-sidebar .sidebar-menu-container {
+    white-space: normal;
+  }
+
+  // La ruta de la cabecera, en una sola línea
+  .quarto-secondary-nav nav.quarto-page-breadcrumbs {
+    min-width: 0;
+    margin: 0 0.75rem 0 0.5rem;
+    overflow: hidden;
+
+    .breadcrumb {
+      flex-wrap: nowrap;
+      min-width: 0;
+    }
+
+    .breadcrumb-item {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    // Si hay dos niveles (anexos), sólo el último
+    .breadcrumb-item:not(:last-child) {
+      display: none;
+    }
+
+    // Área de pulsación de 24 px como mínimo, separada del botón del menú
+    .breadcrumb-item a {
+      display: block;
+      max-width: 100%;
+      min-height: 24px;
+      overflow: hidden;
+      line-height: 24px;
+      text-overflow: ellipsis;
+    }
+
+    .breadcrumb-item + .breadcrumb-item {
+      padding-left: 0;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
+}
+
+@include media-breakpoint-down(sm) {
+  h1.title {
+    font-size: 2rem;
+  }
+
+  .quarto-title:has(> .subtitle) h1.title {
+    font-size: 2.4rem;
+  }
+
+  .quarto-title:has(> .subtitle) .subtitle {
+    font-size: 1.12rem;
+  }
+
+  h2 {
+    font-size: 1.45rem;
+    margin-top: 2.8rem;
+  }
+
+  .modulos-portada ul {
+    grid-template-columns: 1fr;
+  }
+
+  // Las tablas anchas se desplazan en horizontal dentro de su caja
+  main table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .page-navigation {
+    flex-direction: column;
+  }
+
+  // Los diagramas no se encogen hasta hacerse ilegibles: como mucho, hasta
+  // 30rem de ancho, y lo que no cabe se desplaza en horizontal dentro de su
+  // tarjeta
+  figure.diagrama {
+    padding: 1rem 0.75rem 0.7rem;
+    overflow-x: auto;
+  }
+
+  // En bloque y con márgenes automáticos, el que no cabe se desborda sólo
+  // por la derecha y se puede recorrer entero
+  svg.diagrama {
+    display: block;
+    max-width: max(100%, 30rem);
+    margin: 0 auto;
+  }
+
+  figure.diagrama figcaption {
+    position: sticky;
+    left: 0;
+  }
+}
+
+// 10. Accesibilidad: foco visible y movimiento reducido -------------------
+
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+input:focus-visible,
+.boton-tema:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+// Buscador: el foco está en el campo, pero se dibuja en su caja
+#quarto-search .aa-Form:focus-within {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

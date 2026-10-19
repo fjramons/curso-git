@@ -96,10 +96,14 @@ curso-git/
 │   ├── portada.lua
 │   └── saltos-de-pagina.lua
 ├── web/
+│   ├── cabecera.html
 │   ├── enlaces-portada.lua
 │   ├── idiomas.lua
+│   ├── portada.lua
 │   ├── estilo.scss
 │   ├── oscuro.scss
+│   ├── resaltado-claro.theme
+│   ├── resaltado-oscuro.theme
 │   └── tema.html
 ├── scripts/
 │   ├── build.sh
@@ -115,8 +119,12 @@ curso-git/
 - `pandoc/estilo-pdf.typ` da estilo a los bloques de código del PDF: fondo y filete para las órdenes y el contenido de ficheros, borde fino para las salidas de comandos (bloques `text`) y sangría en la continuación de las líneas largas.
 - `pandoc/saltos-de-pagina.lua` empieza cada módulo en una página nueva en el Word y en el PDF.
 - `pandoc/codigo-word.lua` da a las salidas de comandos (bloques `text`) del Word su propio estilo, con borde fino, para distinguirlas de las órdenes, que llevan fondo y filete como en el PDF.
-- `pandoc/portada.lua` añade al Word y al PDF una portada, con el autor y la versión o la fecha de generación, y un índice en página aparte. La web no lleva portada y tiene su propio índice de navegación.
-- `_quarto.yml` define la web: el orden de los módulos y de los anexos, la barra lateral, el pie de página y el estilo. `index.qmd` es su portada, que incluye el prefacio, y `web/` contiene el estilo (`estilo.scss` y, para el modo oscuro, `oscuro.scss`) y `enlaces-portada.lua`, que corrige en la portada los enlaces del prefacio a los módulos. En la web, `pandoc/diagramas.lua` inserta cada diagrama como SVG dentro de la página.
+- `pandoc/portada.lua` añade al Word y al PDF una portada, con el autor y la versión o la fecha de generación, y un índice en página aparte. La web tiene su propia portada (`index.qmd`) y su propio índice de navegación.
+- `_quarto.yml` define la web: el orden de los módulos y de los anexos, la barra lateral, el pie de página y el estilo. `index.qmd` es su portada, con los botones para empezar y descargar el curso, una tarjeta por módulo y el prefacio. En la web, `pandoc/diagramas.lua` inserta cada diagrama como SVG dentro de la página. La carpeta `web/` contiene:
+  - `estilo.scss`, el estilo de la web, comentado por secciones (texto, código, diagramas, tablas, portada, barra lateral, navegación, móvil y accesibilidad), y `oscuro.scss`, los colores del modo oscuro. Los diagramas tienen colores fijos, los mismos del Word y del PDF, y `oscuro.scss` los cambia uno a uno por sus equivalentes para el fondo oscuro, así que, si cambias un color en `pandoc/diagramas.lua`, cámbialo también allí.
+  - `cabecera.html`, que carga las fuentes de Google Fonts (sólo los pesos que usa el estilo) y pone el icono de la pestaña.
+  - `resaltado-claro.theme` y `resaltado-oscuro.theme`, los colores del código: los temas de GitHub que trae Quarto, con los colores que no llegaban al contraste AA corregidos.
+  - `portada.lua`, que rellena las tarjetas de la portada con el título de cada módulo y anexo, y `enlaces-portada.lua`, que corrige en la portada los enlaces del prefacio a los módulos.
 - `en/` contiene la edición en inglés (ver [Edición en inglés](#edición-en-inglés)).
 - `web/idiomas.lua` enlaza cada página de la web con la misma página en el otro idioma, y `web/tema.html` pone en la barra lateral los botones del modo claro u oscuro y del cambio de idioma.
 - `scripts/build.sh` genera el curso en `outputs/`, en los dos idiomas.
